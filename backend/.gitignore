@@ -52,6 +52,7 @@ htmlcov/
 # Note: Keep alembic/versions/ tracked
 
 # Logs
+logs/
 *.log
 
 # OS

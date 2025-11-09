@@ -194,3 +194,48 @@ curl http://localhost:8000/api/v1/test/errors/500
 ```
 
 **Documentation:** See [app/core/ERROR_HANDLING.md](app/core/ERROR_HANDLING.md) for detailed information.
+
+## Logging
+
+The application features structured logging with different formatters for development and production.
+
+**Features:**
+- Colored console output in development
+- Structured JSON logs in production
+- Rotating file handlers (10MB max, 5 backups)
+- Two log files: `logs/app.log` (all logs) and `logs/error.log` (errors only)
+- Automatic log level based on DEBUG setting
+- Silences noisy third-party loggers
+
+**Log Locations:**
+```
+logs/
+├── app.log    # All application logs (INFO and above)
+└── error.log  # Error logs only (ERROR and above)
+```
+
+**Using the logger in your code:**
+```python
+from app.core.logging import get_logger
+
+logger = get_logger(__name__)
+
+logger.debug("Debug message")
+logger.info("Info message")
+logger.warning("Warning message")
+logger.error("Error message")
+logger.critical("Critical message")
+```
+
+**Production JSON format:**
+```json
+{
+  "timestamp": "2025-11-09T19:24:37.725000+00:00",
+  "level": "INFO",
+  "logger": "app.main",
+  "message": "Starting FinForesight API v0.1.0",
+  "module": "main",
+  "function": "lifespan",
+  "line": 30
+}
+```

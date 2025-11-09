@@ -1,3 +1,7 @@
+import logging
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +17,24 @@ from app.core.errors import (
     validation_exception_handler,
 )
 from app.core.exceptions import AppException
+from app.core.logging import setup_logging
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """Application lifespan events."""
+    # Startup
+    setup_logging()
+    logger.info(f"Starting {settings.PROJECT_NAME} v{settings.VERSION}")
+    logger.info(f"Environment: {'Development' if settings.DEBUG else 'Production'}")
+
+    yield
+
+    # Shutdown
+    logger.info(f"Shutting down {settings.PROJECT_NAME}")
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -20,6 +42,7 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
     docs_url=f"{settings.API_V1_PREFIX}/docs",
     redoc_url=f"{settings.API_V1_PREFIX}/redoc",
+    lifespan=lifespan,
 )
 
 # Configure CORS
