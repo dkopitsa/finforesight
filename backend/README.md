@@ -173,3 +173,24 @@ pre-commit run          # Run on staged files only
 ```bash
 git commit --no-verify
 ```
+
+## Error Handling
+
+The application includes comprehensive error handling with standardized JSON responses.
+
+**Features:**
+- Custom exception classes for different HTTP status codes
+- Automatic validation error formatting
+- Database error handling (integrity constraints, etc.)
+- Structured error logging
+- Consistent error response format
+
+**Test error handlers (DEBUG mode only):**
+```bash
+# Start server with DEBUG=True
+curl http://localhost:8000/api/v1/test/errors/404
+curl http://localhost:8000/api/v1/test/errors/400
+curl http://localhost:8000/api/v1/test/errors/500
+```
+
+**Documentation:** See [app/core/ERROR_HANDLING.md](app/core/ERROR_HANDLING.md) for detailed information.

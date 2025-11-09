@@ -1,12 +1,21 @@
 from fastapi import APIRouter
 
+from app.core.config import settings
+
 api_router = APIRouter()
 
 
 @api_router.get("/health")
-async def api_health_check():
+async def api_health_check() -> dict[str, str]:
     """API health check endpoint."""
     return {"status": "healthy", "api_version": "v1"}
+
+
+# Include test routes in debug mode
+if settings.DEBUG:
+    from app.api.routes import test
+
+    api_router.include_router(test.router, prefix="/test", tags=["Testing"])
 
 
 # Future routers will be included here

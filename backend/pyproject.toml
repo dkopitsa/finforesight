@@ -56,7 +56,11 @@ select = [
     "C4",  # flake8-comprehensions
     "SIM", # flake8-simplify
 ]
-ignore = ["E501", "B008"]
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "B008",  # Do not perform function calls in argument defaults
+    "N818",  # Exception name should end with Error (we use FastAPI naming convention)
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]
