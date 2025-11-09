@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создать событие - Финансовый планировщик</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.25);
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: rgba(0,0,0,0.45);
+            transition: color 0.3s;
+        }
+        
+        .close-btn:hover {
+            color: rgba(0,0,0,0.85);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .form-section {
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: rgba(0,0,0,0.85);
+        }
+        
+        .type-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .type-option {
+            padding: 16px;
+            border: 2px solid #d9d9d9;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .type-option:hover {
+            border-color: #1890ff;
+        }
+        
+        .type-option.active {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+        
+        .type-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .type-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(0,0,0,0.85);
+        }
+        
+        .form-label.required::after {
+            content: "*";
+            color: #ff4d4f;
+            margin-left: 4px;
+        }
+        
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: rgba(0,0,0,0.25);
+        }
+        
+        .input-prefix {
+            display: flex;
+            align-items: center;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .input-prefix:focus-within {
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+        
+        .input-addon {
+            padding: 8px 12px;
+            background: #fafafa;
+            color: rgba(0,0,0,0.85);
+            font-size: 14px;
+            border-right: 1px solid #d9d9d9;
+        }
+        
+        .input-prefix input {
+            flex: 1;
+            border: none;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        
+        .input-prefix input:focus {
+            outline: none;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .radio-option:hover {
+            border-color: #1890ff;
+            background: #fafafa;
+        }
+        
+        .radio-option.active {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+        
+        .radio-button {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d9d9d9;
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .radio-option.active .radio-button {
+            border-color: #1890ff;
+        }
+        
+        .radio-option.active .radio-button::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: #1890ff;
+            border-radius: 50%;
+        }
+        
+        .radio-content {
+            flex: 1;
+        }
+        
+        .radio-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .recurrence-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: rgba(0,0,0,0.45);
+            margin-top: 4px;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-default {
+            background: white;
+            color: rgba(0,0,0,0.85);
+        }
+        
+        .btn-default:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+                align-items: flex-start;
+            }
+            
+            .modal {
+                max-width: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+            
+            .type-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid,
+            .recurrence-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="modal">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Новое событие</h2>
+            <button class="close-btn">×</button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <!-- Type Selection -->
+            <div class="form-section">
+                <div class="type-selector">
+                    <div class="type-option">
+                        <div class="type-icon">💵</div>
+                        <div class="type-label">Доход</div>
+                    </div>
+                    <div class="type-option active">
+                        <div class="type-icon">🛒</div>
+                        <div class="type-label">Расход</div>
+                    </div>
+                    <div class="type-option">
+                        <div class="type-icon">💸</div>
+                        <div class="type-label">Перевод</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Basic Info -->
+            <div class="form-section">
+                <div class="form-group">
+                    <label class="form-label required">Название</label>
+                    <input type="text" class="form-input" placeholder="Например: Покупка ноутбука" value="Покупка MacBook">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Сумма</label>
+                    <div class="input-prefix">
+                        <span class="input-addon">$</span>
+                        <input type="number" placeholder="0.00" value="2500">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Счет</label>
+                    <select class="form-select">
+                        <option>Дебетовая карта Сбер</option>
+                        <option>Накопительный счет</option>
+                        <option>Кредитная карта Тинькофф</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Категория</label>
+                    <select class="form-select">
+                        <option>Базовые расходы</option>
+                        <option>Аренда / Ипотека</option>
+                        <option>Коммунальные услуги</option>
+                        <option>Страхование</option>
+                        <option>Образование</option>
+                        <option>Здоровье</option>
+                        <option selected>Крупная покупка</option>
+                        <option>Прочие расходы</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Примечание</label>
+                    <input type="text" class="form-input" placeholder="Дополнительная информация (необязательно)">
+                </div>
+            </div>
+
+            <!-- Recurrence Settings -->
+            <div class="form-section">
+                <div class="section-title">Повторение</div>
+                
+                <div class="radio-group">
+                    <!-- One-time -->
+                    <div class="radio-option active">
+                        <div class="radio-button"></div>
+                        <div class="radio-content">
+                            <div class="radio-label">Разовое событие</div>
+                            <div class="form-group" style="margin-bottom: 0; margin-top: 8px;">
+                                <input type="date" class="form-input" value="2025-12-15">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recurring -->
+                    <div class="radio-option">
+                        <div class="radio-button"></div>
+                        <div class="radio-content">
+                            <div class="radio-label">Повторяющееся событие</div>
+                            <div class="recurrence-details">
+                                <div>
+                                    <label class="form-label">Частота</label>
+                                    <select class="form-select">
+                                        <option>Ежемесячно</option>
+                                        <option>Ежегодно</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">День месяца</label>
+                                    <select class="form-select">
+                                        <option value="1">1</option>
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="20">20</option>
+                                        <option value="25">25</option>
+                                        <option value="-1">Последний день</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Дата начала</label>
+                                    <input type="date" class="form-input">
+                                </div>
+                                <div>
+                                    <label class="form-label">Дата окончания</label>
+                                    <input type="date" class="form-input" placeholder="Бессрочно">
+                                    <div class="help-text">Оставьте пустым для бессрочного повторения</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn btn-default">Отмена</button>
+            <button class="btn btn-primary">Сохранить</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корректировка балансов - Финансовый планировщик</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #000000d9;
+        }
+        
+        .app-header {
+            background: #001529;
+            color: white;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .app-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1890ff;
+        }
+        
+        .app-nav {
+            display: flex;
+            gap: 32px;
+        }
+        
+        .app-nav a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            padding: 8px 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .app-nav a:hover,
+        .app-nav a.active {
+            color: white;
+            border-bottom-color: #1890ff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .page-header {
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .page-subtitle {
+            font-size: 14px;
+            color: rgba(0,0,0,0.45);
+        }
+        
+        .info-banner {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .info-icon {
+            font-size: 20px;
+            color: #1890ff;
+            flex-shrink: 0;
+        }
+        
+        .info-content {
+            flex: 1;
+        }
+        
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: rgba(0,0,0,0.85);
+        }
+        
+        .info-text {
+            font-size: 14px;
+            color: rgba(0,0,0,0.65);
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .action-btn.primary {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+        
+        .action-btn.primary:hover {
+            background: #40a9ff;
+        }
+        
+        .institution-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        
+        .institution-header {
+            padding: 20px 24px;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .institution-header:hover {
+            background: #f5f5f5;
+        }
+        
+        .institution-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .institution-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: white;
+            border: 1px solid #f0f0f0;
+        }
+        
+        .institution-details {
+            flex: 1;
+        }
+        
+        .institution-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .institution-meta {
+            font-size: 13px;
+            color: rgba(0,0,0,0.45);
+        }
+        
+        .institution-status {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-badge.synced {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .status-badge.needs-sync {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+        
+        .status-badge.partial {
+            background: #fffbe6;
+            color: #faad14;
+        }
+        
+        .expand-icon {
+            font-size: 20px;
+            color: rgba(0,0,0,0.45);
+            transition: transform 0.3s;
+        }
+        
+        .institution-header.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+        
+        .accounts-section {
+            padding: 16px 24px 24px;
+            display: none;
+        }
+        
+        .accounts-section.expanded {
+            display: block;
+        }
+        
+        .accounts-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .accounts-table thead {
+            background: #fafafa;
+        }
+        
+        .accounts-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(0,0,0,0.65);
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .accounts-table th:last-child {
+            text-align: right;
+        }
+        
+        .accounts-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .accounts-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .account-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .account-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: #f0f0f0;
+        }
+        
+        .account-name {
+            font-weight: 500;
+        }
+        
+        .account-type {
+            font-size: 12px;
+            color: rgba(0,0,0,0.45);
+            margin-top: 2px;
+        }
+        
+        .balance-comparison {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .balance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+        }
+        
+        .balance-label {
+            font-size: 12px;
+            color: rgba(0,0,0,0.45);
+            min-width: 80px;
+        }
+        
+        .balance-value {
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 100px;
+            text-align: right;
+        }
+        
+        .balance-input-wrapper {
+            position: relative;
+            min-width: 140px;
+        }
+        
+        .balance-input {
+            width: 100%;
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: right;
+            transition: all 0.3s;
+        }
+        
+        .balance-input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+        
+        .balance-input.has-change {
+            border-color: #faad14;
+            background: #fffbe6;
+        }
+        
+        .balance-input.error {
+            border-color: #ff4d4f;
+            background: #fff1f0;
+        }
+        
+        .deviation-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .deviation-badge.positive {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .deviation-badge.negative {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+        
+        .deviation-badge.none {
+            background: #f0f0f0;
+            color: rgba(0,0,0,0.45);
+        }
+        
+        .action-cell {
+            text-align: right;
+        }
+        
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            margin-left: 8px;
+        }
+        
+        .icon-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .icon-btn.danger:hover {
+            border-color: #ff4d4f;
+            color: #ff4d4f;
+        }
+        
+        .save-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 16px 24px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 100;
+        }
+        
+        .save-bar.visible {
+            display: block;
+        }
+        
+        .save-bar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .save-bar-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .changes-count {
+            background: #faad14;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .save-bar-text {
+            font-size: 14px;
+            color: rgba(0,0,0,0.65);
+        }
+        
+        .save-bar-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 8px 20px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-default {
+            background: white;
+            color: rgba(0,0,0,0.85);
+        }
+        
+        .btn-default:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+        }
+        
+        .note-textarea {
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .note-textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: rgba(0,0,0,0.45);
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .accounts-table {
+                font-size: 12px;
+            }
+            
+            .balance-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .balance-label {
+                min-width: auto;
+            }
+            
+            .app-nav {
+                display: none;
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="app-header">
+        <div style="display: flex; align-items: center; gap: 48px;">
+            <div class="app-logo">💰 FinPlan</div>
+            <nav class="app-nav">
+                <a href="#">Дашборд</a>
+                <a href="#" class="active">Счета</a>
+                <a href="#">Планировщик</a>
+                <a href="#">Анализ</a>
+            </nav>
+        </div>
+        <div style="color: rgba(255,255,255,0.85); cursor: pointer;">👤 user@example.com</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Корректировка балансов</h1>
+            <div class="page-subtitle">Синхронизируйте прогноз с реальным состоянием счетов</div>
+        </div>
+
+        <!-- Info Banner -->
+        <div class="info-banner">
+            <div class="info-icon">💡</div>
+            <div class="info-content">
+                <div class="info-title">Как это работает</div>
+                <div class="info-text">
+                    Откройте мобильное приложение вашего банка и введите текущие остатки по всем счетам.
+                    Система автоматически рассчитает разницу и скорректирует прогноз.
+                    Рекомендуем делать это раз в 1-2 месяца для точности планирования.
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-btn primary">
+                <span>📝</span>
+                <span>Заполнить все сразу</span>
+            </button>
+            <button class="action-btn">
+                <span>📅</span>
+                <span>История корректировок</span>
+            </button>
+            <button class="action-btn">
+                <span>⚙️</span>
+                <span>Настроить напоминания</span>
+            </button>
+        </div>
+
+        <!-- Tinkoff Bank -->
+        <div class="institution-card">
+            <div class="institution-header expanded" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('expanded')">
+                <div class="institution-info">
+                    <div class="institution-logo">🏦</div>
+                    <div class="institution-details">
+                        <div class="institution-name">Т-Банк (Тинькофф)</div>
+                        <div class="institution-meta">4 счета • Последняя синхронизация: 3 дня назад</div>
+                    </div>
+                </div>
+                <div class="institution-status">
+                    <span class="status-badge needs-sync">Требует обновления</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            
+            <div class="accounts-section expanded">
+                <table class="accounts-table">
+                    <thead>
+                        <tr>
+                            <th>Счет</th>
+                            <th>Прогноз</th>
+                            <th>Фактический баланс</th>
+                            <th>Отклонение</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Debit Card -->
+                        <tr>
+                            <td>
+                                <div class="account-info">
+                                    <div class="account-icon">💳</div>
+                                    <div>
+                                        <div class="account-name">Дебетовая карта Black</div>
+                                        <div class="account-type">RUB • Checking</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="balance-comparison">
+                                    <div class="balance-value">125,450 ₽</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="balance-input-wrapper">
+                                    <input type="text" class="balance-input has-change" value="128,670" placeholder="Введите баланс">
+                                </div>
+                            </td>
+                            <td>
+                                <span class="deviation-badge positive">+3,220 ₽</span>
+                            </td>
+                            <td class="action-cell">
+                                <button class="icon-btn" title="История">📊</button>
+                            </td>
+                        </tr>
+
+                        <!-- Credit Card -->
+                        <tr>
+                            <td>
+                                <div class="account-info">
+                                    <div class="account-icon">💳</div>
+                                    <div>
+                                        <div class="account-name">Кредитная карта Platinum</div>
+                                        <div class="account-type">RUB • Credit Card • Лимит: 300,000 ₽</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="balance-comparison">
+                                    <div class="balance-value">-45,000 ₽</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="balance-input-wrapper">
+                                    <input type="text" class="balance-input" value="-45,000" placeholder="Введите баланс">
+                                </div>
+                            </td>
+                            <td>
+                                <span class="deviation-badge none">—</span>
+                            </td>
+                            <td class="action-cell">
+                                <button class="icon-btn" title="История">📊</button>
+                            </td>
+                        </tr>
+
+                        <!-- Savings Account -->
+                        <tr>
+                            <td>
+                                <div class="account-info">
+                                    <div class="account-icon">🏦</div>
+                                    <div>
+                                        <div class="account-name">Накопительный счет</div>
+                                        <div class="account-type">RUB • Savings • 16% годовых</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="balance-comparison">
+                                    <div class="balance-value">250,000 ₽</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="balance-input-wrapper">
+                                    <input type="text" class="balance-input has-change" value="253,420" placeholder="Введите баланс">
+                                </div>
+                            </td>
+                            <td>
+                                <span class="deviation-badge positive">+3,420 ₽</span>
+                            </td>
+                            <td class="action-cell">
+                                <button class="icon-btn" title="История">📊</button>
+                            </td>
+                        </tr>
+
+                        <!-- Investment Account -->
+                        <tr>
+                            <td>
+                                <div class="account-info">
+                                    <div class="account-icon">📈</div>
+                                    <div>
+                                        <div class="account-name">Брокерский счет</div>
+                                        <div class="account-type">RUB • Investment</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="balance-comparison">
+                                    <div class="balance-value">850,000 ₽</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="balance-input-wrapper">
+                                    <input type="text" class="balance-input has-change" value="867,540" placeholder="Введите баланс">
+                                </div>
+                            </td>
+                            <td>
+                                <span class="deviation-badge positive">+17,540 ₽</span>
+                            </td>
+                            <td class="action-cell">
+                                <button class="icon-btn" title="История">📊</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Note Section for Institution -->
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #f0f0f0;">
+                    <div style="font-size: 13px; font-weight: 500; margin-bottom: 8px; color: rgba(0,0,0,0.65);">
+                        Примечание (необязательно)
+                    </div>
+                    <textarea class="note-textarea" placeholder="Например: Получил процентный доход на накопительном счете"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sberbank -->
+        <div class="institution-card">
+            <div class="institution-header" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('expanded')">
+                <div class="institution-info">
+                    <div class="institution-logo">🏛️</div>
+                    <div class="institution-details">
+                        <div class="institution-name">Сбербанк</div>
+                        <div class="institution-meta">2 счета • Последняя синхронизация: вчера</div>
+                    </div>
+                </div>
+                <div class="institution-status">
+                    <span class="status-badge synced">✓ Синхронизировано</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            
+            <div class="accounts-section">
+                <table class="accounts-table">
+                    <thead>
+                        <tr>
+                            <th>Счет</th>
+                            <th>Прогноз</th>
+                            <th>Фактический баланс</th>
+                            <th>Отклонение</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="account-info">
+                                    <div class="account-icon">💳</div>
+                                    <div>
+                                        <div class="account-name">Дебетовая карта МИР</div>
+                                        <div class="account-type">RUB • Checking</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="balance-value">45,230 ₽</div>
+                            </td>
+                            <td>
+                                <div class="balance-input-wrapper">
+                                    <input type="text" class="balance-input" value="45,230" placeholder="Введите баланс">
+                                </div>
+                            </td>
+                            <td>
+                                <span class="deviation-badge none">—</span>
+                            </td>
+                            <td class="action-cell">
+                                <button class="icon-btn" title="История">📊</button>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="account-info">
+                                    <div class="account-icon">🏦</div>
+                                    <div>
+                                        <div class="account-name">Вклад "Сохраняй"</div>
+                                        <div class="account-type">RUB • Savings • 18% годовых</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="balance-value">180,000 ₽</div>
+                            </td>
+                            <td>
+                                <div class="balance-input-wrapper">
+                                    <input type="text" class="balance-input" value="180,000" placeholder="Введите баланс">
+                                </div>
+                            </td>
+                            <td>
+                                <span class="deviation-badge none">—</span>
+                            </td>
+                            <td class="action-cell">
+                                <button class="icon-btn" title="История">📊</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Other Accounts -->
+        <div class="institution-card">
+            <div class="institution-header" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('expanded')">
+                <div class="institution-info">
+                    <div class="institution-logo">💼</div>
+                    <div class="institution-details">
+                        <div class="institution-name">Прочие счета</div>
+                        <div class="institution-meta">1 счет • Последняя синхронизация: 2 недели назад</div>
+                    </div>
+                </div>
+                <div class="institution-status">
+                    <span class="status-badge partial">Частичная синхронизация</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            
+            <div class="accounts-section">
+                <table class="accounts-table">
+                    <thead>
+                        <tr>
+                            <th>Счет</th>
+                            <th>Прогноз</th>
+                            <th>Фактический баланс</th>
+                            <th>Отклонение</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="account-info">
+                                    <div class="account-icon">💵</div>
+                                    <div>
+                                        <div class="account-name">Наличные</div>
+                                        <div class="account-type">RUB • Cash</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="balance-value">15,000 ₽</div>
+                            </td>
+                            <td>
+                                <div class="balance-input-wrapper">
+                                    <input type="text" class="balance-input" value="" placeholder="Введите баланс">
+                                </div>
+                            </td>
+                            <td>
+                                <span class="deviation-badge none">—</span>
+                            </td>
+                            <td class="action-cell">
+                                <button class="icon-btn" title="История">📊</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Bar (appears when changes are made) -->
+    <div class="save-bar visible">
+        <div class="save-bar-content">
+            <div class="save-bar-info">
+                <span class="changes-count">4</span>
+                <span class="save-bar-text">Несохраненные изменения по Т-Банк</span>
+            </div>
+            <div class="save-bar-actions">
+                <button class="btn btn-default">Отменить</button>
+                <button class="btn btn-primary">Сохранить изменения</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple demo: highlight inputs on change
+        document.querySelectorAll('.balance-input').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.value && this.value !== this.defaultValue) {
+                    this.classList.add('has-change');
+                } else {
+                    this.classList.remove('has-change');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

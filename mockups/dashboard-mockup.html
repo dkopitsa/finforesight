@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Финансовый планировщик</title>
+    <link href="https://cdn.jsdelivr.net/npm/ant-design-vue@4/dist/reset.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #000000d9;
+        }
+        
+        .app-header {
+            background: #001529;
+            color: white;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .app-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1890ff;
+        }
+        
+        .app-nav {
+            display: flex;
+            gap: 32px;
+        }
+        
+        .app-nav a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            padding: 8px 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .app-nav a:hover,
+        .app-nav a.active {
+            color: white;
+            border-bottom-color: #1890ff;
+        }
+        
+        .user-menu {
+            color: rgba(255,255,255,0.85);
+            cursor: pointer;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .page-header {
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .page-subtitle {
+            color: rgba(0,0,0,0.45);
+            font-size: 14px;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            transition: box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .card-title {
+            font-size: 14px;
+            color: rgba(0,0,0,0.45);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-icon {
+            font-size: 20px;
+        }
+        
+        .card-value {
+            font-size: 30px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .card-value.positive {
+            color: #52c41a;
+        }
+        
+        .card-value.negative {
+            color: #ff4d4f;
+        }
+        
+        .card-subtitle {
+            font-size: 14px;
+            color: rgba(0,0,0,0.65);
+        }
+        
+        .card-progress {
+            margin-top: 12px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #1890ff, #40a9ff);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            font-size: 12px;
+            color: rgba(0,0,0,0.45);
+            margin-top: 4px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .chart-filters {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .filter-btn {
+            padding: 4px 12px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .filter-btn.active {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+        
+        .chart-placeholder {
+            height: 400px;
+            background: linear-gradient(to bottom, #f0f5ff 0%, #fff 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-mockup {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+        }
+        
+        .line-liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(24, 144, 255, 0.3), rgba(24, 144, 255, 0.1));
+            clip-path: polygon(
+                0% 60%, 10% 55%, 20% 50%, 30% 48%, 40% 45%, 
+                50% 40%, 60% 42%, 70% 45%, 80% 50%, 90% 55%, 100% 60%,
+                100% 100%, 0% 100%
+            );
+        }
+        
+        .line-investment {
+            position: absolute;
+            bottom: 50%;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: linear-gradient(to bottom, rgba(82, 196, 26, 0.3), rgba(82, 196, 26, 0.1));
+            clip-path: polygon(
+                0% 50%, 10% 48%, 20% 45%, 30% 42%, 40% 40%, 
+                50% 38%, 60% 40%, 70% 42%, 80% 45%, 90% 48%, 100% 50%,
+                100% 100%, 0% 100%
+            );
+        }
+        
+        .chart-axis {
+            position: absolute;
+            left: 40px;
+            bottom: 40px;
+            right: 40px;
+            top: 40px;
+            border-left: 2px solid #d9d9d9;
+            border-bottom: 2px solid #d9d9d9;
+        }
+        
+        .axis-label {
+            position: absolute;
+            font-size: 12px;
+            color: rgba(0,0,0,0.45);
+        }
+        
+        .axis-label.today {
+            left: 50%;
+            bottom: -30px;
+            transform: translateX(-50%);
+            color: #1890ff;
+            font-weight: 600;
+        }
+        
+        .today-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #1890ff;
+            opacity: 0.5;
+        }
+        
+        .events-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .events-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .add-btn {
+            padding: 4px 12px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .add-btn:hover {
+            background: #40a9ff;
+        }
+        
+        .event-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .event-item:hover {
+            background: #f0f5ff;
+        }
+        
+        .event-date {
+            min-width: 60px;
+            font-size: 12px;
+            color: rgba(0,0,0,0.45);
+            text-align: center;
+        }
+        
+        .event-date-day {
+            font-size: 18px;
+            font-weight: 600;
+            color: rgba(0,0,0,0.85);
+        }
+        
+        .event-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .event-icon.income {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .event-icon.expense {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+        
+        .event-icon.transfer {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .event-details {
+            flex: 1;
+        }
+        
+        .event-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .event-category {
+            font-size: 12px;
+            color: rgba(0,0,0,0.45);
+        }
+        
+        .event-amount {
+            font-size: 16px;
+            font-weight: 600;
+            min-width: 100px;
+            text-align: right;
+        }
+        
+        .event-amount.positive {
+            color: #52c41a;
+        }
+        
+        .event-amount.negative {
+            color: #ff4d4f;
+        }
+        
+        .alert-card {
+            background: #fffbe6;
+            border: 1px solid #ffe58f;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .alert-icon {
+            font-size: 20px;
+            color: #faad14;
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .alert-message {
+            font-size: 14px;
+            color: rgba(0,0,0,0.65);
+            margin-bottom: 8px;
+        }
+        
+        .alert-action {
+            padding: 4px 12px;
+            background: white;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .alert-action:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .events-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .app-nav {
+                display: none;
+            }
+            
+            .chart-placeholder {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="app-header">
+        <div style="display: flex; align-items: center; gap: 48px;">
+            <div class="app-logo">💰 FinPlan</div>
+            <nav class="app-nav">
+                <a href="#" class="active">Дашборд</a>
+                <a href="#">Счета</a>
+                <a href="#">Планировщик</a>
+                <a href="#">Анализ</a>
+            </nav>
+        </div>
+        <div class="user-menu">👤 user@example.com</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Финансовый прогноз</h1>
+            <div class="page-subtitle">Обновлено: 3 дня назад</div>
+        </div>
+
+        <!-- Alert -->
+        <div class="alert-card">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-content">
+                <div class="alert-title">Требуется внимание</div>
+                <div class="alert-message">
+                    Баланс карты "Сбер" отличается от прогноза на $230. Рекомендуем сделать корректировку.
+                </div>
+                <button class="alert-action">Сделать корректировку</button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="card">
+                <div class="card-title">
+                    <span class="card-icon">💰</span>
+                    Ликвидные средства
+                </div>
+                <div class="card-value positive">$12,450</div>
+                <div class="card-subtitle">Доступно сейчас</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="card-icon">📈</span>
+                    Инвестиции
+                </div>
+                <div class="card-value">$35,000</div>
+                <div class="card-subtitle">Долгосрочные накопления</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="card-icon">💳</span>
+                    Кредит
+                </div>
+                <div class="card-value">$1,500 / $5,000</div>
+                <div class="card-subtitle">Использовано / Доступно</div>
+                <div class="card-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 30%;"></div>
+                    </div>
+                    <div class="progress-text">30% использовано</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="card-icon">🤝</span>
+                    Долги вам
+                </div>
+                <div class="card-value">$500</div>
+                <div class="card-subtitle">Должны вернуть</div>
+            </div>
+        </div>
+
+        <!-- Forecast Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">Прогноз на 24 месяца</div>
+                <div class="chart-filters">
+                    <button class="filter-btn">6 мес</button>
+                    <button class="filter-btn active">24 мес</button>
+                    <button class="filter-btn">36 мес</button>
+                </div>
+            </div>
+            <div class="chart-placeholder">
+                <div class="chart-mockup">
+                    <div class="chart-axis">
+                        <div class="today-line"></div>
+                        <div class="axis-label today">Сегодня</div>
+                        <div class="axis-label" style="left: 10%; bottom: -30px;">-6 мес</div>
+                        <div class="axis-label" style="right: 10%; bottom: -30px;">+18 мес</div>
+                        <div class="axis-label" style="left: -30px; top: 20%;">$50k</div>
+                        <div class="axis-label" style="left: -30px; top: 60%;">$20k</div>
+                    </div>
+                    <div class="line-investment"></div>
+                    <div class="line-liquid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events and Alerts -->
+        <div class="events-section">
+            <div class="events-card">
+                <div class="section-header">
+                    <div class="section-title">Ближайшие события</div>
+                    <button class="add-btn">+ Добавить</button>
+                </div>
+                <div class="event-list">
+                    <div class="event-item">
+                        <div class="event-date">
+                            <div>ноя</div>
+                            <div class="event-date-day">25</div>
+                        </div>
+                        <div class="event-icon income">💵</div>
+                        <div class="event-details">
+                            <div class="event-name">Зарплата</div>
+                            <div class="event-category">Доход</div>
+                        </div>
+                        <div class="event-amount positive">+$5,000</div>
+                    </div>
+
+                    <div class="event-item">
+                        <div class="event-date">
+                            <div>дек</div>
+                            <div class="event-date-day">01</div>
+                        </div>
+                        <div class="event-icon expense">🛒</div>
+                        <div class="event-details">
+                            <div class="event-name">Базовые расходы</div>
+                            <div class="event-category">Расход</div>
+                        </div>
+                        <div class="event-amount negative">-$2,500</div>
+                    </div>
+
+                    <div class="event-item">
+                        <div class="event-date">
+                            <div>дек</div>
+                            <div class="event-date-day">05</div>
+                        </div>
+                        <div class="event-icon expense">🏠</div>
+                        <div class="event-details">
+                            <div class="event-name">Аренда</div>
+                            <div class="event-category">Расход</div>
+                        </div>
+                        <div class="event-amount negative">-$1,200</div>
+                    </div>
+
+                    <div class="event-item">
+                        <div class="event-date">
+                            <div>дек</div>
+                            <div class="event-date-day">15</div>
+                        </div>
+                        <div class="event-icon expense">💻</div>
+                        <div class="event-details">
+                            <div class="event-name">Покупка MacBook</div>
+                            <div class="event-category">Крупная покупка</div>
+                        </div>
+                        <div class="event-amount negative">-$2,500</div>
+                    </div>
+
+                    <div class="event-item">
+                        <div class="event-date">
+                            <div>дек</div>
+                            <div class="event-date-day">26</div>
+                        </div>
+                        <div class="event-icon transfer">💰</div>
+                        <div class="event-details">
+                            <div class="event-name">В инвестиции</div>
+                            <div class="event-category">Перевод</div>
+                        </div>
+                        <div class="event-amount">$1,000</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="events-card">
+                <div class="section-header">
+                    <div class="section-title">Быстрая статистика</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: rgba(0,0,0,0.45); font-size: 14px;">Чистый капитал</span>
+                            <span style="font-weight: 600; font-size: 18px; color: #52c41a;">$46,450</span>
+                        </div>
+                        <div style="font-size: 12px; color: rgba(0,0,0,0.45);">
+                            Ликвидные + Инвестиции - Кредиты
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid #f0f0f0; padding-top: 16px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: rgba(0,0,0,0.45); font-size: 14px;">Прогноз через месяц</span>
+                            <span style="font-weight: 600; font-size: 16px;">$44,250</span>
+                        </div>
+                        <div style="font-size: 12px; color: #ff4d4f;">
+                            ↓ -$2,200 (покупка MacBook)
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid #f0f0f0; padding-top: 16px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: rgba(0,0,0,0.45); font-size: 14px;">Прогноз через 6 мес</span>
+                            <span style="font-weight: 600; font-size: 16px;">$53,100</span>
+                        </div>
+                        <div style="font-size: 12px; color: #52c41a;">
+                            ↑ +$6,650
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

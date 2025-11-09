@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Mobile - Финансовый планировщик</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #000000d9;
+            max-width: 428px;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-header {
+            background: #001529;
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .menu-btn {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .app-logo {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1890ff;
+        }
+        
+        .header-right {
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .container {
+            padding: 16px;
+        }
+        
+        .welcome-section {
+            margin-bottom: 20px;
+        }
+        
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .welcome-subtitle {
+            font-size: 14px;
+            color: rgba(0,0,0,0.45);
+        }
+        
+        .alert-card {
+            background: #fffbe6;
+            border: 1px solid #ffe58f;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .alert-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .alert-content {
+            flex: 1;
+            font-size: 13px;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .alert-action {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 10px;
+            background: white;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 12px;
+            text-decoration: none;
+            color: rgba(0,0,0,0.85);
+        }
+        
+        .net-worth-card {
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+        }
+        
+        .net-worth-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .net-worth-amount {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .net-worth-change {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        
+        .summary-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .summary-label {
+            font-size: 12px;
+            color: rgba(0,0,0,0.45);
+            margin-bottom: 4px;
+        }
+        
+        .summary-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .summary-value.positive {
+            color: #52c41a;
+        }
+        
+        .summary-value.negative {
+            color: #ff4d4f;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .chart-period {
+            font-size: 12px;
+            color: rgba(0,0,0,0.45);
+        }
+        
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(to bottom, #f0f5ff 0%, #fff 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-mockup {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .line-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to bottom, rgba(24, 144, 255, 0.3), rgba(24, 144, 255, 0.05));
+            clip-path: polygon(
+                0% 70%, 20% 60%, 40% 50%, 50% 45%, 60% 50%, 80% 60%, 100% 70%,
+                100% 100%, 0% 100%
+            );
+        }
+        
+        .events-section {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .view-all {
+            font-size: 12px;
+            color: #1890ff;
+            text-decoration: none;
+        }
+        
+        .event-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+        
+        .event-date {
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .event-date-month {
+            font-size: 10px;
+            color: rgba(0,0,0,0.45);
+            text-transform: uppercase;
+        }
+        
+        .event-date-day {
+            font-size: 18px;
+            font-weight: 600;
+            color: rgba(0,0,0,0.85);
+        }
+        
+        .event-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .event-icon.income {
+            background: #f6ffed;
+        }
+        
+        .event-icon.expense {
+            background: #fff1f0;
+        }
+        
+        .event-details {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .event-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .event-category {
+            font-size: 11px;
+            color: rgba(0,0,0,0.45);
+        }
+        
+        .event-amount {
+            font-size: 15px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .event-amount.positive {
+            color: #52c41a;
+        }
+        
+        .event-amount.negative {
+            color: #ff4d4f;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+            transition: all 0.3s;
+        }
+        
+        .fab:active {
+            transform: scale(0.95);
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 12px;
+            max-width: 428px;
+            margin: 0 auto;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            cursor: pointer;
+            color: rgba(0,0,0,0.45);
+            text-decoration: none;
+        }
+        
+        .nav-item.active {
+            color: #1890ff;
+        }
+        
+        .nav-icon {
+            font-size: 22px;
+        }
+        
+        .nav-label {
+            font-size: 11px;
+        }
+        
+        /* Add padding to prevent content being hidden by bottom nav */
+        .container {
+            padding-bottom: 80px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="header-left">
+            <div class="menu-btn">☰</div>
+            <div class="app-logo">💰 FinPlan</div>
+        </div>
+        <div class="header-right">👤</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Welcome -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">Привет! 👋</h1>
+            <div class="welcome-subtitle">Вот ваш финансовый обзор</div>
+        </div>
+
+        <!-- Alert -->
+        <div class="alert-card">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-content">
+                <div class="alert-title">Требуется синхронизация</div>
+                <div>Баланс карты "Сбер" отличается на $230</div>
+                <a href="#" class="alert-action">Исправить</a>
+            </div>
+        </div>
+
+        <!-- Net Worth Card -->
+        <div class="net-worth-card">
+            <div class="net-worth-label">Чистый капитал</div>
+            <div class="net-worth-amount">$46,450</div>
+            <div class="net-worth-change">↑ +$2,150 за месяц (+4.8%)</div>
+        </div>
+
+        <!-- Summary Grid -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-icon">💰</div>
+                <div class="summary-label">Ликвидные</div>
+                <div class="summary-value positive">$12,450</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon">📈</div>
+                <div class="summary-label">Инвестиции</div>
+                <div class="summary-value">$35,000</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon">💳</div>
+                <div class="summary-label">Кредит</div>
+                <div class="summary-value">$1,500</div>
+                <div style="font-size: 11px; color: rgba(0,0,0,0.45); margin-top: 4px;">из $5,000</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon">🤝</div>
+                <div class="summary-label">Долги вам</div>
+                <div class="summary-value">$500</div>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">Прогноз</div>
+                <div class="chart-period">24 месяца</div>
+            </div>
+            <div class="chart-placeholder">
+                <div class="chart-mockup">
+                    <div class="line-area"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="events-section">
+            <div class="section-header">
+                <div class="section-title">Ближайшие события</div>
+                <a href="#" class="view-all">Все →</a>
+            </div>
+            <div class="event-list">
+                <div class="event-item">
+                    <div class="event-date">
+                        <div class="event-date-month">ноя</div>
+                        <div class="event-date-day">25</div>
+                    </div>
+                    <div class="event-icon income">💵</div>
+                    <div class="event-details">
+                        <div class="event-name">Зарплата</div>
+                        <div class="event-category">Доход</div>
+                    </div>
+                    <div class="event-amount positive">+$5,000</div>
+                </div>
+
+                <div class="event-item">
+                    <div class="event-date">
+                        <div class="event-date-month">дек</div>
+                        <div class="event-date-day">01</div>
+                    </div>
+                    <div class="event-icon expense">🛒</div>
+                    <div class="event-details">
+                        <div class="event-name">Базовые расходы</div>
+                        <div class="event-category">Расход</div>
+                    </div>
+                    <div class="event-amount negative">-$2,500</div>
+                </div>
+
+                <div class="event-item">
+                    <div class="event-date">
+                        <div class="event-date-month">дек</div>
+                        <div class="event-date-day">05</div>
+                    </div>
+                    <div class="event-icon expense">🏠</div>
+                    <div class="event-details">
+                        <div class="event-name">Аренда квартиры</div>
+                        <div class="event-category">Расход</div>
+                    </div>
+                    <div class="event-amount negative">-$1,200</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab">+</button>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <div class="nav-icon">📊</div>
+            <div class="nav-label">Главная</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">💳</div>
+            <div class="nav-label">Счета</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">📅</div>
+            <div class="nav-label">События</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">📈</div>
+            <div class="nav-label">Анализ</div>
+        </a>
+    </div>
+</body>
+</html>

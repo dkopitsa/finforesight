@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать повторяющуюся операцию</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.25);
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .modal-subtitle {
+            font-size: 14px;
+            color: rgba(0,0,0,0.45);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .info-card {
+            background: #f0f5ff;
+            border: 1px solid #adc6ff;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-details {
+            font-size: 14px;
+            color: rgba(0,0,0,0.65);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border: 2px solid #d9d9d9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .radio-option:hover {
+            border-color: #1890ff;
+            background: #fafafa;
+        }
+        
+        .radio-option.active {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+        
+        .radio-button {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d9d9d9;
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .radio-option.active .radio-button {
+            border-color: #1890ff;
+        }
+        
+        .radio-option.active .radio-button::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: #1890ff;
+            border-radius: 50%;
+        }
+        
+        .radio-content {
+            flex: 1;
+        }
+        
+        .radio-label {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+        
+        .radio-description {
+            font-size: 13px;
+            color: rgba(0,0,0,0.45);
+            line-height: 1.5;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 8px 20px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-default {
+            background: white;
+            color: rgba(0,0,0,0.85);
+        }
+        
+        .btn-default:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+        }
+        
+        .illustration {
+            margin-top: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 4px;
+            font-size: 12px;
+            color: rgba(0,0,0,0.65);
+        }
+        
+        .timeline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .timeline-item {
+            padding: 4px 8px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+        
+        .timeline-item.highlight {
+            background: #1890ff;
+            color: white;
+        }
+        
+        .timeline-arrow {
+            color: rgba(0,0,0,0.25);
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+                align-items: flex-start;
+            }
+            
+            .modal {
+                max-width: 100%;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="modal">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Редактировать повторяющуюся операцию</h2>
+            <div class="modal-subtitle">Это событие является частью повторяющейся серии</div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <!-- Info Card -->
+            <div class="info-card">
+                <div class="info-title">
+                    <span>📅</span>
+                    <span>Зарплата</span>
+                </div>
+                <div class="info-details">
+                    <div>💰 +$5,000</div>
+                    <div>🔄 Каждое 25 число месяца</div>
+                    <div>📍 Вы редактируете: 25 декабря 2025</div>
+                </div>
+            </div>
+
+            <!-- Options -->
+            <div class="radio-group">
+                <!-- Option 1: This only -->
+                <div class="radio-option active">
+                    <div class="radio-button"></div>
+                    <div class="radio-content">
+                        <div class="radio-label">Только эту операцию</div>
+                        <div class="radio-description">
+                            Изменения применятся только к операции 25 декабря 2025. Остальные операции в серии останутся без изменений.
+                        </div>
+                        <div class="illustration">
+                            <div>Пример: Зарплата в декабре будет с бонусом +$2,000</div>
+                            <div class="timeline">
+                                <div class="timeline-item">окт</div>
+                                <span class="timeline-arrow">→</span>
+                                <div class="timeline-item">ноя</div>
+                                <span class="timeline-arrow">→</span>
+                                <div class="timeline-item highlight">дек*</div>
+                                <span class="timeline-arrow">→</span>
+                                <div class="timeline-item">янв</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Option 2: All in series -->
+                <div class="radio-option">
+                    <div class="radio-button"></div>
+                    <div class="radio-content">
+                        <div class="radio-label">Все операции в серии</div>
+                        <div class="radio-description">
+                            Изменения применятся ко всем операциям: прошлым, текущей и будущим. Используйте этот режим для исправления ошибок.
+                        </div>
+                        <div class="illustration">
+                            <div>Пример: Изменить категорию у всех операций</div>
+                            <div class="timeline">
+                                <div class="timeline-item highlight">окт*</div>
+                                <span class="timeline-arrow">→</span>
+                                <div class="timeline-item highlight">ноя*</div>
+                                <span class="timeline-arrow">→</span>
+                                <div class="timeline-item highlight">дек*</div>
+                                <span class="timeline-arrow">→</span>
+                                <div class="timeline-item highlight">янв*</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Option 3: This and future -->
+                <div class="radio-option">
+                    <div class="radio-button"></div>
+                    <div class="radio-content">
+                        <div class="radio-label">Эту и все будущие операции</div>
+                        <div class="radio-description">
+                            Изменения применятся к операции 25 декабря 2025 и всем последующим. Прошлые операции останутся без изменений.
+                        </div>
+                        <div class="illustration">
+                            <div>Пример: С декабря зарплата увеличилась до $6,500</div>
+                            <div class="timeline">
+                                <div class="timeline-item">окт</div>
+                                <span class="timeline-arrow">→</span>
+                                <div class="timeline-item">ноя</div>
+                                <span class="timeline-arrow">→</span>
+                                <div class="timeline-item highlight">дек*</div>
+                                <span class="timeline-arrow">→</span>
+                                <div class="timeline-item highlight">янв*</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn btn-default">Отмена</button>
+            <button class="btn btn-primary">Продолжить</button>
+        </div>
+    </div>
+</body>
+</html>

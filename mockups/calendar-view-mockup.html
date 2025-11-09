@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Календарь - Финансовый планировщик</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #000000d9;
+        }
+        
+        .app-header {
+            background: #001529;
+            color: white;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .app-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1890ff;
+        }
+        
+        .app-nav {
+            display: flex;
+            gap: 32px;
+        }
+        
+        .app-nav a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            padding: 8px 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .app-nav a:hover,
+        .app-nav a.active {
+            color: white;
+            border-bottom-color: #1890ff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .add-btn {
+            padding: 8px 16px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .add-btn:hover {
+            background: #40a9ff;
+        }
+        
+        .tabs {
+            background: white;
+            border-radius: 8px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 32px;
+        }
+        
+        .tab {
+            padding: 8px 0;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+            color: rgba(0,0,0,0.65);
+        }
+        
+        .tab:hover {
+            color: #1890ff;
+        }
+        
+        .tab.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+        }
+        
+        .calendar-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .nav-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .current-month {
+            font-size: 18px;
+            font-weight: 600;
+            min-width: 150px;
+            text-align: center;
+        }
+        
+        .today-btn {
+            padding: 4px 12px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .today-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #f0f0f0;
+            border: 1px solid #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .calendar-day-header {
+            background: #fafafa;
+            padding: 12px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(0,0,0,0.65);
+            text-transform: uppercase;
+        }
+        
+        .calendar-day {
+            background: white;
+            min-height: 120px;
+            padding: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            position: relative;
+        }
+        
+        .calendar-day:hover {
+            background: #fafafa;
+        }
+        
+        .calendar-day.other-month {
+            background: #fafafa;
+            color: rgba(0,0,0,0.25);
+        }
+        
+        .calendar-day.today {
+            background: #e6f7ff;
+        }
+        
+        .day-number {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .calendar-day.today .day-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #1890ff;
+            color: white;
+            border-radius: 50%;
+        }
+        
+        .day-events {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .event-badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .event-badge:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .event-badge.income {
+            background: #f6ffed;
+            color: #52c41a;
+            border-left: 3px solid #52c41a;
+        }
+        
+        .event-badge.expense {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border-left: 3px solid #ff4d4f;
+        }
+        
+        .event-badge.transfer {
+            background: #e6f7ff;
+            color: #1890ff;
+            border-left: 3px solid #1890ff;
+        }
+        
+        .more-events {
+            font-size: 10px;
+            color: rgba(0,0,0,0.45);
+            margin-top: 2px;
+            cursor: pointer;
+        }
+        
+        .more-events:hover {
+            color: #1890ff;
+        }
+        
+        .legend-container {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        
+        .legend-color.income {
+            background: #f6ffed;
+            border: 2px solid #52c41a;
+        }
+        
+        .legend-color.expense {
+            background: #fff1f0;
+            border: 2px solid #ff4d4f;
+        }
+        
+        .legend-color.transfer {
+            background: #e6f7ff;
+            border: 2px solid #1890ff;
+        }
+        
+        .summary-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        
+        .summary-item {
+            text-align: center;
+        }
+        
+        .summary-label {
+            font-size: 12px;
+            color: rgba(0,0,0,0.45);
+            margin-bottom: 4px;
+        }
+        
+        .summary-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .summary-value.income {
+            color: #52c41a;
+        }
+        
+        .summary-value.expense {
+            color: #ff4d4f;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .calendar-grid {
+                gap: 0;
+            }
+            
+            .calendar-day {
+                min-height: 80px;
+                padding: 4px;
+            }
+            
+            .day-number {
+                font-size: 12px;
+            }
+            
+            .event-badge {
+                font-size: 9px;
+                padding: 1px 4px;
+            }
+            
+            .app-nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="app-header">
+        <div style="display: flex; align-items: center; gap: 48px;">
+            <div class="app-logo">💰 FinPlan</div>
+            <nav class="app-nav">
+                <a href="#">Дашборд</a>
+                <a href="#">Счета</a>
+                <a href="#" class="active">Планировщик</a>
+                <a href="#">Анализ</a>
+            </nav>
+        </div>
+        <div style="color: rgba(255,255,255,0.85); cursor: pointer;">👤 user@example.com</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Календарь событий</h1>
+            <button class="add-btn">+ Добавить событие</button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab">Регулярные события</div>
+            <div class="tab">Единовременные</div>
+            <div class="tab active">Календарь</div>
+        </div>
+
+        <!-- Summary Bar -->
+        <div class="summary-bar">
+            <div class="summary-item">
+                <div class="summary-label">Доходы за месяц</div>
+                <div class="summary-value income">+$5,800</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Расходы за месяц</div>
+                <div class="summary-value expense">-$4,250</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Баланс</div>
+                <div class="summary-value">+$1,550</div>
+            </div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="calendar-card">
+            <!-- Calendar Header -->
+            <div class="calendar-header">
+                <div class="calendar-nav">
+                    <button class="nav-btn">‹</button>
+                    <div class="current-month">Декабрь 2025</div>
+                    <button class="nav-btn">›</button>
+                </div>
+                <button class="today-btn">Сегодня</button>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="calendar-grid">
+                <!-- Day Headers -->
+                <div class="calendar-day-header">Пн</div>
+                <div class="calendar-day-header">Вт</div>
+                <div class="calendar-day-header">Ср</div>
+                <div class="calendar-day-header">Чт</div>
+                <div class="calendar-day-header">Пт</div>
+                <div class="calendar-day-header">Сб</div>
+                <div class="calendar-day-header">Вс</div>
+
+                <!-- Days from previous month -->
+                <div class="calendar-day other-month">
+                    <div class="day-number">25</div>
+                </div>
+                <div class="calendar-day other-month">
+                    <div class="day-number">26</div>
+                </div>
+                <div class="calendar-day other-month">
+                    <div class="day-number">27</div>
+                </div>
+                <div class="calendar-day other-month">
+                    <div class="day-number">28</div>
+                    <div class="day-events">
+                        <div class="event-badge income">Зарплата $5,000</div>
+                    </div>
+                </div>
+                <div class="calendar-day other-month">
+                    <div class="day-number">29</div>
+                </div>
+                <div class="calendar-day other-month">
+                    <div class="day-number">30</div>
+                </div>
+
+                <!-- December days -->
+                <div class="calendar-day">
+                    <div class="day-number">1</div>
+                    <div class="day-events">
+                        <div class="event-badge expense">Базовые расходы $2,500</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">2</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">3</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">4</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">5</div>
+                    <div class="day-events">
+                        <div class="event-badge expense">Аренда $1,200</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">6</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">7</div>
+                </div>
+
+                <div class="calendar-day today">
+                    <div class="day-number">8</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">9</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">10</div>
+                    <div class="day-events">
+                        <div class="event-badge expense">Коммунальные $150</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">11</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">12</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">13</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">14</div>
+                </div>
+
+                <div class="calendar-day">
+                    <div class="day-number">15</div>
+                    <div class="day-events">
+                        <div class="event-badge income">Фриланс $800</div>
+                        <div class="event-badge expense">Покупка MacBook $2,500</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">16</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">17</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">18</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">19</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">20</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">21</div>
+                </div>
+
+                <div class="calendar-day">
+                    <div class="day-number">22</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">23</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">24</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">25</div>
+                    <div class="day-events">
+                        <div class="event-badge income">Зарплата $5,000</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">26</div>
+                    <div class="day-events">
+                        <div class="event-badge transfer">В инвестиции $1,000</div>
+                    </div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">27</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">28</div>
+                    <div class="day-events">
+                        <div class="event-badge transfer">Погашение кредита $500</div>
+                    </div>
+                </div>
+
+                <div class="calendar-day">
+                    <div class="day-number">29</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">30</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">31</div>
+                </div>
+
+                <!-- Days from next month -->
+                <div class="calendar-day other-month">
+                    <div class="day-number">1</div>
+                    <div class="day-events">
+                        <div class="event-badge expense">Базовые расходы $2,500</div>
+                    </div>
+                </div>
+                <div class="calendar-day other-month">
+                    <div class="day-number">2</div>
+                </div>
+                <div class="calendar-day other-month">
+                    <div class="day-number">3</div>
+                </div>
+                <div class="calendar-day other-month">
+                    <div class="day-number">4</div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend-container">
+                <div class="legend-item">
+                    <div class="legend-color income"></div>
+                    <span>Доходы</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color expense"></div>
+                    <span>Расходы</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color transfer"></div>
+                    <span>Переводы</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
