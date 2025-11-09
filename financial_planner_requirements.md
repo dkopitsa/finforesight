@@ -1,7 +1,7 @@
 # Финансовый планировщик - Техническое задание
 
 ## Версия документа: 1.0
-**Дата:** 08 ноября 2025  
+**Дата:** 08 ноября 2025
 **Статус:** Финальная версия для MVP
 
 ---
@@ -12,7 +12,7 @@
 
 **Финансовый планировщик** — веб-приложение для среднесрочного и долгосрочного финансового планирования с фокусом на визуализацию траектории капитала и прогнозирование влияния крупных финансовых событий.
 
-**Ключевое отличие от конкурентов:**  
+**Ключевое отличие от конкурентов:**
 Отказ от микроменеджмента ежедневных транзакций в пользу планирования по крупным регулярным и единовременным финансовым событиям.
 
 **Аналогия:** Google Calendar для денег, а не детальный таймтрекер расходов.
@@ -112,11 +112,11 @@
   - pytest + pytest-asyncio (тестирование)
   - black + ruff (форматирование и линтинг)
   - pre-commit (git hooks)
-  
+
 - **Frontend:**
   - Prettier + ESLint
   - Husky (git hooks)
-  
+
 - **Database:**
   - DBeaver / pgAdmin (GUI)
 
@@ -156,22 +156,22 @@
 
 #### 3.2.1. График прогноза баланса
 
-**Описание:**  
+**Описание:**
 Stacked area chart с 4-мя областями, показывающий прогноз финансового состояния.
 
 **Компоненты графика:**
 1. **Ликвидные средства** (синий)
    - Сумма всех счетов типа: CHECKING, SAVINGS, CASH
    - Отображается выше нулевой линии
-   
+
 2. **Инвестиции** (зелёный)
    - Сумма всех счетов типа: INVESTMENT, RETIREMENT
    - Отображается выше ликвидных средств (stacked)
-   
+
 3. **Использованный кредит** (красный)
    - Сумма отрицательных балансов кредитных счетов
    - Отображается ниже нулевой линии
-   
+
 4. **Долги к получению** (оранжевый) — опционально
    - Сумма счетов типа: LOAN_GIVEN
    - Отображается выше инвестиций
@@ -215,14 +215,14 @@ Stacked area chart с 4-мя областями, показывающий про
    - Субтекст: "Должны вернуть"
 
 **Дополнительная метрика:**
-- **Чистый капитал (Net Worth):**  
+- **Чистый капитал (Net Worth):**
   `Ликвидные + Инвестиции - |Использованный кредит| + Долги вам`
   - Отображается крупным шрифтом в заголовке или отдельной карточкой
   - Пример: `$46,450`
 
 #### 3.2.3. Список ближайших событий
 
-**Описание:**  
+**Описание:**
 Таблица или список следующих 10 запланированных операций (recurring + единовременные).
 
 **Столбцы:**
@@ -270,15 +270,15 @@ class AccountType(str, Enum):
     CHECKING = "checking"           # Дебетовая карта
     SAVINGS = "savings"             # Накопительный счет
     CASH = "cash"                   # Наличные
-    
-    # Долгосрочные инвестиции  
+
+    # Долгосрочные инвестиции
     INVESTMENT = "investment"       # Брокерский счет, ИИС
     RETIREMENT = "retirement"       # Пенсионные накопления
-    
+
     # Кредитные средства
     CREDIT_CARD = "credit_card"     # Кредитная карта
     LOAN = "loan"                   # Потребительский кредит
-    
+
     # Долги к получению
     LOAN_GIVEN = "loan_given"       # Одолжили кому-то
 ```
@@ -313,7 +313,7 @@ class AccountType(str, Enum):
 
 #### 3.3.3. Корректировка баланса (Reconciliation)
 
-**Назначение:**  
+**Назначение:**
 Синхронизация прогноза с реальным состоянием счета.
 
 **UI Flow:**
@@ -372,19 +372,19 @@ class TransactionType(str, Enum):
 
 2. **⚫ Повторяющееся событие**
    - Частота: [Ежемесячно ▼ | Ежегодно]
-   
+
    **Для "Ежемесячно":**
    - День месяца: [1-31 ▼] или "Последний день месяца"
    - Примеры:
      - Зарплата каждое 25 число → day = 25
      - Аренда каждое 1 число → day = 1
-   
+
    **Для "Ежегодно":**
    - День: [1-31 ▼]
    - Месяц: [Январь ▼ ... Декабрь]
    - Пример:
      - Страховка автомобиля каждое 15 марта → day = 15, month = 3
-   
+
    - Дата начала (обязательно, по умолчанию = сегодня)
    - Дата окончания (опционально):
      - ⚪ Бессрочно (по умолчанию)
@@ -476,7 +476,7 @@ class TransactionType(str, Enum):
 
 ### 3.5. Модуль "Анализ" — Упрощенная версия для MVP
 
-**Назначение:**  
+**Назначение:**
 Сравнение плана с фактом, а не детальная аналитика трат.
 
 #### 3.5.1. Основные метрики
@@ -551,7 +551,7 @@ class TransactionType(str, Enum):
   - Текущий пароль (для подтверждения)
   - Новый пароль (с валидацией)
   - Подтверждение нового пароля
-  
+
 - **Выйти со всех устройств:**
   - Инвалидирует все refresh tokens
   - Пользователь остается залогиненным только на текущем устройстве
@@ -594,7 +594,7 @@ class TransactionType(str, Enum):
 
 #### 4.2.4. Поддерживаемые валюты (топ-20)
 ```
-USD, EUR, GBP, JPY, CNY, RUB, 
+USD, EUR, GBP, JPY, CNY, RUB,
 AUD, CAD, CHF, SEK, NOK, DKK,
 PLN, CZK, HUF, TRY, INR, BRL,
 MXN, ARS
@@ -709,9 +709,9 @@ CREATE TABLE accounts (
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    
+
     CONSTRAINT check_account_type CHECK (type IN (
-        'checking', 'savings', 'cash', 
+        'checking', 'savings', 'cash',
         'investment', 'retirement',
         'credit_card', 'loan', 'loan_given'
     ))
@@ -727,7 +727,7 @@ CREATE TABLE categories (
     color VARCHAR(7), -- Hex цвет для UI
     is_system BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    
+
     CONSTRAINT check_category_type CHECK (type IN ('income', 'expense', 'transfer'))
 );
 
@@ -738,12 +738,12 @@ CREATE TABLE scheduled_transactions (
     account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
     to_account_id INTEGER REFERENCES accounts(id) ON DELETE CASCADE, -- Для переводов
     category_id INTEGER NOT NULL REFERENCES categories(id),
-    
+
     name VARCHAR(255) NOT NULL,
     amount DECIMAL(15, 2) NOT NULL,
     currency VARCHAR(3) NOT NULL,
     note TEXT,
-    
+
     -- Recurring параметры
     is_recurring BOOLEAN NOT NULL DEFAULT FALSE,
     recurrence_frequency VARCHAR(20), -- 'MONTHLY', 'YEARLY'
@@ -751,12 +751,12 @@ CREATE TABLE scheduled_transactions (
     recurrence_month_of_year INTEGER, -- 1-12, только для YEARLY
     recurrence_start_date DATE NOT NULL,
     recurrence_end_date DATE,
-    
+
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    
+
     CONSTRAINT check_recurrence_frequency CHECK (
-        recurrence_frequency IS NULL OR 
+        recurrence_frequency IS NULL OR
         recurrence_frequency IN ('MONTHLY', 'YEARLY')
     ),
     CONSTRAINT check_day_of_month CHECK (
@@ -774,16 +774,16 @@ CREATE TABLE scheduled_transaction_exceptions (
     id SERIAL PRIMARY KEY,
     scheduled_transaction_id INTEGER NOT NULL REFERENCES scheduled_transactions(id) ON DELETE CASCADE,
     exception_date DATE NOT NULL,
-    
+
     -- Измененные значения (NULL = используется из scheduled_transaction)
     amount DECIMAL(15, 2),
     note TEXT,
-    
+
     -- Флаг удаления (пропустить это вхождение)
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    
+
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    
+
     UNIQUE(scheduled_transaction_id, exception_date)
 );
 
@@ -797,7 +797,7 @@ CREATE TABLE account_reconciliations (
     adjustment_amount DECIMAL(15, 2) NOT NULL, -- Разница
     note TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    
+
     UNIQUE(account_id, reconciliation_date)
 );
 
@@ -809,7 +809,7 @@ CREATE TABLE exchange_rates (
     rate DECIMAL(18, 8) NOT NULL,
     date DATE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    
+
     UNIQUE(from_currency, to_currency, date)
 );
 
@@ -1522,7 +1522,7 @@ const routes: Routes = [
   - Напоминания о предстоящих платежах
   - Уведомления о превышении бюджета
   - Alerts о необходимости reconciliation
-  
+
 - **Email уведомления:**
   - Еженедельный/ежемесячный дайджест
   - Критичные события (баланс уходит в минус)
@@ -1532,7 +1532,7 @@ const routes: Routes = [
   - CSV (для Excel)
   - PDF (финансовый отчет)
   - JSON (полный backup)
-  
+
 - **Импорт:**
   - CSV выписки из банка (с маппингом на категории)
   - JSON backup
@@ -1608,7 +1608,7 @@ const routes: Routes = [
   - Free tier: до 3 счетов, до 10 recurring операций
   - Pro tier ($9.99/мес): безлимит + расширенная аналитика
   - Family tier ($14.99/мес): совместный доступ до 5 пользователей
-  
+
 - **Страница подписки:**
   - Stripe integration
   - Управление подпиской

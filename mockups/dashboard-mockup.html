@@ -11,13 +11,13 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: #f0f2f5;
             color: #000000d9;
         }
-        
+
         .app-header {
             background: #001529;
             color: white;
@@ -28,18 +28,18 @@
             justify-content: space-between;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        
+
         .app-logo {
             font-size: 20px;
             font-weight: bold;
             color: #1890ff;
         }
-        
+
         .app-nav {
             display: flex;
             gap: 32px;
         }
-        
+
         .app-nav a {
             color: rgba(255,255,255,0.85);
             text-decoration: none;
@@ -47,46 +47,46 @@
             border-bottom: 2px solid transparent;
             transition: all 0.3s;
         }
-        
+
         .app-nav a:hover,
         .app-nav a.active {
             color: white;
             border-bottom-color: #1890ff;
         }
-        
+
         .user-menu {
             color: rgba(255,255,255,0.85);
             cursor: pointer;
         }
-        
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 24px;
         }
-        
+
         .page-header {
             margin-bottom: 24px;
         }
-        
+
         .page-title {
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 4px;
         }
-        
+
         .page-subtitle {
             color: rgba(0,0,0,0.45);
             font-size: 14px;
         }
-        
+
         .summary-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
-        
+
         .card {
             background: white;
             border-radius: 8px;
@@ -94,11 +94,11 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.08);
             transition: box-shadow 0.3s;
         }
-        
+
         .card:hover {
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-        
+
         .card-title {
             font-size: 14px;
             color: rgba(0,0,0,0.45);
@@ -107,54 +107,54 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .card-icon {
             font-size: 20px;
         }
-        
+
         .card-value {
             font-size: 30px;
             font-weight: 600;
             margin-bottom: 8px;
         }
-        
+
         .card-value.positive {
             color: #52c41a;
         }
-        
+
         .card-value.negative {
             color: #ff4d4f;
         }
-        
+
         .card-subtitle {
             font-size: 14px;
             color: rgba(0,0,0,0.65);
         }
-        
+
         .card-progress {
             margin-top: 12px;
         }
-        
+
         .progress-bar {
             height: 8px;
             background: #f0f0f0;
             border-radius: 4px;
             overflow: hidden;
         }
-        
+
         .progress-fill {
             height: 100%;
             background: linear-gradient(to right, #1890ff, #40a9ff);
             border-radius: 4px;
             transition: width 0.3s;
         }
-        
+
         .progress-text {
             font-size: 12px;
             color: rgba(0,0,0,0.45);
             margin-top: 4px;
         }
-        
+
         .chart-card {
             background: white;
             border-radius: 8px;
@@ -162,24 +162,24 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.08);
             margin-bottom: 24px;
         }
-        
+
         .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
         }
-        
+
         .chart-title {
             font-size: 16px;
             font-weight: 600;
         }
-        
+
         .chart-filters {
             display: flex;
             gap: 8px;
         }
-        
+
         .filter-btn {
             padding: 4px 12px;
             border: 1px solid #d9d9d9;
@@ -189,18 +189,18 @@
             font-size: 14px;
             transition: all 0.3s;
         }
-        
+
         .filter-btn:hover {
             border-color: #1890ff;
             color: #1890ff;
         }
-        
+
         .filter-btn.active {
             background: #1890ff;
             color: white;
             border-color: #1890ff;
         }
-        
+
         .chart-placeholder {
             height: 400px;
             background: linear-gradient(to bottom, #f0f5ff 0%, #fff 100%);
@@ -211,13 +211,13 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .chart-mockup {
             width: 100%;
             height: 100%;
             position: relative;
         }
-        
+
         .chart-line {
             position: absolute;
             bottom: 0;
@@ -225,7 +225,7 @@
             right: 0;
             height: 100%;
         }
-        
+
         .line-liquid {
             position: absolute;
             bottom: 0;
@@ -234,12 +234,12 @@
             height: 50%;
             background: linear-gradient(to bottom, rgba(24, 144, 255, 0.3), rgba(24, 144, 255, 0.1));
             clip-path: polygon(
-                0% 60%, 10% 55%, 20% 50%, 30% 48%, 40% 45%, 
+                0% 60%, 10% 55%, 20% 50%, 30% 48%, 40% 45%,
                 50% 40%, 60% 42%, 70% 45%, 80% 50%, 90% 55%, 100% 60%,
                 100% 100%, 0% 100%
             );
         }
-        
+
         .line-investment {
             position: absolute;
             bottom: 50%;
@@ -248,12 +248,12 @@
             height: 30%;
             background: linear-gradient(to bottom, rgba(82, 196, 26, 0.3), rgba(82, 196, 26, 0.1));
             clip-path: polygon(
-                0% 50%, 10% 48%, 20% 45%, 30% 42%, 40% 40%, 
+                0% 50%, 10% 48%, 20% 45%, 30% 42%, 40% 40%,
                 50% 38%, 60% 40%, 70% 42%, 80% 45%, 90% 48%, 100% 50%,
                 100% 100%, 0% 100%
             );
         }
-        
+
         .chart-axis {
             position: absolute;
             left: 40px;
@@ -263,13 +263,13 @@
             border-left: 2px solid #d9d9d9;
             border-bottom: 2px solid #d9d9d9;
         }
-        
+
         .axis-label {
             position: absolute;
             font-size: 12px;
             color: rgba(0,0,0,0.45);
         }
-        
+
         .axis-label.today {
             left: 50%;
             bottom: -30px;
@@ -277,7 +277,7 @@
             color: #1890ff;
             font-weight: 600;
         }
-        
+
         .today-line {
             position: absolute;
             left: 50%;
@@ -287,33 +287,33 @@
             background: #1890ff;
             opacity: 0.5;
         }
-        
+
         .events-section {
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 24px;
             margin-bottom: 24px;
         }
-        
+
         .events-card {
             background: white;
             border-radius: 8px;
             padding: 24px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.08);
         }
-        
+
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
         }
-        
+
         .section-title {
             font-size: 16px;
             font-weight: 600;
         }
-        
+
         .add-btn {
             padding: 4px 12px;
             background: #1890ff;
@@ -324,17 +324,17 @@
             font-size: 14px;
             transition: background 0.3s;
         }
-        
+
         .add-btn:hover {
             background: #40a9ff;
         }
-        
+
         .event-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
-        
+
         .event-item {
             display: flex;
             align-items: center;
@@ -344,24 +344,24 @@
             border-radius: 6px;
             transition: all 0.3s;
         }
-        
+
         .event-item:hover {
             background: #f0f5ff;
         }
-        
+
         .event-date {
             min-width: 60px;
             font-size: 12px;
             color: rgba(0,0,0,0.45);
             text-align: center;
         }
-        
+
         .event-date-day {
             font-size: 18px;
             font-weight: 600;
             color: rgba(0,0,0,0.85);
         }
-        
+
         .event-icon {
             width: 32px;
             height: 32px;
@@ -371,52 +371,52 @@
             justify-content: center;
             font-size: 16px;
         }
-        
+
         .event-icon.income {
             background: #f6ffed;
             color: #52c41a;
         }
-        
+
         .event-icon.expense {
             background: #fff1f0;
             color: #ff4d4f;
         }
-        
+
         .event-icon.transfer {
             background: #e6f7ff;
             color: #1890ff;
         }
-        
+
         .event-details {
             flex: 1;
         }
-        
+
         .event-name {
             font-size: 14px;
             font-weight: 500;
             margin-bottom: 2px;
         }
-        
+
         .event-category {
             font-size: 12px;
             color: rgba(0,0,0,0.45);
         }
-        
+
         .event-amount {
             font-size: 16px;
             font-weight: 600;
             min-width: 100px;
             text-align: right;
         }
-        
+
         .event-amount.positive {
             color: #52c41a;
         }
-        
+
         .event-amount.negative {
             color: #ff4d4f;
         }
-        
+
         .alert-card {
             background: #fffbe6;
             border: 1px solid #ffe58f;
@@ -426,27 +426,27 @@
             gap: 12px;
             margin-bottom: 24px;
         }
-        
+
         .alert-icon {
             font-size: 20px;
             color: #faad14;
         }
-        
+
         .alert-content {
             flex: 1;
         }
-        
+
         .alert-title {
             font-weight: 600;
             margin-bottom: 4px;
         }
-        
+
         .alert-message {
             font-size: 14px;
             color: rgba(0,0,0,0.65);
             margin-bottom: 8px;
         }
-        
+
         .alert-action {
             padding: 4px 12px;
             background: white;
@@ -456,29 +456,29 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        
+
         .alert-action:hover {
             border-color: #1890ff;
             color: #1890ff;
         }
-        
+
         @media (max-width: 768px) {
             .container {
                 padding: 16px;
             }
-            
+
             .summary-cards {
                 grid-template-columns: 1fr;
             }
-            
+
             .events-section {
                 grid-template-columns: 1fr;
             }
-            
+
             .app-nav {
                 display: none;
             }
-            
+
             .chart-placeholder {
                 height: 250px;
             }

@@ -10,13 +10,13 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: #f0f2f5;
             color: #000000d9;
         }
-        
+
         .app-header {
             background: #001529;
             color: white;
@@ -27,18 +27,18 @@
             justify-content: space-between;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        
+
         .app-logo {
             font-size: 20px;
             font-weight: bold;
             color: #1890ff;
         }
-        
+
         .app-nav {
             display: flex;
             gap: 32px;
         }
-        
+
         .app-nav a {
             color: rgba(255,255,255,0.85);
             text-decoration: none;
@@ -46,34 +46,34 @@
             border-bottom: 2px solid transparent;
             transition: all 0.3s;
         }
-        
+
         .app-nav a:hover,
         .app-nav a.active {
             color: white;
             border-bottom-color: #1890ff;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 24px;
         }
-        
+
         .page-header {
             margin-bottom: 24px;
         }
-        
+
         .page-title {
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 8px;
         }
-        
+
         .page-subtitle {
             font-size: 14px;
             color: rgba(0,0,0,0.45);
         }
-        
+
         .info-banner {
             background: #e6f7ff;
             border: 1px solid #91d5ff;
@@ -83,34 +83,34 @@
             gap: 12px;
             margin-bottom: 24px;
         }
-        
+
         .info-icon {
             font-size: 20px;
             color: #1890ff;
             flex-shrink: 0;
         }
-        
+
         .info-content {
             flex: 1;
         }
-        
+
         .info-title {
             font-weight: 600;
             margin-bottom: 4px;
             color: rgba(0,0,0,0.85);
         }
-        
+
         .info-text {
             font-size: 14px;
             color: rgba(0,0,0,0.65);
         }
-        
+
         .quick-actions {
             display: flex;
             gap: 12px;
             margin-bottom: 24px;
         }
-        
+
         .action-btn {
             padding: 8px 16px;
             background: white;
@@ -123,22 +123,22 @@
             gap: 8px;
             transition: all 0.3s;
         }
-        
+
         .action-btn:hover {
             border-color: #1890ff;
             color: #1890ff;
         }
-        
+
         .action-btn.primary {
             background: #1890ff;
             color: white;
             border-color: #1890ff;
         }
-        
+
         .action-btn.primary:hover {
             background: #40a9ff;
         }
-        
+
         .institution-card {
             background: white;
             border-radius: 8px;
@@ -146,7 +146,7 @@
             margin-bottom: 16px;
             overflow: hidden;
         }
-        
+
         .institution-header {
             padding: 20px 24px;
             background: #fafafa;
@@ -157,17 +157,17 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        
+
         .institution-header:hover {
             background: #f5f5f5;
         }
-        
+
         .institution-info {
             display: flex;
             align-items: center;
             gap: 16px;
         }
-        
+
         .institution-logo {
             width: 48px;
             height: 48px;
@@ -179,78 +179,78 @@
             background: white;
             border: 1px solid #f0f0f0;
         }
-        
+
         .institution-details {
             flex: 1;
         }
-        
+
         .institution-name {
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 4px;
         }
-        
+
         .institution-meta {
             font-size: 13px;
             color: rgba(0,0,0,0.45);
         }
-        
+
         .institution-status {
             display: flex;
             align-items: center;
             gap: 16px;
         }
-        
+
         .status-badge {
             padding: 4px 12px;
             border-radius: 12px;
             font-size: 12px;
             font-weight: 500;
         }
-        
+
         .status-badge.synced {
             background: #f6ffed;
             color: #52c41a;
         }
-        
+
         .status-badge.needs-sync {
             background: #fff1f0;
             color: #ff4d4f;
         }
-        
+
         .status-badge.partial {
             background: #fffbe6;
             color: #faad14;
         }
-        
+
         .expand-icon {
             font-size: 20px;
             color: rgba(0,0,0,0.45);
             transition: transform 0.3s;
         }
-        
+
         .institution-header.expanded .expand-icon {
             transform: rotate(180deg);
         }
-        
+
         .accounts-section {
             padding: 16px 24px 24px;
             display: none;
         }
-        
+
         .accounts-section.expanded {
             display: block;
         }
-        
+
         .accounts-table {
             width: 100%;
             border-collapse: collapse;
         }
-        
+
         .accounts-table thead {
             background: #fafafa;
         }
-        
+
         .accounts-table th {
             padding: 12px;
             text-align: left;
@@ -259,26 +259,26 @@
             color: rgba(0,0,0,0.65);
             border-bottom: 2px solid #f0f0f0;
         }
-        
+
         .accounts-table th:last-child {
             text-align: right;
         }
-        
+
         .accounts-table td {
             padding: 16px 12px;
             border-bottom: 1px solid #f0f0f0;
         }
-        
+
         .accounts-table tr:last-child td {
             border-bottom: none;
         }
-        
+
         .account-info {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        
+
         .account-icon {
             width: 36px;
             height: 36px;
@@ -289,48 +289,48 @@
             font-size: 18px;
             background: #f0f0f0;
         }
-        
+
         .account-name {
             font-weight: 500;
         }
-        
+
         .account-type {
             font-size: 12px;
             color: rgba(0,0,0,0.45);
             margin-top: 2px;
         }
-        
+
         .balance-comparison {
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
-        
+
         .balance-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 24px;
         }
-        
+
         .balance-label {
             font-size: 12px;
             color: rgba(0,0,0,0.45);
             min-width: 80px;
         }
-        
+
         .balance-value {
             font-size: 14px;
             font-weight: 500;
             min-width: 100px;
             text-align: right;
         }
-        
+
         .balance-input-wrapper {
             position: relative;
             min-width: 140px;
         }
-        
+
         .balance-input {
             width: 100%;
             padding: 6px 12px;
@@ -341,23 +341,23 @@
             text-align: right;
             transition: all 0.3s;
         }
-        
+
         .balance-input:focus {
             outline: none;
             border-color: #1890ff;
             box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
         }
-        
+
         .balance-input.has-change {
             border-color: #faad14;
             background: #fffbe6;
         }
-        
+
         .balance-input.error {
             border-color: #ff4d4f;
             background: #fff1f0;
         }
-        
+
         .deviation-badge {
             display: inline-flex;
             align-items: center;
@@ -367,26 +367,26 @@
             font-size: 12px;
             font-weight: 500;
         }
-        
+
         .deviation-badge.positive {
             background: #f6ffed;
             color: #52c41a;
         }
-        
+
         .deviation-badge.negative {
             background: #fff1f0;
             color: #ff4d4f;
         }
-        
+
         .deviation-badge.none {
             background: #f0f0f0;
             color: rgba(0,0,0,0.45);
         }
-        
+
         .action-cell {
             text-align: right;
         }
-        
+
         .icon-btn {
             width: 32px;
             height: 32px;
@@ -400,17 +400,17 @@
             transition: all 0.3s;
             margin-left: 8px;
         }
-        
+
         .icon-btn:hover {
             border-color: #1890ff;
             color: #1890ff;
         }
-        
+
         .icon-btn.danger:hover {
             border-color: #ff4d4f;
             color: #ff4d4f;
         }
-        
+
         .save-bar {
             position: fixed;
             bottom: 0;
@@ -423,11 +423,11 @@
             display: none;
             z-index: 100;
         }
-        
+
         .save-bar.visible {
             display: block;
         }
-        
+
         .save-bar-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -435,13 +435,13 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .save-bar-info {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        
+
         .changes-count {
             background: #faad14;
             color: white;
@@ -450,17 +450,17 @@
             font-size: 13px;
             font-weight: 600;
         }
-        
+
         .save-bar-text {
             font-size: 14px;
             color: rgba(0,0,0,0.65);
         }
-        
+
         .save-bar-actions {
             display: flex;
             gap: 12px;
         }
-        
+
         .btn {
             padding: 8px 20px;
             border: 1px solid #d9d9d9;
@@ -470,28 +470,28 @@
             font-weight: 500;
             transition: all 0.3s;
         }
-        
+
         .btn-default {
             background: white;
             color: rgba(0,0,0,0.85);
         }
-        
+
         .btn-default:hover {
             border-color: #1890ff;
             color: #1890ff;
         }
-        
+
         .btn-primary {
             background: #1890ff;
             color: white;
             border-color: #1890ff;
         }
-        
+
         .btn-primary:hover {
             background: #40a9ff;
             border-color: #40a9ff;
         }
-        
+
         .note-textarea {
             width: 100%;
             margin-top: 8px;
@@ -503,47 +503,47 @@
             resize: vertical;
             min-height: 60px;
         }
-        
+
         .note-textarea:focus {
             outline: none;
             border-color: #1890ff;
             box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
         }
-        
+
         .empty-state {
             text-align: center;
             padding: 48px 24px;
             color: rgba(0,0,0,0.45);
         }
-        
+
         .empty-icon {
             font-size: 64px;
             margin-bottom: 16px;
         }
-        
+
         @media (max-width: 768px) {
             .container {
                 padding: 16px;
             }
-            
+
             .accounts-table {
                 font-size: 12px;
             }
-            
+
             .balance-row {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 8px;
             }
-            
+
             .balance-label {
                 min-width: auto;
             }
-            
+
             .app-nav {
                 display: none;
             }
-            
+
             .quick-actions {
                 flex-direction: column;
             }
@@ -617,7 +617,7 @@
                     <span class="expand-icon">▼</span>
                 </div>
             </div>
-            
+
             <div class="accounts-section expanded">
                 <table class="accounts-table">
                     <thead>
@@ -773,7 +773,7 @@
                     <span class="expand-icon">▼</span>
                 </div>
             </div>
-            
+
             <div class="accounts-section">
                 <table class="accounts-table">
                     <thead>
@@ -857,7 +857,7 @@
                     <span class="expand-icon">▼</span>
                 </div>
             </div>
-            
+
             <div class="accounts-section">
                 <table class="accounts-table">
                     <thead>

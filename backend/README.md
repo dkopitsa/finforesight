@@ -107,8 +107,14 @@ API will be available at http://localhost:8000
 ### Code Quality
 - `make format` - Format code with black
 - `make lint` - Run linter (ruff)
+- `make type-check` - Run type checking (mypy)
 - `make fix` - Auto-fix formatting and lint issues
-- `make quality` - Run all quality checks
+- `make quality` - Run all quality checks (format + lint + type check)
+
+### Pre-commit Hooks
+- `make pre-commit-install` - Install git pre-commit hooks
+- `make pre-commit-run` - Run pre-commit on all files
+- `make pre-commit-update` - Update hook versions
 
 ### Utilities
 - `make clean` - Clean up cache and build artifacts
@@ -137,4 +143,33 @@ pytest --cov=app tests/     # With coverage
 black .              # Format code
 ruff check .         # Lint code
 ruff check . --fix   # Auto-fix lint issues
+mypy app/            # Type checking
+```
+
+## Pre-commit Hooks
+
+This project uses pre-commit hooks to ensure code quality before commits.
+
+**Install hooks (one-time setup):**
+```bash
+make pre-commit-install
+```
+
+**What gets checked automatically on commit:**
+- Trailing whitespace removal
+- End of file fixes
+- YAML/JSON/TOML validation
+- Code formatting (Black)
+- Linting and auto-fixes (Ruff)
+- Type checking (mypy) - app directory only
+
+**Run hooks manually:**
+```bash
+make pre-commit-run     # Run on all files
+pre-commit run          # Run on staged files only
+```
+
+**Skip hooks (not recommended):**
+```bash
+git commit --no-verify
 ```

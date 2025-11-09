@@ -33,11 +33,13 @@ format:  ## Format code with black
 format-check:  ## Check code formatting without making changes
 	black . --check
 
-quality:  ## Run all quality checks (format check + lint)
+quality:  ## Run all quality checks (format check + lint + type check)
 	@echo "Checking code formatting..."
 	@black . --check
 	@echo "\nRunning linter..."
 	@ruff check .
+	@echo "\nRunning type checker..."
+	@mypy app/
 	@echo "\nAll quality checks passed!"
 
 fix:  ## Auto-fix code issues (format + lint fix)
@@ -46,6 +48,19 @@ fix:  ## Auto-fix code issues (format + lint fix)
 	@echo "\nFixing lint issues..."
 	@ruff check . --fix
 	@echo "\nCode fixes applied!"
+
+type-check:  ## Run type checking with mypy
+	mypy app/
+
+pre-commit-install:  ## Install pre-commit hooks
+	pre-commit install
+	@echo "Pre-commit hooks installed!"
+
+pre-commit-run:  ## Run pre-commit hooks on all files
+	pre-commit run --all-files
+
+pre-commit-update:  ## Update pre-commit hooks to latest versions
+	pre-commit autoupdate
 
 migrate-create:  ## Create new migration with autogenerate (usage: make migrate-create MESSAGE="description")
 	@if [ -z "$(MESSAGE)" ]; then \
