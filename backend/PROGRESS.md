@@ -85,22 +85,39 @@ GET    /api/v1/accounts/summary/totals - Financial summary
 
 ---
 
-## Stage 3: Category Management 🔄 IN PROGRESS
+## Stage 3: Category Management ✅ COMPLETE
 
-### Next Tasks
-- [ ] Category schemas (Base, Create, Update, Response)
-- [ ] List categories endpoint (system + user's custom)
-- [ ] Create custom category endpoint
-- [ ] Update category endpoint
-- [ ] Delete custom category endpoint
-- [ ] Seed script for system categories
-- [ ] Migration to seed default categories
-- [ ] Test suite for category endpoints
+### Category CRUD ✅
+- [x] Category schemas (Base, Create, Update, Response)
+- [x] List categories endpoint (system + user's custom)
+- [x] Create custom category endpoint
+- [x] Update category endpoint (with system category protection)
+- [x] Delete custom category endpoint (with system category protection)
+- [x] Seed script for system categories
+- [x] Category seeding on application startup
+- [x] Comprehensive test suite (23 tests passing)
 
-**Default System Categories (Planned):**
-- Income: Salary, Freelance, Investment Income
-- Expense: Groceries, Utilities, Transport, Entertainment, Healthcare, etc.
-- Transfer: Transfer category
+**API Endpoints:**
+```
+GET    /api/v1/categories/      - List categories (system + user's)
+POST   /api/v1/categories/      - Create custom category
+GET    /api/v1/categories/{id}  - Get single category
+PUT    /api/v1/categories/{id}  - Update custom category
+DELETE /api/v1/categories/{id}  - Delete custom category
+```
+
+**Features:**
+- Full CRUD operations with authentication
+- System categories: 20 pre-defined categories seeded on startup
+  - Income (6): Salary, Freelance, Investment Income, Business Income, Gift, Other Income
+  - Expense (13): Groceries, Utilities, Transport, Entertainment, Healthcare, Rent, Dining Out, Shopping, Education, Insurance, Personal Care, Subscriptions, Other Expense
+  - Transfer (1): Transfer
+- User-specific custom categories
+- Access control: System categories are read-only
+- Category filtering by type (income/expense/transfer)
+- Hex color validation (#RRGGBB format)
+- Duplicate prevention (same name + type per user)
+- Icon and color customization
 
 ---
 
@@ -149,11 +166,12 @@ GET    /api/v1/accounts/summary/totals - Financial summary
 
 ### Current Test Status
 ```
-Total Tests: 39
+Total Tests: 62
 ├── Authentication: 21 tests ✅
-└── Accounts: 18 tests ✅
+├── Accounts: 18 tests ✅
+└── Categories: 23 tests ✅
 
-Test Execution Time: ~4.2 seconds
+Test Execution Time: ~6.88 seconds
 Coverage: TBD (need to add coverage reporting)
 ```
 
@@ -175,13 +193,20 @@ Coverage: TBD (need to add coverage reporting)
 - Delete Account: 2 tests (success, not found)
 - Summary: 2 tests (empty, with multiple accounts)
 
+**Category Tests (23):**
+- List Categories: 6 tests (empty, with system, with custom, filter by type, user isolation, without auth)
+- Create Category: 5 tests (success, duplicate, invalid color, without auth, missing fields)
+- Get Category: 4 tests (custom success, system success, not found, unauthorized)
+- Update Category: 4 tests (success, system protected, not found, unauthorized)
+- Delete Category: 4 tests (success, system protected, not found, unauthorized)
+
 ---
 
 ## Technical Debt & Improvements
 
 ### Optimization Completed ✅
 - [x] Optimized test fixtures (table truncation vs recreation)
-  - 45% faster test execution (3.6s → 2.0s → 4.2s with more tests)
+  - 45% faster test execution (3.6s → 2.0s → 6.88s with 62 tests)
   - Session-scoped database creation
   - Function-scoped table truncation
 
@@ -223,7 +248,7 @@ Coverage: TBD (need to add coverage reporting)
 
 ## API Endpoints Summary
 
-### Current Endpoints (10 total)
+### Current Endpoints (19 total)
 
 **Health & Root:**
 - `GET /` - Welcome message
@@ -245,6 +270,13 @@ Coverage: TBD (need to add coverage reporting)
 - `DELETE /api/v1/accounts/{id}` - Delete account
 - `GET /api/v1/accounts/summary/totals` - Financial summary
 
+**Categories (5):**
+- `GET /api/v1/categories/` - List categories (system + user's)
+- `POST /api/v1/categories/` - Create custom category
+- `GET /api/v1/categories/{id}` - Get category
+- `PUT /api/v1/categories/{id}` - Update custom category
+- `DELETE /api/v1/categories/{id}` - Delete custom category
+
 **Debug (3) - Only in DEBUG mode:**
 - `GET /api/v1/test/errors/400` - Test 400 error
 - `GET /api/v1/test/errors/404` - Test 404 error
@@ -255,12 +287,12 @@ Coverage: TBD (need to add coverage reporting)
 ## Recent Commits
 
 ### Latest (November 10, 2025)
-1. ✅ feat: Implement Accounts CRUD endpoints (Stage 2 start)
-2. ✅ perf: Optimize test fixtures with table truncation
-3. ✅ feat: Add comprehensive pytest test suite for authentication
-4. ✅ feat: Complete Stage 1 - Logging configuration and infrastructure
-5. ✅ feat: Implement comprehensive error handling middleware
-6. ✅ feat: Add pre-commit hooks with mypy type checking
+1. ✅ feat: Implement complete Category Management (Stage 3) - 1172 lines added
+2. ✅ feat: Implement Accounts CRUD endpoints (Stage 2)
+3. ✅ perf: Optimize test fixtures with table truncation
+4. ✅ feat: Add comprehensive pytest test suite for authentication
+5. ✅ feat: Complete Stage 1 - Logging configuration and infrastructure
+6. ✅ feat: Implement comprehensive error handling middleware
 
 ---
 
@@ -278,36 +310,42 @@ Coverage: TBD (need to add coverage reporting)
 - None currently
 
 ### Performance Metrics
-- Test execution: ~4.2 seconds for 39 tests
-- API startup time: <1 second
+- Test execution: ~6.88 seconds for 62 tests
+- API startup time: <1 second (includes category seeding)
 - Database query performance: Not yet benchmarked
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **Implement Categories CRUD** (~2 hours)
-   - Create schemas and endpoints
-   - Seed system categories
-   - Write tests
-
-2. **Implement Dashboard Summary** (~2-3 hours)
-   - Enhanced financial summary
-   - Ready for frontend consumption
-
-3. **Implement Scheduled Transactions** (~4-5 hours)
+1. **Implement Scheduled Transactions (Stage 4)** (~4-5 hours)
    - Core feature - the "Google Calendar for money"
    - Complex recurrence logic
+   - Create ScheduledTransaction and ScheduledTransactionException models
+   - CRUD endpoints with recurrence patterns
 
-4. **Implement Exchange Rates** (~3-4 hours)
+2. **Implement Dashboard Summary** (~2-3 hours)
+   - Enhanced financial summary endpoint
+   - Chart data preparation
+   - Ready for frontend consumption
+
+3. **Implement Exchange Rates (Stage 5)** (~3-4 hours)
    - Multi-currency support
-   - API integration
+   - API integration for exchange rates
+   - ExchangeRate model
 
-5. **Implement Forecast Calculation** (~6-8 hours)
+4. **Implement Forecast Calculation (Stage 5)** (~6-8 hours)
    - The main value proposition
    - Algorithm for projecting future balances
+   - ForecastService with expansion logic
+
+5. **Implement Reconciliation (Stage 6)** (~4-5 hours)
+   - AccountReconciliation model
+   - Reconciliation endpoints
+   - Adjustment transactions
+   - Plan vs Actual analysis
 
 ---
 
-**Status:** Stage 2 Complete - Account Management Operational
-**Next:** Stage 3 - Categories CRUD Implementation
+**Status:** Stage 3 Complete - Category Management Operational
+**Next:** Stage 4 - Scheduled Transactions Implementation
