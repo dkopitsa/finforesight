@@ -10,6 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.router import api_router
 from app.core.config import settings
+from app.core.database import AsyncSessionLocal
 from app.core.errors import (
     app_exception_handler,
     database_exception_handler,
@@ -18,6 +19,7 @@ from app.core.errors import (
 )
 from app.core.exceptions import AppException
 from app.core.logging import setup_logging
+from app.core.seed_categories import seed_categories
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +31,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     setup_logging()
     logger.info(f"Starting {settings.PROJECT_NAME} v{settings.VERSION}")
     logger.info(f"Environment: {'Development' if settings.DEBUG else 'Production'}")
+
+    # Seed system categories
+    async with AsyncSessionLocal() as db:
+        await seed_categories(db)
 
     yield
 
