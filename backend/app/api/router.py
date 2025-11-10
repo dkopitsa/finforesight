@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import auth
+from app.api.routes import accounts, auth
 from app.core.config import settings
 
 api_router = APIRouter()
@@ -14,6 +14,9 @@ async def api_health_check() -> dict[str, str]:
 
 # Include authentication routes
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+
+# Include account routes
+api_router.include_router(accounts.router, prefix="/accounts", tags=["Accounts"])
 
 # Include test routes in debug mode
 if settings.DEBUG:
