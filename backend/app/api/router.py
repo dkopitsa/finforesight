@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.routes import auth
 from app.core.config import settings
 
 api_router = APIRouter()
@@ -11,6 +12,9 @@ async def api_health_check() -> dict[str, str]:
     return {"status": "healthy", "api_version": "v1"}
 
 
+# Include authentication routes
+api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+
 # Include test routes in debug mode
 if settings.DEBUG:
     from app.api.routes import test
@@ -20,7 +24,6 @@ if settings.DEBUG:
 
 # Future routers will be included here
 # Example:
-# from app.api.routes import auth, accounts, scheduler
-# api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+# from app.api.routes import accounts, scheduler
 # api_router.include_router(accounts.router, prefix="/accounts", tags=["accounts"])
 # api_router.include_router(scheduler.router, prefix="/scheduler", tags=["scheduler"])

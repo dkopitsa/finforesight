@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Boolean, Column, String
 
 from app.models.base import BaseModel
 
@@ -10,9 +10,9 @@ class User(BaseModel):
 
     email = Column(String(255), unique=True, nullable=False, index=True)
     hashed_password = Column(String(255), nullable=False)
-    name = Column(String(255), nullable=True)
-    base_currency = Column(String(3), nullable=False, default="USD")
-    date_format = Column(String(20), nullable=False, default="DD.MM.YYYY")
+    full_name = Column(String(255), nullable=True)
+    currency = Column(String(3), nullable=False, default="USD")
+    is_active = Column(Boolean, default=True, nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email})>"
