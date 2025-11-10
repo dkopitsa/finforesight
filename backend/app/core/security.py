@@ -3,19 +3,14 @@
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 
-# Password hashing context
-# Note: Using bcrypt with ident="2b" to avoid Python 3.14 compatibility issues
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto",
-    bcrypt__ident="2b",
-    bcrypt__rounds=12,
-)
+# Password hashing context using Argon2 (more secure and Python 3.14 compatible)
+pwd_hasher = PasswordHasher()
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -28,7 +23,11 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         True if the password matches, False otherwise
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        pwd_hasher.verify(hashed_password, plain_password)
+        return True
+    except VerifyMismatchError:
+        return False
 
 
 def get_password_hash(password: str) -> str:
@@ -40,7 +39,7 @@ def get_password_hash(password: str) -> str:
     Returns:
         The hashed password
     """
-    return pwd_context.hash(password)
+    return pwd_hasher.hash(password)
 
 
 def create_access_token(subject: str | int, expires_delta: timedelta | None = None) -> str:
