@@ -2,11 +2,13 @@
 
 import asyncio
 from collections.abc import AsyncGenerator, Generator
+from contextlib import suppress
 from typing import Any
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
@@ -28,10 +30,9 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
     loop.close()
 
 
-@pytest_asyncio.fixture(scope="function")
-async def test_db() -> AsyncGenerator[AsyncSession, None]:
-    """Create a test database and return a session."""
-    # Create async engine for tests
+@pytest_asyncio.fixture(scope="session")
+async def test_engine():
+    """Create a test database engine for the entire test session."""
     engine = create_async_engine(
         TEST_DATABASE_URL,
         echo=False,
@@ -39,21 +40,39 @@ async def test_db() -> AsyncGenerator[AsyncSession, None]:
         connect_args={"check_same_thread": False},
     )
 
-    # Create all tables
+    # Create all tables once
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    # Create session factory
-    test_session_local = async_sessionmaker(
-        engine,
+    yield engine
+
+    # Drop all tables at the end of session
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+    await engine.dispose()
+
+
+@pytest_asyncio.fixture(scope="session")
+async def test_session_factory(test_engine):
+    """Create a session factory for the test session."""
+    return async_sessionmaker(
+        test_engine,
         class_=AsyncSession,
         expire_on_commit=False,
         autocommit=False,
         autoflush=False,
     )
 
-    # Create session
-    async with test_session_local() as session:
+
+@pytest_asyncio.fixture(scope="function")
+async def test_db(test_session_factory) -> AsyncGenerator[AsyncSession, None]:
+    """
+    Provide a clean database session for each test.
+
+    Tables are truncated after each test to ensure isolation.
+    """
+    async with test_session_factory() as session:
         try:
             yield session
             await session.commit()
@@ -63,11 +82,27 @@ async def test_db() -> AsyncGenerator[AsyncSession, None]:
         finally:
             await session.close()
 
-    # Drop all tables
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+    # Clean up database after test by truncating all tables
+    async with test_session_factory() as cleanup_session:
+        try:
+            # Delete in reverse dependency order to respect foreign keys
+            # Children first, then parents
+            await cleanup_session.execute(text("DELETE FROM refresh_tokens"))
+            await cleanup_session.execute(text("DELETE FROM accounts"))
+            await cleanup_session.execute(text("DELETE FROM categories"))
+            await cleanup_session.execute(text("DELETE FROM users"))
 
-    await engine.dispose()
+            # Reset auto-increment counters for consistent test IDs
+            # sqlite_sequence table only exists after first auto-increment insert
+            with suppress(Exception):
+                await cleanup_session.execute(text("DELETE FROM sqlite_sequence"))
+
+            await cleanup_session.commit()
+        except Exception:
+            await cleanup_session.rollback()
+            raise
+        finally:
+            await cleanup_session.close()
 
 
 @pytest_asyncio.fixture(scope="function")
