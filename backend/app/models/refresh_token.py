@@ -24,7 +24,15 @@ class RefreshToken(BaseModel):
     @property
     def is_expired(self) -> bool:
         """Check if the refresh token has expired."""
-        return datetime.now(UTC) > self.expires_at
+        # Handle both timezone-aware and timezone-naive datetimes
+        now = datetime.now(UTC)
+        expires_at = self.expires_at
+
+        # If expires_at is naive, make it aware (assume UTC)
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=UTC)
+
+        return now > expires_at
 
     @property
     def is_valid(self) -> bool:
