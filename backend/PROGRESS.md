@@ -121,14 +121,71 @@ DELETE /api/v1/categories/{id}  - Delete custom category
 
 ---
 
-## Future Stages (Planned)
+## Stage 4: Scheduled Transactions ✅ COMPLETE
 
-### Stage 4: Scheduled Transactions
-- [ ] ScheduledTransaction model (recurring transactions)
-- [ ] ScheduledTransactionException model (for editing instances)
-- [ ] CRUD endpoints with recurrence logic
-- [ ] Recurrence pattern support (daily, weekly, monthly, yearly)
-- [ ] "Edit this instance" vs "Edit this and future" logic
+### Scheduled Transaction Models ✅
+- [x] ScheduledTransaction model (one-time and recurring transactions)
+- [x] ScheduledTransactionException model (for modifying specific instances)
+- [x] Recurrence frequency enum (MONTHLY, YEARLY)
+- [x] Alembic migration for scheduled transactions tables
+
+### Recurrence Logic ✅
+- [x] RecurrenceService for expanding recurring transactions
+- [x] Monthly recurrence support (with day-of-month 1-31 or -1 for last day)
+- [x] Yearly recurrence support (month + day-of-month)
+- [x] Edge case handling:
+  - Last day of month (-1)
+  - Month overflow (e.g., Jan 31 → Feb 28)
+  - Leap years (automatic via calendar module)
+- [x] Instance expansion endpoint for calendar view
+- [x] Exception handling (modified amounts, deleted instances)
+
+### Update/Delete Modes ✅
+- [x] ALL mode: Edit/delete entire series
+- [x] THIS_ONLY mode: Edit/delete single instance (creates exception)
+- [x] THIS_AND_FUTURE mode: Split series at date
+
+### Scheduled Transaction CRUD ✅
+- [x] Scheduled transaction schemas (Base, Create, Update, Response, Instance, Exception)
+- [x] List scheduled transactions endpoint
+- [x] Create scheduled transaction endpoint
+- [x] Get single scheduled transaction endpoint
+- [x] Update scheduled transaction endpoint (with 3 modes)
+- [x] Delete scheduled transaction endpoint (with 3 modes)
+- [x] Get instances expansion endpoint (for calendar view)
+- [x] Comprehensive test suite (13 tests passing)
+
+**API Endpoints:**
+```
+GET    /api/v1/scheduled-transactions/           - List scheduled transactions
+POST   /api/v1/scheduled-transactions/           - Create scheduled transaction
+GET    /api/v1/scheduled-transactions/{id}       - Get single scheduled transaction
+PUT    /api/v1/scheduled-transactions/{id}       - Update scheduled transaction
+DELETE /api/v1/scheduled-transactions/{id}       - Delete scheduled transaction
+GET    /api/v1/scheduled-transactions/instances  - Get expanded instances (calendar view)
+```
+
+**Features:**
+- Full CRUD operations with authentication
+- One-time and recurring transactions
+- Monthly and yearly recurrence patterns
+- Date range validation (max 730 days for instance expansion)
+- Three editing modes (ALL, THIS_ONLY, THIS_AND_FUTURE)
+- Exception pattern for instance-specific modifications
+- Ownership validation (account, category)
+- Transfer support (to_account_id)
+- Structured logging for audit trail
+
+**Implementation Highlights:**
+- Complex Pydantic validation for recurrence field consistency
+- Efficient instance expansion with safety limits (10,000 max iterations)
+- Edge case handling (last day of month, month overflow, leap years)
+- Exception-based modification (preserves series integrity)
+- Series splitting for THIS_AND_FUTURE mode
+
+---
+
+## Future Stages (Planned)
 
 ### Stage 5: Forecast Calculation
 - [ ] ExchangeRate model for multi-currency support
@@ -166,12 +223,13 @@ DELETE /api/v1/categories/{id}  - Delete custom category
 
 ### Current Test Status
 ```
-Total Tests: 62
+Total Tests: 75
 ├── Authentication: 21 tests ✅
 ├── Accounts: 18 tests ✅
-└── Categories: 23 tests ✅
+├── Categories: 23 tests ✅
+└── Scheduled Transactions: 13 tests ✅
 
-Test Execution Time: ~6.88 seconds
+Test Execution Time: ~8.85 seconds
 Coverage: TBD (need to add coverage reporting)
 ```
 
@@ -200,13 +258,20 @@ Coverage: TBD (need to add coverage reporting)
 - Update Category: 4 tests (success, system protected, not found, unauthorized)
 - Delete Category: 4 tests (success, system protected, not found, unauthorized)
 
+**Scheduled Transaction Tests (13):**
+- List Scheduled Transactions: 2 tests (empty, with data)
+- Create Scheduled Transaction: 4 tests (one-time, monthly recurring, yearly recurring, invalid recurrence)
+- Get Instances: 2 tests (expand monthly recurring, respect end_date)
+- Update Scheduled Transaction: 2 tests (ALL mode, THIS_ONLY creates exception)
+- Delete Scheduled Transaction: 3 tests (ALL mode, THIS_ONLY creates exception, THIS_AND_FUTURE sets end_date)
+
 ---
 
 ## Technical Debt & Improvements
 
 ### Optimization Completed ✅
 - [x] Optimized test fixtures (table truncation vs recreation)
-  - 45% faster test execution (3.6s → 2.0s → 6.88s with 62 tests)
+  - 45% faster test execution (3.6s → 2.0s → 8.85s with 75 tests)
   - Session-scoped database creation
   - Function-scoped table truncation
 
@@ -231,24 +296,25 @@ Coverage: TBD (need to add coverage reporting)
 2. **accounts** - Financial accounts (8 types)
 3. **categories** - Transaction categories (system + custom)
 4. **refresh_tokens** - JWT refresh token management
+5. **scheduled_transactions** - Recurring transaction rules (one-time and recurring)
+6. **scheduled_transaction_exceptions** - Instance-specific modifications
 
 ### Pending Tables
-5. **scheduled_transactions** - Recurring transaction rules
-6. **scheduled_transaction_exceptions** - Instance-specific modifications
 7. **account_reconciliations** - Reconciliation records
 8. **exchange_rates** - Currency exchange rates
 
 ### Migration Status
-- Total Migrations: 3
+- Total Migrations: 4
   - Initial schema (users, accounts, categories)
   - Add refresh_token model
-  - [Future migrations for scheduled transactions, etc.]
+  - Add scheduled_transaction and scheduled_transaction_exception models
+  - [Future migrations for reconciliations, exchange rates, etc.]
 
 ---
 
 ## API Endpoints Summary
 
-### Current Endpoints (19 total)
+### Current Endpoints (25 total)
 
 **Health & Root:**
 - `GET /` - Welcome message
@@ -276,6 +342,14 @@ Coverage: TBD (need to add coverage reporting)
 - `GET /api/v1/categories/{id}` - Get category
 - `PUT /api/v1/categories/{id}` - Update custom category
 - `DELETE /api/v1/categories/{id}` - Delete custom category
+
+**Scheduled Transactions (6):**
+- `GET /api/v1/scheduled-transactions/` - List scheduled transactions
+- `POST /api/v1/scheduled-transactions/` - Create scheduled transaction
+- `GET /api/v1/scheduled-transactions/{id}` - Get scheduled transaction
+- `PUT /api/v1/scheduled-transactions/{id}` - Update scheduled transaction
+- `DELETE /api/v1/scheduled-transactions/{id}` - Delete scheduled transaction
+- `GET /api/v1/scheduled-transactions/instances` - Get expanded instances (calendar view)
 
 **Debug (3) - Only in DEBUG mode:**
 - `GET /api/v1/test/errors/400` - Test 400 error
@@ -310,7 +384,7 @@ Coverage: TBD (need to add coverage reporting)
 - None currently
 
 ### Performance Metrics
-- Test execution: ~6.88 seconds for 62 tests
+- Test execution: ~8.85 seconds for 75 tests
 - API startup time: <1 second (includes category seeding)
 - Database query performance: Not yet benchmarked
 
@@ -318,13 +392,7 @@ Coverage: TBD (need to add coverage reporting)
 
 ## Next Steps (Priority Order)
 
-1. **Implement Scheduled Transactions (Stage 4)** (~4-5 hours)
-   - Core feature - the "Google Calendar for money"
-   - Complex recurrence logic
-   - Create ScheduledTransaction and ScheduledTransactionException models
-   - CRUD endpoints with recurrence patterns
-
-2. **Implement Dashboard Summary** (~2-3 hours)
+1. **Implement Dashboard Summary** (~2-3 hours)
    - Enhanced financial summary endpoint
    - Chart data preparation
    - Ready for frontend consumption
@@ -347,5 +415,5 @@ Coverage: TBD (need to add coverage reporting)
 
 ---
 
-**Status:** Stage 3 Complete - Category Management Operational
-**Next:** Stage 4 - Scheduled Transactions Implementation
+**Status:** Stage 4 Complete - Scheduled Transactions Operational ("Google Calendar for Money")
+**Next:** Stage 5 - Forecast Calculation & Dashboard Enhancements
