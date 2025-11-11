@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import accounts, auth, categories, scheduled_transactions
+from app.api.routes import accounts, auth, categories, forecast, scheduled_transactions
 from app.core.config import settings
 
 api_router = APIRouter()
@@ -27,6 +27,9 @@ api_router.include_router(
     prefix="/scheduled-transactions",
     tags=["Scheduled Transactions"],
 )
+
+# Include forecast routes
+api_router.include_router(forecast.router, prefix="/forecast", tags=["Forecast"])
 
 # Include test routes in debug mode
 if settings.DEBUG:
