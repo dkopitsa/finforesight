@@ -3,7 +3,7 @@
 ## Overview
 This document tracks the development progress of the FinForesight backend API.
 
-**Last Updated:** November 10, 2025
+**Last Updated:** November 11, 2025
 
 ---
 
@@ -185,29 +185,124 @@ GET    /api/v1/scheduled-transactions/instances  - Get expanded instances (calen
 
 ---
 
+## Stage 5: Forecast Calculation ✅ COMPLETE
+
+### Forecast Service ✅
+- [x] ForecastService for calculating future account balances
+- [x] RecurrenceService integration for transaction expansion
+- [x] ForecastDataPoint and AccountForecast data structures
+- [x] Daily balance calculation with transaction application
+- [x] Support for transfers between accounts
+- [x] Date range validation (max 365 days)
+- [x] Comprehensive test suite (7 tests passing)
+
+### Forecast API ✅
+- [x] Forecast schemas (ForecastRequest, ForecastResponse, DataPoint)
+- [x] GET /api/v1/forecast endpoint with date range filtering
+- [x] Optional account filtering
+- [x] Multi-account forecast support
+- [x] Time-series data points for charting
+
+**API Endpoint:**
+```
+GET /api/v1/forecast - Calculate balance forecast with date range
+```
+
+**Features:**
+- Calculates projected balances from initial balance + scheduled transactions
+- Expands recurring transactions into daily instances
+- Applies transactions chronologically to calculate running balance
+- Supports filtering by account_ids
+- Validates date ranges (max 365 days)
+- Returns time-series data ready for frontend charts
+- Handles transfers between accounts (debits source, credits destination)
+
+**Implementation Highlights:**
+- Integration with RecurrenceService for transaction expansion
+- Efficient daily iteration with transaction grouping
+- Proper handling of account initial_balance as starting point
+- Edge case handling (missing data, no transactions, etc.)
+
+---
+
+## Stage 6: Reconciliation ✅ COMPLETE
+
+### Reconciliation Models ✅
+- [x] AccountReconciliation model (tracks actual vs expected balance)
+- [x] Foreign key relationships (users, accounts, adjustment transactions)
+- [x] Alembic migration for account_reconciliations table
+- [x] Indexed columns for performance (user_id, account_id)
+
+### Reconciliation Service ✅
+- [x] ReconciliationService with create, list, get, delete operations
+- [x] Expected balance calculation using ForecastService integration
+- [x] Automatic adjustment transaction creation (optional)
+- [x] System "Reconciliation Adjustment" category creation
+- [x] Difference calculation (actual - expected)
+- [x] Comprehensive test suite (11 tests passing)
+
+### Reconciliation API ✅
+- [x] Reconciliation schemas (Create, Response, Summary)
+- [x] POST /api/v1/reconciliations/ - Create reconciliation
+- [x] GET /api/v1/reconciliations/ - List reconciliations with account filter
+- [x] GET /api/v1/reconciliations/{id} - Get single reconciliation
+- [x] DELETE /api/v1/reconciliations/{id} - Delete reconciliation
+- [x] Account ownership validation
+
+**API Endpoints:**
+```
+POST   /api/v1/reconciliations/      - Create reconciliation
+GET    /api/v1/reconciliations/      - List reconciliations
+GET    /api/v1/reconciliations/{id}  - Get reconciliation
+DELETE /api/v1/reconciliations/{id}  - Delete reconciliation
+```
+
+**Features:**
+- Compare actual bank balance with system-calculated expected balance
+- Optional automatic adjustment transaction creation when differences exist
+- Integration with ForecastService for expected balance calculation
+- Creates system "Reconciliation Adjustment" category automatically
+- Tracks adjustment transaction ID for audit trail
+- Optional notes for reconciliation records
+- Account filtering in list endpoint
+- Proper date range handling (from initial_balance_date to reconciliation_date)
+
+**Implementation Highlights:**
+- Smart expected balance calculation using forecast from account start date
+- Automatic system category creation for adjustments
+- One-time scheduled transaction created for adjustments
+- Ownership validation throughout
+- Structured logging for audit trail
+- Clean separation of concerns (service, routes, schemas)
+
+---
+
+## Stage 7: Dashboard & Reports ✅ COMPLETE
+
+### Dashboard API ✅
+- [x] GET /api/v1/dashboard endpoint
+- [x] Account summaries with current balances
+- [x] Upcoming transactions (next 7 days)
+- [x] Balance trend data (7 days)
+- [x] Financial summary (liquid assets, investments, net worth)
+- [x] Comprehensive test suite (5 tests passing)
+
+**API Endpoint:**
+```
+GET /api/v1/dashboard - Get dashboard summary with trends
+```
+
+**Features:**
+- Complete financial overview in single endpoint
+- Account summaries with calculated balances
+- Upcoming scheduled transactions (next 7 days)
+- 7-day balance trend for all accounts
+- Financial summary breakdown by account type
+- Ready for frontend consumption
+
+---
+
 ## Future Stages (Planned)
-
-### Stage 5: Forecast Calculation
-- [ ] ExchangeRate model for multi-currency support
-- [ ] Integration with exchange rate API
-- [ ] ForecastService for calculating future balances
-- [ ] Forecast expansion logic (recurring transactions → actual dates)
-- [ ] Multi-currency conversion
-- [ ] Forecast API endpoints
-
-### Stage 6: Reconciliation
-- [ ] AccountReconciliation model
-- [ ] Reconciliation endpoints
-- [ ] Adjustment transaction creation
-- [ ] Recalculate forecast from reconciliation point
-- [ ] Plan vs Actual analysis
-
-### Stage 7: Dashboard & Reports
-- [ ] Dashboard summary endpoint (enhanced version)
-- [ ] Chart data preparation
-- [ ] Liquid assets trend
-- [ ] Income vs Expenses analysis
-- [ ] Net worth projection
 
 ### Stage 8: Frontend (Angular)
 - [ ] Angular project setup
@@ -223,13 +318,16 @@ GET    /api/v1/scheduled-transactions/instances  - Get expanded instances (calen
 
 ### Current Test Status
 ```
-Total Tests: 75
+Total Tests: 98
 ├── Authentication: 21 tests ✅
 ├── Accounts: 18 tests ✅
 ├── Categories: 23 tests ✅
-└── Scheduled Transactions: 13 tests ✅
+├── Scheduled Transactions: 13 tests ✅
+├── Dashboard: 5 tests ✅
+├── Forecast: 7 tests ✅
+└── Reconciliation: 11 tests ✅
 
-Test Execution Time: ~8.85 seconds
+Test Execution Time: ~12.20 seconds
 Coverage: TBD (need to add coverage reporting)
 ```
 
@@ -265,6 +363,18 @@ Coverage: TBD (need to add coverage reporting)
 - Update Scheduled Transaction: 2 tests (ALL mode, THIS_ONLY creates exception)
 - Delete Scheduled Transaction: 3 tests (ALL mode, THIS_ONLY creates exception, THIS_AND_FUTURE sets end_date)
 
+**Dashboard Tests (5):**
+- Get Dashboard: 5 tests (empty, with accounts, with upcoming transactions, balance trend, without auth)
+
+**Forecast Tests (7):**
+- Get Forecast: 7 tests (single account, multiple accounts, with transfer, account filter, invalid date range, date range too large, without auth)
+
+**Reconciliation Tests (11):**
+- Create Reconciliation: 5 tests (no difference, with difference, without adjustment, with transactions, invalid account)
+- List Reconciliations: 2 tests (empty, with data)
+- Get Reconciliation: 2 tests (success, not found)
+- Delete Reconciliation: 2 tests (success, not found)
+
 ---
 
 ## Technical Debt & Improvements
@@ -298,23 +408,24 @@ Coverage: TBD (need to add coverage reporting)
 4. **refresh_tokens** - JWT refresh token management
 5. **scheduled_transactions** - Recurring transaction rules (one-time and recurring)
 6. **scheduled_transaction_exceptions** - Instance-specific modifications
+7. **account_reconciliations** - Reconciliation records ✅
 
 ### Pending Tables
-7. **account_reconciliations** - Reconciliation records
-8. **exchange_rates** - Currency exchange rates
+8. **exchange_rates** - Currency exchange rates (future)
 
 ### Migration Status
-- Total Migrations: 4
+- Total Migrations: 5
   - Initial schema (users, accounts, categories)
   - Add refresh_token model
   - Add scheduled_transaction and scheduled_transaction_exception models
-  - [Future migrations for reconciliations, exchange rates, etc.]
+  - Add account_reconciliations table ✅
+  - [Future migrations for exchange rates, etc.]
 
 ---
 
 ## API Endpoints Summary
 
-### Current Endpoints (25 total)
+### Current Endpoints (32 total)
 
 **Health & Root:**
 - `GET /` - Welcome message
@@ -351,6 +462,18 @@ Coverage: TBD (need to add coverage reporting)
 - `DELETE /api/v1/scheduled-transactions/{id}` - Delete scheduled transaction
 - `GET /api/v1/scheduled-transactions/instances` - Get expanded instances (calendar view)
 
+**Forecast (1):**
+- `GET /api/v1/forecast` - Calculate balance forecast with date range
+
+**Dashboard (1):**
+- `GET /api/v1/dashboard` - Get dashboard summary with trends
+
+**Reconciliation (4):**
+- `POST /api/v1/reconciliations/` - Create reconciliation
+- `GET /api/v1/reconciliations/` - List reconciliations
+- `GET /api/v1/reconciliations/{id}` - Get reconciliation
+- `DELETE /api/v1/reconciliations/{id}` - Delete reconciliation
+
 **Debug (3) - Only in DEBUG mode:**
 - `GET /api/v1/test/errors/400` - Test 400 error
 - `GET /api/v1/test/errors/404` - Test 404 error
@@ -360,13 +483,13 @@ Coverage: TBD (need to add coverage reporting)
 
 ## Recent Commits
 
-### Latest (November 10, 2025)
-1. ✅ feat: Implement complete Category Management (Stage 3) - 1172 lines added
-2. ✅ feat: Implement Accounts CRUD endpoints (Stage 2)
-3. ✅ perf: Optimize test fixtures with table truncation
-4. ✅ feat: Add comprehensive pytest test suite for authentication
-5. ✅ feat: Complete Stage 1 - Logging configuration and infrastructure
-6. ✅ feat: Implement comprehensive error handling middleware
+### Latest (November 11, 2025)
+1. ✅ feat: Complete Stage 6 - Reconciliation implementation
+2. ✅ feat: Complete Stage 7 - Dashboard & Reports
+3. ✅ feat: Complete Stage 5 - Forecast Calculation
+4. ✅ feat: Complete Stage 4 - Scheduled Transactions implementation
+5. ✅ feat: Implement complete Category Management (Stage 3)
+6. ✅ feat: Implement Accounts CRUD endpoints (Stage 2)
 
 ---
 
@@ -384,7 +507,7 @@ Coverage: TBD (need to add coverage reporting)
 - None currently
 
 ### Performance Metrics
-- Test execution: ~8.85 seconds for 75 tests
+- Test execution: ~12.20 seconds for 98 tests
 - API startup time: <1 second (includes category seeding)
 - Database query performance: Not yet benchmarked
 
@@ -392,28 +515,32 @@ Coverage: TBD (need to add coverage reporting)
 
 ## Next Steps (Priority Order)
 
-1. **Implement Dashboard Summary** (~2-3 hours)
-   - Enhanced financial summary endpoint
-   - Chart data preparation
-   - Ready for frontend consumption
+1. **Frontend Development (Stage 8)** (~40-60 hours)
+   - Angular project setup
+   - Authentication UI (login, register, logout)
+   - Account management UI (CRUD, balances)
+   - Transaction scheduler UI (calendar view, recurring patterns)
+   - Dashboard with charts (balance trends, forecasts)
+   - Forecast visualization (line charts, account filtering)
+   - Reconciliation UI (compare balances, create adjustments)
 
-3. **Implement Exchange Rates (Stage 5)** (~3-4 hours)
-   - Multi-currency support
+2. **Backend Enhancements** (~10-15 hours)
+   - Multi-currency support with ExchangeRate model
    - API integration for exchange rates
-   - ExchangeRate model
+   - Enhanced error handling
+   - Performance optimizations
+   - Test coverage reporting
+   - API documentation enhancements
 
-4. **Implement Forecast Calculation (Stage 5)** (~6-8 hours)
-   - The main value proposition
-   - Algorithm for projecting future balances
-   - ForecastService with expansion logic
-
-5. **Implement Reconciliation (Stage 6)** (~4-5 hours)
-   - AccountReconciliation model
-   - Reconciliation endpoints
-   - Adjustment transactions
-   - Plan vs Actual analysis
+3. **Production Readiness** (~5-10 hours)
+   - Docker containerization
+   - CI/CD pipeline setup
+   - Production environment configuration
+   - Monitoring and logging setup
+   - Security audit
+   - Performance benchmarking
 
 ---
 
-**Status:** Stage 4 Complete - Scheduled Transactions Operational ("Google Calendar for Money")
-**Next:** Stage 5 - Forecast Calculation & Dashboard Enhancements
+**Status:** Backend Complete ✅ - Stages 1-7 Operational
+**Next:** Stage 8 - Frontend Development (Angular)

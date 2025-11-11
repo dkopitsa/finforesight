@@ -87,6 +87,7 @@ async def test_db(test_session_factory) -> AsyncGenerator[AsyncSession, None]:
         try:
             # Delete in reverse dependency order to respect foreign keys
             # Children first, then parents
+            await cleanup_session.execute(text("DELETE FROM account_reconciliations"))
             await cleanup_session.execute(text("DELETE FROM scheduled_transaction_exceptions"))
             await cleanup_session.execute(text("DELETE FROM scheduled_transactions"))
             await cleanup_session.execute(text("DELETE FROM refresh_tokens"))

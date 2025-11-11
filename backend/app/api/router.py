@@ -1,6 +1,14 @@
 from fastapi import APIRouter
 
-from app.api.routes import accounts, auth, categories, dashboard, forecast, scheduled_transactions
+from app.api.routes import (
+    accounts,
+    auth,
+    categories,
+    dashboard,
+    forecast,
+    reconciliation,
+    scheduled_transactions,
+)
 from app.core.config import settings
 
 api_router = APIRouter()
@@ -33,6 +41,13 @@ api_router.include_router(forecast.router, prefix="/forecast", tags=["Forecast"]
 
 # Include dashboard routes
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
+
+# Include reconciliation routes
+api_router.include_router(
+    reconciliation.router,
+    prefix="/reconciliations",
+    tags=["Reconciliations"],
+)
 
 # Include test routes in debug mode
 if settings.DEBUG:
