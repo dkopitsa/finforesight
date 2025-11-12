@@ -1,58 +1,62 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzResultModule } from 'ng-zorro-antd/result';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NzButtonModule, NzResultModule],
+  imports: [CommonModule, NzResultModule],
   template: `
     <div class="dashboard-placeholder">
       <nz-result
-        nzStatus="success"
-        nzTitle="Welcome to FinForesight!"
-        [nzSubTitle]="'Logged in as: ' + (currentUser?.email || '')"
+        nzStatus="info"
+        nzTitle="Dashboard Coming Soon"
+        [nzSubTitle]="'Welcome, ' + (currentUser?.full_name || 'User') + '!'"
       >
-        <div nz-result-extra>
-          <button nz-button nzType="primary" (click)="logout()">Logout</button>
-        </div>
       </nz-result>
 
       <div class="info-box">
-        <h3>Dashboard Coming Soon</h3>
-        <p>The full dashboard with forecast charts and financial summaries will be implemented in Week 2.</p>
+        <h3>Next Steps (Week 2)</h3>
+        <ul>
+          <li>Forecast chart showing 12-month balance projection</li>
+          <li>Summary cards (Current Balance, Income, Expenses, Net)</li>
+          <li>Upcoming transactions for next 7 days</li>
+        </ul>
         <p><strong>Current User:</strong> {{ currentUser?.full_name }}</p>
+        <p><strong>Email:</strong> {{ currentUser?.email }}</p>
         <p><strong>Currency:</strong> {{ currentUser?.currency }}</p>
       </div>
     </div>
   `,
   styles: [`
     .dashboard-placeholder {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-      background: #f0f2f5;
+      padding: 24px;
     }
 
     .info-box {
-      background: white;
+      background: #f5f5f5;
       border-radius: 8px;
       padding: 24px;
-      max-width: 600px;
-      margin-top: 24px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      margin: 24px auto 0;
     }
 
     .info-box h3 {
       margin: 0 0 16px 0;
       color: #262626;
       font-size: 18px;
+    }
+
+    .info-box ul {
+      margin: 0 0 16px 0;
+      padding-left: 24px;
+    }
+
+    .info-box li {
+      margin: 8px 0;
+      color: #595959;
+      line-height: 1.6;
     }
 
     .info-box p {
@@ -64,11 +68,6 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class DashboardComponent {
   private authService = inject(AuthService);
-  private router = inject(Router);
 
   currentUser = this.authService.getCurrentUser();
-
-  logout(): void {
-    this.authService.logout();
-  }
 }
