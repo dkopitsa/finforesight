@@ -1,73 +1,120 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NzResultModule } from 'ng-zorro-antd/result';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { AuthService } from '../../core/services/auth.service';
+import { DashboardService } from '../../core/services/dashboard.service';
+import { DashboardData } from '../../core/models/dashboard.model';
+import { SummaryCardsComponent } from './components/summary-cards/summary-cards.component';
+import { ForecastChartComponent } from './components/forecast-chart/forecast-chart.component';
+import { UpcomingTransactionsComponent } from './components/upcoming-transactions/upcoming-transactions.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NzResultModule],
+  imports: [
+    CommonModule,
+    NzSpinModule,
+    NzAlertModule,
+    SummaryCardsComponent,
+    ForecastChartComponent,
+    UpcomingTransactionsComponent,
+  ],
   template: `
-    <div class="dashboard-placeholder">
-      <nz-result
-        nzStatus="info"
-        nzTitle="Dashboard Coming Soon"
-        [nzSubTitle]="'Welcome, ' + (currentUser?.full_name || 'User') + '!'"
-      >
-      </nz-result>
+    <div class="dashboard-container">
+      <nz-spin [nzSpinning]="loading" nzTip="Loading dashboard...">
+        <nz-alert
+          *ngIf="error"
+          nzType="error"
+          [nzMessage]="error"
+          nzShowIcon
+          nzCloseable
+          (nzOnClose)="error = null"
+          style="margin-bottom: 24px;"
+        ></nz-alert>
 
-      <div class="info-box">
-        <h3>Next Steps (Week 2)</h3>
-        <ul>
-          <li>Forecast chart showing 12-month balance projection</li>
-          <li>Summary cards (Current Balance, Income, Expenses, Net)</li>
-          <li>Upcoming transactions for next 7 days</li>
-        </ul>
-        <p><strong>Current User:</strong> {{ currentUser?.full_name }}</p>
-        <p><strong>Email:</strong> {{ currentUser?.email }}</p>
-        <p><strong>Currency:</strong> {{ currentUser?.currency }}</p>
-      </div>
+        <div *ngIf="!loading && !error && dashboardData">
+          <!-- Summary Cards -->
+          <app-summary-cards
+            [summary]="dashboardData.financial_summary"
+            [currencySymbol]="getCurrencySymbol()"
+          ></app-summary-cards>
+
+          <!-- Forecast Chart -->
+          <div style="margin-top: 24px;">
+            <app-forecast-chart
+              [balanceTrend]="dashboardData.balance_trend"
+              [currencySymbol]="getCurrencySymbol()"
+            ></app-forecast-chart>
+          </div>
+
+          <!-- Upcoming Transactions -->
+          <div style="margin-top: 24px;">
+            <app-upcoming-transactions
+              [transactions]="dashboardData.upcoming_transactions"
+              [currencySymbol]="getCurrencySymbol()"
+            ></app-upcoming-transactions>
+          </div>
+        </div>
+
+        <div *ngIf="!loading && !error && !dashboardData" class="empty-state">
+          <p>No dashboard data available</p>
+        </div>
+      </nz-spin>
     </div>
   `,
   styles: [`
-    .dashboard-placeholder {
-      padding: 24px;
+    .dashboard-container {
+      padding: 0;
     }
 
-    .info-box {
-      background: #f5f5f5;
-      border-radius: 8px;
-      padding: 24px;
-      max-width: 800px;
-      margin: 24px auto 0;
-    }
-
-    .info-box h3 {
-      margin: 0 0 16px 0;
-      color: #262626;
-      font-size: 18px;
-    }
-
-    .info-box ul {
-      margin: 0 0 16px 0;
-      padding-left: 24px;
-    }
-
-    .info-box li {
-      margin: 8px 0;
-      color: #595959;
-      line-height: 1.6;
-    }
-
-    .info-box p {
-      margin: 8px 0;
-      color: #595959;
-      line-height: 1.6;
+    .empty-state {
+      padding: 48px 24px;
+      text-align: center;
+      color: #8c8c8c;
     }
   `]
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
+  private dashboardService = inject(DashboardService);
 
   currentUser = this.authService.getCurrentUser();
+  dashboardData: DashboardData | null = null;
+  loading = false;
+  error: string | null = null;
+
+  ngOnInit(): void {
+    this.loadDashboard();
+  }
+
+  loadDashboard(): void {
+    this.loading = true;
+    this.error = null;
+
+    this.dashboardService.getDashboard().subscribe({
+      next: (data) => {
+        this.dashboardData = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err.error?.detail || 'Failed to load dashboard data';
+        this.loading = false;
+      },
+    });
+  }
+
+  getCurrencySymbol(): string {
+    const currencySymbols: Record<string, string> = {
+      USD: '$',
+      EUR: '€',
+      GBP: '£',
+      JPY: '¥',
+      CAD: 'C$',
+      AUD: 'A$',
+      CHF: 'CHF',
+      CNY: '¥',
+    };
+    return currencySymbols[this.currentUser?.currency || 'USD'] || '$';
+  }
 }

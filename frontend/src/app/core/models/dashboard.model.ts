@@ -1,3 +1,35 @@
+export interface FinancialSummary {
+  liquid_assets: string;
+  investments: string;
+  credit_used: string;
+  loans_receivable: string;
+  net_worth: string;
+  account_count: number;
+}
+
+export interface UpcomingTransaction {
+  scheduled_transaction_id: number;
+  date: string;
+  name: string;
+  amount: string;
+  account_name: string;
+  category_name: string;
+  is_transfer: boolean;
+}
+
+export interface BalanceTrendPoint {
+  date: string;
+  balance: string;
+}
+
+export interface DashboardData {
+  financial_summary: FinancialSummary;
+  upcoming_transactions: UpcomingTransaction[];
+  balance_trend: BalanceTrendPoint[];
+  scheduled_transaction_count: number;
+}
+
+// Forecast models
 export interface ForecastDataPoint {
   date: string;
   balance: string;
@@ -11,31 +43,8 @@ export interface AccountForecast {
   data_points: ForecastDataPoint[];
 }
 
-export interface DashboardSummary {
-  accounts: Array<{
-    id: number;
-    name: string;
-    type: string;
-    balance: string;
-    currency: string;
-  }>;
-  upcoming_transactions: Array<{
-    id: number;
-    name: string;
-    amount: string;
-    date: string;
-    category_name: string;
-    account_name: string;
-  }>;
-  balance_trend: Array<{
-    date: string;
-    total_balance: string;
-  }>;
-  summary: {
-    liquid_assets: string;
-    investments: string;
-    credit_used: string;
-    loans_receivable: string;
-    net_worth: string;
-  };
+export interface ForecastData {
+  from_date: string;
+  to_date: string;
+  accounts: AccountForecast[];
 }
