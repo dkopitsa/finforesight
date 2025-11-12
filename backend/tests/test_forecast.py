@@ -366,5 +366,5 @@ class TestGetForecast:
             follow_redirects=False,
         )
 
-        # Should return 401/403 (or may redirect with 307)
-        assert response.status_code in (401, 403, 307)
+        # Should return 401 Unauthorized for missing credentials
+        assert response.status_code == 401

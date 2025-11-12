@@ -17,7 +17,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         errorMessage = `Error: ${error.error.message}`;
       } else {
         // Server-side error
-        if (error.status === 401) {
+        if (error.status === 401 || error.status === 307) {
+          // 401 = Unauthorized
+          // 307 = Temporary Redirect (fallback for old FastAPI HTTPBearer behavior)
           errorMessage = 'Unauthorized. Please login again.';
           // Clear storage and redirect to login
           localStorage.clear();

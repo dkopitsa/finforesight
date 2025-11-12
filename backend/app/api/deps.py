@@ -1,6 +1,6 @@
 """API dependencies for authentication and database sessions."""
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,8 +9,52 @@ from app.core.database import get_db
 from app.core.security import decode_token
 from app.models.user import User
 
+
+class HTTPBearerCustom(HTTPBearer):
+    """Custom HTTPBearer that returns 401 instead of 307 for missing/invalid credentials."""
+
+    async def __call__(self, request: Request) -> HTTPAuthorizationCredentials | None:
+        """Override to raise 401 instead of returning 307 redirect.
+
+        Args:
+            request: The incoming HTTP request
+
+        Returns:
+            HTTPAuthorizationCredentials: The bearer token credentials
+
+        Raises:
+            HTTPException: 401 if credentials are missing or invalid
+        """
+        authorization = request.headers.get("Authorization")
+
+        if not authorization:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing Authorization header",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        scheme, _, credentials = authorization.partition(" ")
+
+        if scheme.lower() != "bearer":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication scheme",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        if not credentials:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        return HTTPAuthorizationCredentials(scheme=scheme, credentials=credentials)
+
+
 # HTTP Bearer token scheme
-security = HTTPBearer()
+security = HTTPBearerCustom()
 
 
 async def get_current_user(
