@@ -3,6 +3,17 @@ export enum RecurrenceFrequency {
   YEARLY = 'YEARLY',
 }
 
+export enum UpdateMode {
+  ALL = 'ALL',
+  THIS_ONLY = 'THIS_ONLY',
+  THIS_AND_FUTURE = 'THIS_AND_FUTURE',
+}
+
+export enum ViewMode {
+  LIST = 'list',
+  CALENDAR = 'calendar',
+}
+
 export interface ScheduledTransaction {
   id: number;
   user_id: number;
@@ -65,4 +76,49 @@ export interface TransactionInstance {
   category_id: number;
   to_account_id?: number;
   is_exception: boolean;
+}
+
+export interface ScheduledTransactionException {
+  id: number;
+  scheduled_transaction_id: number;
+  exception_date: string;
+  amount?: string;
+  note?: string;
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ScheduledTransactionExceptionCreate {
+  scheduled_transaction_id: number;
+  exception_date: string;
+  amount?: string;
+  note?: string;
+  is_deleted?: boolean;
+}
+
+export interface TransactionFilter {
+  search?: string;
+  category_id?: number;
+  account_id?: number;
+  is_recurring?: boolean;
+  date_from?: string;
+  date_to?: string;
+}
+
+export interface TransactionStats {
+  total_income: string;
+  total_expense: string;
+  net_balance: string;
+  top_categories: {
+    category_id: number;
+    category_name: string;
+    total: string;
+  }[];
+  period_start: string;
+  period_end: string;
+}
+
+export interface InstancesResponse {
+  instances: TransactionInstance[];
 }
