@@ -31,3 +31,13 @@ export interface RegisterResponse {
   access_token: string;
   refresh_token: string;
 }
+
+export interface ProfileUpdate {
+  full_name?: string;
+  currency?: string;
+}
+
+export interface PasswordChange {
+  current_password: string;
+  new_password: string;
+}

@@ -94,6 +94,11 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  updateCurrentUser(user: User): void {
+    this.storageService.setUser(user);
+    this.currentUserSubject.next(user);
+  }
+
   isAuthenticated(): boolean {
     return this.isAuthenticatedSubject.value;
   }

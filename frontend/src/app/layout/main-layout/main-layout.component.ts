@@ -112,12 +112,10 @@ import { AuthService } from '../../core/services/auth.service';
               <nz-dropdown-menu #userDropdown="nzDropdownMenu">
                 <ul nz-menu>
                   <li nz-menu-item>
-                    <span nz-icon nzType="user" nzTheme="outline"></span>
-                    Profile
-                  </li>
-                  <li nz-menu-item>
-                    <span nz-icon nzType="setting" nzTheme="outline"></span>
-                    Settings
+                    <a routerLink="/settings">
+                      <span nz-icon nzType="setting" nzTheme="outline"></span>
+                      Settings
+                    </a>
                   </li>
                   <li nz-menu-divider></li>
                   <li nz-menu-item (click)="logout()">
@@ -295,6 +293,7 @@ export class MainLayoutComponent {
     if (url.includes('/forecast')) return 'Forecast';
     if (url.includes('/reconciliation')) return 'Reconciliation';
     if (url.includes('/analysis')) return 'Analysis';
+    if (url.includes('/settings')) return 'Settings';
     return 'FinForesight';
   }
 

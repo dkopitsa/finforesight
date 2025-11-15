@@ -49,3 +49,17 @@ class UserInDB(UserBase):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class ProfileUpdate(BaseModel):
+    """Schema for updating user profile (no password)."""
+
+    full_name: str | None = None
+    currency: str | None = None
+
+
+class PasswordChange(BaseModel):
+    """Schema for changing user password."""
+
+    current_password: str
+    new_password: str

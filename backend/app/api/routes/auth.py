@@ -24,7 +24,7 @@ from app.schemas.auth import (
     TokenRefreshRequest,
     TokenRefreshResponse,
 )
-from app.schemas.user import UserResponse
+from app.schemas.user import PasswordChange, ProfileUpdate, UserResponse
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -284,3 +284,101 @@ async def get_current_user_info(
         UserResponse: Current user data
     """
     return UserResponse.model_validate(current_user)
+
+
+@router.put("/profile", response_model=UserResponse)
+async def update_profile(
+    profile_data: ProfileUpdate,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> UserResponse:
+    """Update user profile.
+
+    Args:
+        profile_data: Profile update data
+        current_user: Current authenticated user
+        db: Database session
+
+    Returns:
+        UserResponse: Updated user data
+    """
+    # Update user profile
+    if profile_data.full_name is not None:
+        current_user.full_name = profile_data.full_name
+    if profile_data.currency is not None:
+        current_user.currency = profile_data.currency
+
+    current_user.updated_at = datetime.utcnow()
+    await db.commit()
+    await db.refresh(current_user)
+
+    logger.info(
+        "Profile updated",
+        extra={"user_id": current_user.id, "email": current_user.email},
+    )
+
+    return UserResponse.model_validate(current_user)
+
+
+@router.put("/password", status_code=status.HTTP_204_NO_CONTENT)
+async def change_password(
+    password_data: PasswordChange,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Change user password.
+
+    Args:
+        password_data: Password change data
+        current_user: Current authenticated user
+        db: Database session
+
+    Raises:
+        HTTPException: If current password is incorrect
+    """
+    # Verify current password
+    if not verify_password(password_data.current_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect",
+        )
+
+    # Update password
+    current_user.hashed_password = get_password_hash(password_data.new_password)
+    current_user.updated_at = datetime.utcnow()
+    await db.commit()
+
+    logger.info(
+        "Password changed",
+        extra={"user_id": current_user.id, "email": current_user.email},
+    )
+
+
+@router.post("/logout-all", status_code=status.HTTP_204_NO_CONTENT)
+async def logout_all_devices(
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Logout from all devices by invalidating all refresh tokens.
+
+    Args:
+        current_user: Current authenticated user
+        db: Database session
+    """
+    # Delete all refresh tokens for this user
+    result = await db.execute(select(RefreshToken).where(RefreshToken.user_id == current_user.id))
+    tokens = result.scalars().all()
+
+    for token in tokens:
+        await db.delete(token)
+
+    await db.commit()
+
+    logger.info(
+        "Logged out from all devices",
+        extra={
+            "user_id": current_user.id,
+            "email": current_user.email,
+            "tokens_revoked": len(tokens),
+        },
+    )
