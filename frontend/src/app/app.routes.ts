@@ -30,6 +30,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/scheduler/scheduler.component').then(m => m.SchedulerComponent)
       },
       {
+        path: 'forecast',
+        loadComponent: () => import('./features/forecast/forecast.component').then(m => m.ForecastComponent)
+      },
+      {
         path: 'analysis',
         loadComponent: () => import('./features/analysis/analysis.component').then(m => m.AnalysisComponent)
       }

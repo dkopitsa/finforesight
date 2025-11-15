@@ -65,8 +65,15 @@ import { AuthService } from '../../core/services/auth.service';
           </li>
 
           <li nz-menu-item nzMatchRouter>
-            <a routerLink="/analysis">
+            <a routerLink="/forecast">
               <span nz-icon nzType="line-chart" nzTheme="outline"></span>
+              <span>Forecast</span>
+            </a>
+          </li>
+
+          <li nz-menu-item nzMatchRouter>
+            <a routerLink="/analysis">
+              <span nz-icon nzType="bar-chart" nzTheme="outline"></span>
               <span>Analysis</span>
             </a>
           </li>
@@ -278,6 +285,7 @@ export class MainLayoutComponent {
     if (url.includes('/dashboard')) return 'Dashboard';
     if (url.includes('/accounts')) return 'Accounts';
     if (url.includes('/scheduler')) return 'Scheduler';
+    if (url.includes('/forecast')) return 'Forecast';
     if (url.includes('/analysis')) return 'Analysis';
     return 'FinForesight';
   }
