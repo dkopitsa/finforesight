@@ -34,6 +34,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/forecast/forecast.component').then(m => m.ForecastComponent)
       },
       {
+        path: 'reconciliation',
+        loadComponent: () => import('./features/reconciliation/reconciliation.component').then(m => m.ReconciliationComponent)
+      },
+      {
         path: 'analysis',
         loadComponent: () => import('./features/analysis/analysis.component').then(m => m.AnalysisComponent)
       }

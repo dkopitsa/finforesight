@@ -72,6 +72,13 @@ import { AuthService } from '../../core/services/auth.service';
           </li>
 
           <li nz-menu-item nzMatchRouter>
+            <a routerLink="/reconciliation">
+              <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+              <span>Reconciliation</span>
+            </a>
+          </li>
+
+          <li nz-menu-item nzMatchRouter>
             <a routerLink="/analysis">
               <span nz-icon nzType="bar-chart" nzTheme="outline"></span>
               <span>Analysis</span>
@@ -286,6 +293,7 @@ export class MainLayoutComponent {
     if (url.includes('/accounts')) return 'Accounts';
     if (url.includes('/scheduler')) return 'Scheduler';
     if (url.includes('/forecast')) return 'Forecast';
+    if (url.includes('/reconciliation')) return 'Reconciliation';
     if (url.includes('/analysis')) return 'Analysis';
     return 'FinForesight';
   }
