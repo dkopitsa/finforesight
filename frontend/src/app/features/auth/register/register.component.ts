@@ -202,7 +202,7 @@ export class RegisterComponent {
     });
   }
 
-  passwordMatchValidator(control: AbstractControl): { [key: string]: boolean } | null {
+  passwordMatchValidator(control: AbstractControl): Record<string, boolean> | null {
     const password = control.get('password');
     const confirmPassword = control.get('confirmPassword');
 

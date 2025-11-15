@@ -9,6 +9,15 @@
       ],
       "cwd": "${workspaceFolder}/frontend",
       "env": {}
+    },
+    "eslint": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@eslint/mcp@latest"
+      ],
+      "cwd": "${workspaceFolder}/frontend",
+      "env": {}
     }
   }
 }
