@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { AuthService } from '../../core/services/auth.service';
@@ -13,56 +13,58 @@ import { UpcomingTransactionsComponent } from './components/upcoming-transaction
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     NzSpinModule,
     NzAlertModule,
     SummaryCardsComponent,
     ForecastChartComponent,
-    UpcomingTransactionsComponent,
-  ],
+    UpcomingTransactionsComponent
+],
   template: `
     <div class="dashboard-container">
       <nz-spin [nzSpinning]="loading" nzTip="Loading dashboard...">
-        <nz-alert
-          *ngIf="error"
-          nzType="error"
-          [nzMessage]="error"
-          nzShowIcon
-          nzCloseable
-          (nzOnClose)="error = null"
-          style="margin-bottom: 24px;"
-        ></nz-alert>
+        @if (error) {
+          <nz-alert
+            nzType="error"
+            [nzMessage]="error"
+            nzShowIcon
+            nzCloseable
+            (nzOnClose)="error = null"
+            style="margin-bottom: 24px;"
+          ></nz-alert>
+        }
 
-        <div *ngIf="!loading && !error && dashboardData">
-          <!-- Summary Cards -->
-          <app-summary-cards
-            [summary]="dashboardData.financial_summary"
-            [currencySymbol]="getCurrencySymbol()"
-          ></app-summary-cards>
-
-          <!-- Forecast Chart -->
-          <div style="margin-top: 24px;">
-            <app-forecast-chart
-              [balanceTrend]="dashboardData.balance_trend"
+        @if (!loading && !error && dashboardData) {
+          <div>
+            <!-- Summary Cards -->
+            <app-summary-cards
+              [summary]="dashboardData.financial_summary"
               [currencySymbol]="getCurrencySymbol()"
-            ></app-forecast-chart>
+            ></app-summary-cards>
+            <!-- Forecast Chart -->
+            <div style="margin-top: 24px;">
+              <app-forecast-chart
+                [balanceTrend]="dashboardData.balance_trend"
+                [currencySymbol]="getCurrencySymbol()"
+              ></app-forecast-chart>
+            </div>
+            <!-- Upcoming Transactions -->
+            <div style="margin-top: 24px;">
+              <app-upcoming-transactions
+                [transactions]="dashboardData.upcoming_transactions"
+                [currencySymbol]="getCurrencySymbol()"
+              ></app-upcoming-transactions>
+            </div>
           </div>
+        }
 
-          <!-- Upcoming Transactions -->
-          <div style="margin-top: 24px;">
-            <app-upcoming-transactions
-              [transactions]="dashboardData.upcoming_transactions"
-              [currencySymbol]="getCurrencySymbol()"
-            ></app-upcoming-transactions>
+        @if (!loading && !error && !dashboardData) {
+          <div class="empty-state">
+            <p>No dashboard data available</p>
           </div>
-        </div>
-
-        <div *ngIf="!loading && !error && !dashboardData" class="empty-state">
-          <p>No dashboard data available</p>
-        </div>
+        }
       </nz-spin>
     </div>
-  `,
+    `,
   styles: [`
     .dashboard-container {
       padding: 0;

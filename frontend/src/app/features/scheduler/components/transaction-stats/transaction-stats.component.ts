@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzGridModule } from 'ng-zorro-antd/grid';
@@ -31,15 +31,14 @@ interface Stats {
   selector: 'app-transaction-stats',
   standalone: true,
   imports: [
-    CommonModule,
     NzCardModule,
     NzStatisticModule,
     NzGridModule,
     NzIconModule,
     NzProgressModule,
     NzListModule,
-    NzTagModule,
-  ],
+    NzTagModule
+],
   template: `
     <nz-card nzTitle="Statistics" [nzExtra]="extraTemplate">
       <div nz-row [nzGutter]="16">

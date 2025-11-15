@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
@@ -36,7 +36,6 @@ import { AccountService } from '../accounts/services/account.service';
   selector: 'app-scheduler',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NzButtonModule,
     NzSegmentedModule,
@@ -51,8 +50,8 @@ import { AccountService } from '../accounts/services/account.service';
     TransactionCalendarComponent,
     TransactionStatsComponent,
     TransactionFiltersComponent,
-    EditRecurringModalComponent,
-  ],
+    EditRecurringModalComponent
+],
   template: `
     <div class="scheduler-container">
       <!-- Header with view toggle and action buttons -->

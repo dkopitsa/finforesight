@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -21,7 +21,6 @@ import { AnalysisData } from '../../core/models/analysis.model';
   selector: 'app-analysis',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NzCardModule,
     NzButtonModule,
@@ -31,8 +30,8 @@ import { AnalysisData } from '../../core/models/analysis.model';
     NzDatePickerModule,
     NzSelectModule,
     MetricsCardsComponent,
-    CategoryBreakdownComponent,
-  ],
+    CategoryBreakdownComponent
+],
   template: `
     <div class="analysis-container">
       <div class="analysis-header">

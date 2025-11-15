@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -13,15 +13,14 @@ import { Account, AccountType, AccountCreate, AccountUpdate } from '../../../../
   selector: 'app-account-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     NzFormModule,
     NzInputModule,
     NzSelectModule,
     NzButtonModule,
     NzDatePickerModule,
-    NzInputNumberModule,
-  ],
+    NzInputNumberModule
+],
   template: `
     <form nz-form [formGroup]="accountForm" (ngSubmit)="onSubmit()" [nzLayout]="'vertical'">
       <nz-form-item>

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -13,13 +13,12 @@ import { PasswordChange } from '../../../../core/models/user.model';
   selector: 'app-password-change',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     NzCardModule,
     NzFormModule,
     NzInputModule,
-    NzButtonModule,
-  ],
+    NzButtonModule
+],
   template: `
     <nz-card nzTitle="Change Password">
       <form nz-form [formGroup]="passwordForm" (ngSubmit)="onSubmit()">

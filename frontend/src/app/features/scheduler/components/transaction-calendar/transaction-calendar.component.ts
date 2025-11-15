@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { NzCalendarModule } from 'ng-zorro-antd/calendar';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
@@ -17,7 +17,6 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
   selector: 'app-transaction-calendar',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NzCalendarModule,
     NzBadgeModule,
@@ -26,8 +25,8 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
     NzButtonModule,
     NzIconModule,
     NzPopoverModule,
-    NzEmptyModule,
-  ],
+    NzEmptyModule
+],
   template: `
     <nz-card>
       <nz-calendar

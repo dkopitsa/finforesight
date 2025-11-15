@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -16,7 +16,6 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
   selector: 'app-transaction-list',
   standalone: true,
   imports: [
-    CommonModule,
     NzTableModule,
     NzButtonModule,
     NzIconModule,
@@ -24,8 +23,8 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
     NzPopconfirmModule,
     NzEmptyModule,
     NzToolTipModule,
-    NzBadgeModule,
-  ],
+    NzBadgeModule
+],
   template: `
     <nz-table
       #transactionsTable

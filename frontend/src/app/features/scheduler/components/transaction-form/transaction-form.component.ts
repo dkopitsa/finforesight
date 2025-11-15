@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, inject, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -22,7 +22,6 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
   selector: 'app-transaction-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     NzFormModule,
     NzInputModule,
@@ -32,8 +31,8 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
     NzInputNumberModule,
     NzSwitchModule,
     NzDividerModule,
-    NzCheckboxModule,
-  ],
+    NzCheckboxModule
+],
   template: `
     <form nz-form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" [nzLayout]="'vertical'">
       <!-- Name -->

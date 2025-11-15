@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -12,14 +12,13 @@ import { ReconciliationSummary } from '../../../../core/models/reconciliation.mo
   selector: 'app-reconciliation-list',
   standalone: true,
   imports: [
-    CommonModule,
     NzTableModule,
     NzButtonModule,
     NzIconModule,
     NzTagModule,
     NzPopconfirmModule,
-    NzEmptyModule,
-  ],
+    NzEmptyModule
+],
   template: `
     <nz-table
       #reconciliationTable

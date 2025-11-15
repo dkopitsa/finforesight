@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -17,7 +17,6 @@ import { ReconciliationCreate } from '../../../../core/models/reconciliation.mod
   selector: 'app-reconciliation-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     NzModalModule,
     NzFormModule,
@@ -27,8 +26,8 @@ import { ReconciliationCreate } from '../../../../core/models/reconciliation.mod
     NzDatePickerModule,
     NzCheckboxModule,
     NzInputNumberModule,
-    NzAlertModule,
-  ],
+    NzAlertModule
+],
   template: `
     <nz-modal
       [(nzVisible)]="visible"

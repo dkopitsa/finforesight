@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -15,7 +15,6 @@ import { ForecastParams } from '../../services/forecast.service';
   selector: 'app-forecast-filters',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     NzCardModule,
     NzFormModule,
@@ -23,8 +22,8 @@ import { ForecastParams } from '../../services/forecast.service';
     NzSelectModule,
     NzButtonModule,
     NzIconModule,
-    NzGridModule,
-  ],
+    NzGridModule
+],
   template: `
     <nz-card nzTitle="Forecast Settings" nzSize="small">
       <form nz-form [formGroup]="filterForm" [nzLayout]="'vertical'">

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -21,7 +21,6 @@ import { ReconciliationSummary, ReconciliationCreate } from '../../core/models/r
   selector: 'app-reconciliation',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NzCardModule,
     NzButtonModule,
@@ -31,8 +30,8 @@ import { ReconciliationSummary, ReconciliationCreate } from '../../core/models/r
     NzSelectModule,
     NzEmptyModule,
     ReconciliationFormComponent,
-    ReconciliationListComponent,
-  ],
+    ReconciliationListComponent
+],
   template: `
     <div class="reconciliation-container">
       <div class="reconciliation-header">

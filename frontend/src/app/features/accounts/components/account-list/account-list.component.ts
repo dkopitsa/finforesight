@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -13,15 +13,14 @@ import { Account, AccountType } from '../../../../core/models/account.model';
   selector: 'app-account-list',
   standalone: true,
   imports: [
-    CommonModule,
     NzTableModule,
     NzButtonModule,
     NzIconModule,
     NzTagModule,
     NzPopconfirmModule,
     NzEmptyModule,
-    NzToolTipModule,
-  ],
+    NzToolTipModule
+],
   template: `
     <nz-table
       #accountsTable

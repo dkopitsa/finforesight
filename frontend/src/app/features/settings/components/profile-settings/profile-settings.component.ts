@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -15,14 +15,13 @@ import { ProfileUpdate } from '../../../../core/models/user.model';
   selector: 'app-profile-settings',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     NzCardModule,
     NzFormModule,
     NzInputModule,
     NzButtonModule,
-    NzSelectModule,
-  ],
+    NzSelectModule
+],
   template: `
     <nz-card nzTitle="Profile Settings">
       <form nz-form [formGroup]="profileForm" (ngSubmit)="onSubmit()">

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -17,7 +17,6 @@ import { AccountFormComponent } from './components/account-form/account-form.com
   selector: 'app-accounts',
   standalone: true,
   imports: [
-    CommonModule,
     NzButtonModule,
     NzModalModule,
     NzSpinModule,
@@ -25,8 +24,8 @@ import { AccountFormComponent } from './components/account-form/account-form.com
     NzIconModule,
     AccountSummaryComponent,
     AccountListComponent,
-    AccountFormComponent,
-  ],
+    AccountFormComponent
+],
   template: `
     <div class="accounts-container">
       <nz-spin [nzSpinning]="loading" nzTip="Loading accounts...">

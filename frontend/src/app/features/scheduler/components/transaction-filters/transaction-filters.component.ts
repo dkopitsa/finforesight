@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -19,7 +19,6 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
   selector: 'app-transaction-filters',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     NzCardModule,
     NzFormModule,
@@ -29,8 +28,8 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
     NzIconModule,
     NzDatePickerModule,
     NzGridModule,
-    NzBadgeModule,
-  ],
+    NzBadgeModule
+],
   template: `
     <nz-card nzTitle="Filters" [nzExtra]="extraTemplate" nzSize="small">
       <form nz-form [formGroup]="filterForm" [nzLayout]="'vertical'">

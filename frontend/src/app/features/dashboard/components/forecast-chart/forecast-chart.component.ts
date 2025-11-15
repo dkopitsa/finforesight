@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NgxEchartsModule } from 'ngx-echarts';
 import { EChartsOption } from 'echarts';
 import { BalanceTrendPoint } from '../../../../core/models/dashboard.model';
@@ -7,19 +7,23 @@ import { BalanceTrendPoint } from '../../../../core/models/dashboard.model';
 @Component({
   selector: 'app-forecast-chart',
   standalone: true,
-  imports: [CommonModule, NgxEchartsModule],
+  imports: [NgxEchartsModule],
   template: `
     <div class="chart-container">
       <div class="chart-header">
         <h3>Balance Forecast (30 Days)</h3>
         <p>Projected balance based on scheduled transactions</p>
       </div>
-      <div echarts [options]="chartOption" class="chart" *ngIf="chartOption"></div>
-      <div class="empty-state" *ngIf="!chartOption">
-        <p>No forecast data available</p>
-      </div>
+      @if (chartOption) {
+        <div echarts [options]="chartOption" class="chart"></div>
+      }
+      @if (!chartOption) {
+        <div class="empty-state">
+          <p>No forecast data available</p>
+        </div>
+      }
     </div>
-  `,
+    `,
   styles: [`
     .chart-container {
       background: white;

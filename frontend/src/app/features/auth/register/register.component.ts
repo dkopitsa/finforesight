@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -14,7 +14,6 @@ import { AuthService } from '../../../core/services/auth.service';
   selector: 'app-register',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     NzFormModule,
@@ -22,8 +21,8 @@ import { AuthService } from '../../../core/services/auth.service';
     NzButtonModule,
     NzSelectModule,
     NzAlertModule,
-    NzIconModule,
-  ],
+    NzIconModule
+],
   template: `
     <div class="register-container">
       <h2>Create Account</h2>

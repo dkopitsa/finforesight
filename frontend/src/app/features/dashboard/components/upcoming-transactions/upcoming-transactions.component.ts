@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
@@ -8,7 +8,7 @@ import { UpcomingTransaction } from '../../../../core/models/dashboard.model';
 @Component({
   selector: 'app-upcoming-transactions',
   standalone: true,
-  imports: [CommonModule, NzTableModule, NzTagModule, NzEmptyModule],
+  imports: [NzTableModule, NzTagModule, NzEmptyModule],
   template: `
     <div class="transactions-container">
       <div class="transactions-header">
@@ -22,7 +22,7 @@ import { UpcomingTransaction } from '../../../../core/models/dashboard.model';
         [nzPageSize]="10"
         [nzShowPagination]="transactions.length > 10"
         [nzSize]="'middle'"
-      >
+        >
         <thead>
           <tr>
             <th>Date</th>
@@ -33,31 +33,36 @@ import { UpcomingTransaction } from '../../../../core/models/dashboard.model';
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let tx of transactionsTable.data">
-            <td>{{ formatDate(tx.date) }}</td>
-            <td>
-              {{ tx.name }}
-              <nz-tag *ngIf="tx.is_transfer" nzColor="blue" style="margin-left: 8px;">
-                Transfer
-              </nz-tag>
-            </td>
-            <td>{{ tx.account_name }}</td>
-            <td>{{ tx.category_name }}</td>
-            <td nzAlign="right">
-              <span [class]="getAmountClass(tx.amount)">
-                {{ currencySymbol }}{{ formatAmount(tx.amount) }}
-              </span>
-            </td>
-          </tr>
+          @for (tx of transactionsTable.data; track tx) {
+            <tr>
+              <td>{{ formatDate(tx.date) }}</td>
+              <td>
+                {{ tx.name }}
+                @if (tx.is_transfer) {
+                  <nz-tag nzColor="blue" style="margin-left: 8px;">
+                    Transfer
+                  </nz-tag>
+                }
+              </td>
+              <td>{{ tx.account_name }}</td>
+              <td>{{ tx.category_name }}</td>
+              <td nzAlign="right">
+                <span [class]="getAmountClass(tx.amount)">
+                  {{ currencySymbol }}{{ formatAmount(tx.amount) }}
+                </span>
+              </td>
+            </tr>
+          }
         </tbody>
       </nz-table>
 
-      <nz-empty
-        *ngIf="transactions.length === 0"
-        nzNotFoundContent="No upcoming transactions"
-      ></nz-empty>
+      @if (transactions.length === 0) {
+        <nz-empty
+          nzNotFoundContent="No upcoming transactions"
+        ></nz-empty>
+      }
     </div>
-  `,
+    `,
   styles: [`
     .transactions-container {
       background: white;

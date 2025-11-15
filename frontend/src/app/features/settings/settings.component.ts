@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -15,13 +15,12 @@ import { AuthService } from '../../core/services/auth.service';
   selector: 'app-settings',
   standalone: true,
   imports: [
-    CommonModule,
     NzCardModule,
     NzButtonModule,
     NzIconModule,
     ProfileSettingsComponent,
-    PasswordChangeComponent,
-  ],
+    PasswordChangeComponent
+],
   template: `
     <div class="settings-container">
       <div class="settings-header">

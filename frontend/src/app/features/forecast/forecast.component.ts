@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
@@ -19,7 +19,6 @@ import { ForecastData, AccountForecast } from '../../core/models/dashboard.model
   selector: 'app-forecast',
   standalone: true,
   imports: [
-    CommonModule,
     NzCardModule,
     NzSpinModule,
     NzAlertModule,
@@ -27,8 +26,8 @@ import { ForecastData, AccountForecast } from '../../core/models/dashboard.model
     NzGridModule,
     NzEmptyModule,
     ForecastFiltersComponent,
-    ForecastChartComponent,
-  ],
+    ForecastChartComponent
+],
   template: `
     <div class="forecast-container">
       <div class="forecast-header">

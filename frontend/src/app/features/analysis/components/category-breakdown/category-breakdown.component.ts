@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
@@ -9,11 +9,10 @@ import { CategoryAnalysis } from '../../../../core/models/analysis.model';
   selector: 'app-category-breakdown',
   standalone: true,
   imports: [
-    CommonModule,
     NzTableModule,
     NzTagModule,
-    NzEmptyModule,
-  ],
+    NzEmptyModule
+],
   template: `
     <nz-table
       #categoryTable

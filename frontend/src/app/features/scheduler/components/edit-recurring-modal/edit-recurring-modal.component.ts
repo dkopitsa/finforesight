@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
@@ -12,14 +12,13 @@ import { UpdateMode } from '../../../../core/models/transaction.model';
   selector: 'app-edit-recurring-modal',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NzModalModule,
     NzButtonModule,
     NzRadioModule,
     NzIconModule,
-    NzAlertModule,
-  ],
+    NzAlertModule
+],
   template: `
     <nz-modal
       [(nzVisible)]="visible"
