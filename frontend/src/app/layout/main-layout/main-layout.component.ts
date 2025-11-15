@@ -6,6 +6,8 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import { NzDrawerModule } from 'ng-zorro-antd/drawer';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -20,16 +22,22 @@ import { AuthService } from '../../core/services/auth.service';
     NzIconModule,
     NzDropDownModule,
     NzAvatarModule,
+    NzDrawerModule,
+    NzButtonModule,
   ],
   template: `
     <nz-layout class="main-layout">
-      <!-- Sidebar -->
+      <!-- Desktop Sidebar -->
       <nz-sider
+        class="desktop-sidebar"
         nzCollapsible
         [(nzCollapsed)]="isCollapsed"
         [nzWidth]="240"
         [nzCollapsedWidth]="80"
         nzTheme="dark"
+        [nzBreakpoint]="'lg'"
+        [nzCollapsedWidth]="0"
+        [nzTrigger]="null"
       >
         <div class="logo">
           <span class="logo-text" [class.collapsed]="isCollapsed">
@@ -87,12 +95,111 @@ import { AuthService } from '../../core/services/auth.service';
         </ul>
       </nz-sider>
 
+      <!-- Mobile Drawer -->
+      <nz-drawer
+        [nzVisible]="drawerVisible"
+        [nzPlacement]="'left'"
+        [nzClosable]="false"
+        [nzWidth]="280"
+        (nzOnClose)="closeDrawer()"
+        [nzBodyStyle]="{ padding: '0' }"
+      >
+        <div class="mobile-drawer">
+          <div class="drawer-header">
+            <div class="logo">
+              <span class="logo-text">FinForesight</span>
+            </div>
+            <button
+              nz-button
+              nzType="text"
+              (click)="closeDrawer()"
+              class="close-button"
+            >
+              <span nz-icon nzType="close" nzTheme="outline"></span>
+            </button>
+          </div>
+
+          <ul
+            nz-menu
+            nzTheme="dark"
+            nzMode="inline"
+            (click)="closeDrawer()"
+          >
+            <li nz-menu-item nzMatchRouter>
+              <a routerLink="/dashboard">
+                <span nz-icon nzType="dashboard" nzTheme="outline"></span>
+                <span>Dashboard</span>
+              </a>
+            </li>
+
+            <li nz-menu-item nzMatchRouter>
+              <a routerLink="/accounts">
+                <span nz-icon nzType="wallet" nzTheme="outline"></span>
+                <span>Accounts</span>
+              </a>
+            </li>
+
+            <li nz-menu-item nzMatchRouter>
+              <a routerLink="/scheduler">
+                <span nz-icon nzType="schedule" nzTheme="outline"></span>
+                <span>Scheduler</span>
+              </a>
+            </li>
+
+            <li nz-menu-item nzMatchRouter>
+              <a routerLink="/forecast">
+                <span nz-icon nzType="line-chart" nzTheme="outline"></span>
+                <span>Forecast</span>
+              </a>
+            </li>
+
+            <li nz-menu-item nzMatchRouter>
+              <a routerLink="/reconciliation">
+                <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+                <span>Reconciliation</span>
+              </a>
+            </li>
+
+            <li nz-menu-item nzMatchRouter>
+              <a routerLink="/analysis">
+                <span nz-icon nzType="bar-chart" nzTheme="outline"></span>
+                <span>Analysis</span>
+              </a>
+            </li>
+
+            <li nz-menu-divider></li>
+
+            <li nz-menu-item>
+              <a routerLink="/settings">
+                <span nz-icon nzType="setting" nzTheme="outline"></span>
+                <span>Settings</span>
+              </a>
+            </li>
+
+            <li nz-menu-item (click)="logout()">
+              <span nz-icon nzType="logout" nzTheme="outline"></span>
+              <span>Logout</span>
+            </li>
+          </ul>
+        </div>
+      </nz-drawer>
+
       <!-- Main Content Area -->
       <nz-layout>
         <!-- Header -->
         <nz-header class="header">
           <div class="header-content">
             <div class="header-left">
+              <!-- Mobile Menu Button -->
+              <button
+                nz-button
+                nzType="text"
+                class="mobile-menu-button"
+                (click)="openDrawer()"
+              >
+                <span nz-icon nzType="menu" nzTheme="outline"></span>
+              </button>
+
               <h1 class="page-title">{{ getPageTitle() }}</h1>
             </div>
 
@@ -106,7 +213,7 @@ import { AuthService } from '../../core/services/auth.service';
                   style="background-color: #1890ff; cursor: pointer;"
                 ></nz-avatar>
                 <span class="user-name">{{ currentUser?.full_name || 'User' }}</span>
-                <span nz-icon nzType="down" nzTheme="outline"></span>
+                <span nz-icon nzType="down" nzTheme="outline" class="dropdown-icon"></span>
               </div>
 
               <nz-dropdown-menu #userDropdown="nzDropdownMenu">
@@ -145,6 +252,23 @@ import { AuthService } from '../../core/services/auth.service';
   styles: [`
     .main-layout {
       min-height: 100vh;
+    }
+
+    /* Desktop Sidebar */
+    .desktop-sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    :host ::ng-deep .ant-layout-has-sider {
+      padding-left: 240px;
+    }
+
+    :host ::ng-deep .ant-layout-sider-collapsed + .ant-layout {
+      padding-left: 80px;
     }
 
     /* Sidebar Logo */
@@ -187,12 +311,42 @@ import { AuthService } from '../../core/services/auth.service';
       text-decoration: none;
     }
 
+    /* Mobile Drawer */
+    .mobile-drawer {
+      background: #001529;
+      height: 100%;
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .drawer-header .logo {
+      margin: 0;
+      flex: 1;
+    }
+
+    .close-button {
+      color: white;
+      font-size: 18px;
+    }
+
+    .close-button:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
     /* Header */
     .header {
       background: white;
-      padding: 0 24px;
+      padding: 0 16px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       z-index: 10;
+      position: sticky;
+      top: 0;
     }
 
     .header-content {
@@ -205,6 +359,13 @@ import { AuthService } from '../../core/services/auth.service';
     .header-left {
       display: flex;
       align-items: center;
+      gap: 12px;
+    }
+
+    .mobile-menu-button {
+      display: none;
+      font-size: 20px;
+      color: #262626;
     }
 
     .page-title {
@@ -262,18 +423,74 @@ import { AuthService } from '../../core/services/auth.service';
       font-size: 14px;
     }
 
-    /* Responsive */
+    /* Tablet (iPad) */
+    @media (max-width: 991px) {
+      :host ::ng-deep .ant-layout-has-sider {
+        padding-left: 0 !important;
+      }
+
+      .desktop-sidebar {
+        display: none;
+      }
+
+      .mobile-menu-button {
+        display: flex;
+      }
+
+      .header {
+        padding: 0 12px;
+      }
+    }
+
+    /* Mobile */
     @media (max-width: 768px) {
       .content {
-        margin: 16px;
+        margin: 12px;
       }
 
       .content-wrapper {
         padding: 16px;
+        min-height: calc(100vh - 64px - 24px - 70px - 24px);
       }
 
       .user-name {
         display: none;
+      }
+
+      .dropdown-icon {
+        display: none;
+      }
+
+      .user-menu {
+        padding: 4px;
+      }
+
+      .page-title {
+        font-size: 18px;
+      }
+
+      .footer {
+        font-size: 12px;
+        padding: 12px 8px;
+      }
+    }
+
+    /* Small Mobile */
+    @media (max-width: 480px) {
+      .content {
+        margin: 8px;
+      }
+
+      .content-wrapper {
+        padding: 12px;
+      }
+
+      .page-title {
+        font-size: 16px;
+      }
+
+      .header {
+        padding: 0 8px;
       }
     }
   `]
@@ -283,7 +500,16 @@ export class MainLayoutComponent {
   private router = inject(Router);
 
   isCollapsed = false;
+  drawerVisible = false;
   currentUser = this.authService.getCurrentUser();
+
+  openDrawer(): void {
+    this.drawerVisible = true;
+  }
+
+  closeDrawer(): void {
+    this.drawerVisible = false;
+  }
 
   getPageTitle(): string {
     const url = this.router.url;
