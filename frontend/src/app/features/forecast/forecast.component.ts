@@ -206,7 +206,7 @@ export class ForecastComponent implements OnInit {
       error: (err) => {
         this.error = err.error?.detail || 'Failed to generate forecast';
         this.loading = false;
-        this.messageService.error(this.error);
+        this.messageService.error(this.error || 'Failed to generate forecast');
       },
     });
   }

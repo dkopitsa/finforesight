@@ -26,6 +26,6 @@ export class ForecastService {
       });
     }
 
-    return this.apiService.get<ForecastData>(`/forecast?${queryParams.toString()}`);
+    return this.apiService.get<ForecastData>(`/forecast/?${queryParams.toString()}`);
   }
 }

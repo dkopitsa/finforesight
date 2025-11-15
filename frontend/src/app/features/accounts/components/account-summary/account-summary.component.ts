@@ -21,7 +21,7 @@ import { AccountSummary } from '../../../../core/models/account.model';
             [nzValueStyle]="{ color: '#1890ff' }"
           >
             <ng-template #nzPrefix>
-              <span nz-icon nzType="wallet" nzTheme="outline"></span>
+              <nz-icon nzType="wallet" nzTheme="outline" />
             </ng-template>
           </nz-statistic>
           <div class="card-footer">Checking, Savings, Cash</div>

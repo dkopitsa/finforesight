@@ -13,7 +13,6 @@ export class CategoryService {
    * Get all categories (system + user's custom)
    */
   listCategories(type?: string): Observable<Category[]> {
-    const params = type ? `?type=${type}` : '';
-    return this.apiService.get<Category[]>(`/categories${params}`);
+    return this.apiService.get<Category[]>(`/categories/`, {type});
   }
 }

@@ -82,10 +82,10 @@ import { ReconciliationCreate } from '../../../../core/models/reconciliation.mod
               <nz-form-label>Expected Balance</nz-form-label>
               <nz-form-control>
                 <div class="balance-display expected">
-                  {{ getCurrencySymbol() }}{{ selectedAccount.current_balance }}
+                  {{ getCurrencySymbol() }}{{ selectedAccount.initial_balance }}
                 </div>
                 <div class="balance-hint">
-                  Based on scheduled transactions as of reconciliation date
+                  Based on initial balance (forecast integration pending)
                 </div>
               </nz-form-control>
             </nz-form-item>
@@ -244,7 +244,7 @@ export class ReconciliationFormComponent implements OnInit {
   getDifference(): number {
     if (!this.selectedAccount) return 0;
     const actual = this.reconciliationForm.get('actual_balance')?.value || 0;
-    const expected = parseFloat(this.selectedAccount.current_balance);
+    const expected = parseFloat(this.selectedAccount.initial_balance);
     return actual - expected;
   }
 
@@ -286,8 +286,9 @@ export class ReconciliationFormComponent implements OnInit {
     return `${this.getCurrencySymbol()}${value}`;
   };
 
-  currencyParser = (value: string): string => {
-    return value.replace(/[^\d.]/g, '');
+  currencyParser = (value: string): number => {
+    const parsed = value.replace(/[^\d.]/g, '');
+    return parseFloat(parsed) || 0;
   };
 
   handleSubmit(): void {

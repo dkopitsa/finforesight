@@ -78,6 +78,12 @@ export interface TransactionInstance {
   is_exception: boolean;
 }
 
+export interface ScheduledTransactionInstance extends TransactionInstance {
+  category_name: string;
+  category_type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+  account_name: string;
+}
+
 export interface ScheduledTransactionException {
   id: number;
   scheduled_transaction_id: number;

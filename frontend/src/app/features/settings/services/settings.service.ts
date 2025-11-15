@@ -10,14 +10,14 @@ export class SettingsService {
   private apiService = inject(ApiService);
 
   updateProfile(data: ProfileUpdate): Observable<User> {
-    return this.apiService.put<User>('/auth/profile', data);
+    return this.apiService.put<User>('/auth/profile/', data);
   }
 
   changePassword(data: PasswordChange): Observable<void> {
-    return this.apiService.put<void>('/auth/password', data);
+    return this.apiService.put<void>('/auth/password/', data);
   }
 
   logoutAllDevices(): Observable<void> {
-    return this.apiService.post<void>('/auth/logout-all', {});
+    return this.apiService.post<void>('/auth/logout-all/', {});
   }
 }

@@ -60,7 +60,7 @@ import { AuthService } from '../../core/services/auth.service';
 
           <li nz-menu-item nzMatchRouter>
             <a routerLink="/accounts">
-              <span nz-icon nzType="wallet" nzTheme="outline"></span>
+              <nz-icon nzType="wallet" nzTheme="outline" />
               <span>Accounts</span>
             </a>
           </li>

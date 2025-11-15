@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxEchartsModule } from 'ngx-echarts';
-import { EChartsOption } from 'echarts';
+import { EChartsOption, LineSeriesOption } from 'echarts';
 import { ForecastData } from '../../../../core/models/dashboard.model';
 
 @Component({
@@ -64,7 +64,7 @@ export class ForecastChartComponent implements OnChanges {
       return;
     }
 
-    const series = this.forecastData.accounts.map(account => ({
+    const series: LineSeriesOption[] = this.forecastData.accounts.map(account => ({
       name: account.account_name,
       type: 'line',
       smooth: true,
@@ -134,7 +134,6 @@ export class ForecastChartComponent implements OnChanges {
       },
       xAxis: {
         type: 'time',
-        boundaryGap: false,
         axisLabel: {
           formatter: '{MMM} {dd}'
         }

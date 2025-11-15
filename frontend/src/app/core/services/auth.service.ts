@@ -41,7 +41,7 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.apiService.post<LoginResponse>('/auth/login', credentials).pipe(
+    return this.apiService.post<LoginResponse>('/auth/login/', credentials).pipe(
       tap((response) => {
         this.storageService.setToken(response.access_token);
         this.storageService.setRefreshToken(response.refresh_token);
@@ -53,7 +53,7 @@ export class AuthService {
   }
 
   register(data: RegisterRequest): Observable<RegisterResponse> {
-    return this.apiService.post<RegisterResponse>('/auth/register', data).pipe(
+    return this.apiService.post<RegisterResponse>('/auth/register/', data).pipe(
       tap((response) => {
         this.storageService.setToken(response.access_token);
         this.storageService.setRefreshToken(response.refresh_token);

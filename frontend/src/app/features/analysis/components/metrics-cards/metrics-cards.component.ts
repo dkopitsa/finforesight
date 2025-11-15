@@ -74,10 +74,9 @@ import { AnalysisSummary } from '../../../../core/models/analysis.model';
       <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
         <nz-card>
           <nz-statistic
-            [nzValue]="getSavingsRate()"
+            [nzValue]="(getSavingsRate() | number)!"
             [nzTitle]="'Savings Rate'"
             [nzSuffix]="'%'"
-            [nzPrecision]="1"
             [nzValueStyle]="getSavingsRateColor()"
           ></nz-statistic>
         </nz-card>

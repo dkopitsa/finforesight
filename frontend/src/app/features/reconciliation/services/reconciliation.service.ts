@@ -10,8 +10,7 @@ export class ReconciliationService {
   private apiService = inject(ApiService);
 
   listReconciliations(accountId?: number): Observable<ReconciliationSummary[]> {
-    const params = accountId ? `?account_id=${accountId}` : '';
-    return this.apiService.get<ReconciliationSummary[]>(`/reconciliations${params}`);
+    return this.apiService.get<ReconciliationSummary[]>(`/reconciliations/`, {account_id: accountId});
   }
 
   getReconciliation(id: number): Observable<Reconciliation> {

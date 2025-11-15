@@ -18,7 +18,7 @@ export class SchedulerService {
    * Get all scheduled transactions for the current user
    */
   listTransactions(): Observable<ScheduledTransaction[]> {
-    return this.apiService.get<ScheduledTransaction[]>('/scheduled-transactions');
+    return this.apiService.get<ScheduledTransaction[]>('/scheduled-transactions/');
   }
 
   /**
@@ -32,7 +32,7 @@ export class SchedulerService {
    * Create a new scheduled transaction
    */
   createTransaction(data: ScheduledTransactionCreate): Observable<ScheduledTransaction> {
-    return this.apiService.post<ScheduledTransaction>('/scheduled-transactions', data);
+    return this.apiService.post<ScheduledTransaction>('/scheduled-transactions/', data);
   }
 
   /**

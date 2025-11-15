@@ -18,7 +18,7 @@ export class AccountService {
    * Get all accounts for the current user
    */
   listAccounts(): Observable<Account[]> {
-    return this.apiService.get<Account[]>('/accounts');
+    return this.apiService.get<Account[]>('/accounts/');
   }
 
   /**
@@ -32,7 +32,7 @@ export class AccountService {
    * Create a new account
    */
   createAccount(data: AccountCreate): Observable<Account> {
-    return this.apiService.post<Account>('/accounts', data);
+    return this.apiService.post<Account>('/accounts/', data);
   }
 
   /**

@@ -3,7 +3,7 @@ import { Observable, forkJoin, map } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { ForecastData } from '../../../core/models/dashboard.model';
 import { ReconciliationSummary } from '../../../core/models/reconciliation.model';
-import { ScheduledTransactionInstance } from '../../../core/models/scheduler.model';
+import { ScheduledTransactionInstance } from '../../../core/models/transaction.model';
 import {
   AnalysisData,
   AnalysisParams,

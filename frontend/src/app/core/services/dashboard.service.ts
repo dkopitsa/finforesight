@@ -10,7 +10,7 @@ export class DashboardService {
   private apiService = inject(ApiService);
 
   getDashboard(): Observable<DashboardData> {
-    return this.apiService.get<DashboardData>('/dashboard');
+    return this.apiService.get<DashboardData>('/dashboard/');
   }
 
   getForecast(fromDate: string, toDate: string, accountIds?: number[]): Observable<ForecastData> {

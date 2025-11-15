@@ -1,6 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
@@ -35,7 +37,9 @@ import { AccountService } from '../accounts/services/account.service';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     NzButtonModule,
+    NzSegmentedModule,
     NzModalModule,
     NzSpinModule,
     NzAlertModule,
@@ -55,24 +59,10 @@ import { AccountService } from '../accounts/services/account.service';
       <div class="scheduler-header">
         <h2>Transaction Scheduler</h2>
         <div class="header-actions">
-          <nz-button-group>
-            <button
-              nz-button
-              [nzType]="viewMode === 'list' ? 'primary' : 'default'"
-              (click)="setViewMode('list')"
-            >
-              <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
-              List
-            </button>
-            <button
-              nz-button
-              [nzType]="viewMode === 'calendar' ? 'primary' : 'default'"
-              (click)="setViewMode('calendar')"
-            >
-              <span nz-icon nzType="calendar" nzTheme="outline"></span>
-              Calendar
-            </button>
-          </nz-button-group>
+          <nz-segmented
+            [nzOptions]="viewModeOptions"
+            [(ngModel)]="viewMode"
+          ></nz-segmented>
 
           <button nz-button nzType="primary" (click)="showCreateModal()" style="margin-left: 16px;">
             <span nz-icon nzType="plus" nzTheme="outline"></span>
@@ -235,6 +225,10 @@ export class SchedulerComponent implements OnInit {
 
   currentUser = this.authService.getCurrentUser();
   viewMode: ViewMode = ViewMode.LIST;
+  viewModeOptions = [
+    { label: 'List', value: ViewMode.LIST, icon: 'unordered-list' },
+    { label: 'Calendar', value: ViewMode.CALENDAR, icon: 'calendar' }
+  ];
 
   transactions: ScheduledTransaction[] = [];
   instances: TransactionInstance[] = [];
