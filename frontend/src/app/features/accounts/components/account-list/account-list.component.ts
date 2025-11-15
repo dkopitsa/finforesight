@@ -41,68 +41,74 @@ import { Account, AccountType } from '../../../../core/models/account.model';
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let account of accountsTable.data">
-          <td>
-            <strong>{{ account.name }}</strong>
-          </td>
-          <td>
-            <nz-tag [nzColor]="getAccountTypeColor(account.type)">
-              <span nz-icon [nzType]="getAccountTypeIcon(account.type)" nzTheme="outline"></span>
-              {{ getAccountTypeLabel(account.type) }}
-            </nz-tag>
-          </td>
-          <td>{{ account.currency }}</td>
-          <td nzAlign="right">
-            {{ formatAmount(account.initial_balance) }}
-          </td>
-          <td nzAlign="right">
-            <span *ngIf="account.credit_limit">
-              {{ formatAmount(account.credit_limit) }}
-            </span>
-            <span *ngIf="!account.credit_limit" style="color: #8c8c8c;">
-              —
-            </span>
-          </td>
-          <td nzAlign="center">
-            <button
-              nz-button
-              nzType="default"
-              nzSize="small"
-              nz-tooltip
-              nzTooltipTitle="Edit account"
-              (click)="onEdit(account)"
-              style="margin-right: 8px;"
-            >
-              <span nz-icon nzType="edit" nzTheme="outline"></span>
-            </button>
-            <button
-              nz-button
-              nzType="default"
-              nzDanger
-              nzSize="small"
-              nz-tooltip
-              nzTooltipTitle="Delete account"
-              nz-popconfirm
-              nzPopconfirmTitle="Are you sure you want to delete this account?"
-              nzPopconfirmPlacement="left"
-              (nzOnConfirm)="onDelete(account.id)"
-            >
-              <span nz-icon nzType="delete" nzTheme="outline"></span>
-            </button>
-          </td>
-        </tr>
+        @for (account of accountsTable.data; track account.id) {
+          <tr>
+            <td>
+              <strong>{{ account.name }}</strong>
+            </td>
+            <td>
+              <nz-tag [nzColor]="getAccountTypeColor(account.type)">
+                <span nz-icon [nzType]="getAccountTypeIcon(account.type)" nzTheme="outline"></span>
+                {{ getAccountTypeLabel(account.type) }}
+              </nz-tag>
+            </td>
+            <td>{{ account.currency }}</td>
+            <td nzAlign="right">
+              {{ formatAmount(account.initial_balance) }}
+            </td>
+            <td nzAlign="right">
+              @if (account.credit_limit) {
+                <span>
+                  {{ formatAmount(account.credit_limit) }}
+                </span>
+              } @else {
+                <span style="color: #8c8c8c;">
+                  —
+                </span>
+              }
+            </td>
+            <td nzAlign="center">
+              <button
+                nz-button
+                nzType="default"
+                nzSize="small"
+                nz-tooltip
+                nzTooltipTitle="Edit account"
+                (click)="onEdit(account)"
+                style="margin-right: 8px;"
+              >
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+              </button>
+              <button
+                nz-button
+                nzType="default"
+                nzDanger
+                nzSize="small"
+                nz-tooltip
+                nzTooltipTitle="Delete account"
+                nz-popconfirm
+                nzPopconfirmTitle="Are you sure you want to delete this account?"
+                nzPopconfirmPlacement="left"
+                (nzOnConfirm)="onDelete(account.id)"
+              >
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+              </button>
+            </td>
+          </tr>
+        }
       </tbody>
     </nz-table>
 
-    <nz-empty
-      *ngIf="accounts.length === 0"
-      nzNotFoundContent="No accounts yet"
-      [nzNotFoundFooter]="emptyFooter"
-    >
-      <ng-template #emptyFooter>
-        <p style="color: #8c8c8c;">Create your first account to get started</p>
-      </ng-template>
-    </nz-empty>
+    @if (accounts.length === 0) {
+      <nz-empty
+        nzNotFoundContent="No accounts yet"
+        [nzNotFoundFooter]="emptyFooter"
+      >
+        <ng-template #emptyFooter>
+          <p style="color: #8c8c8c;">Create your first account to get started</p>
+        </ng-template>
+      </nz-empty>
+    }
   `,
   styles: [`
     :host ::ng-deep .ant-table {

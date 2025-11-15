@@ -96,19 +96,21 @@ import { Account, AccountType, AccountCreate, AccountUpdate } from '../../../../
         </nz-form-control>
       </nz-form-item>
 
-      <nz-form-item *ngIf="showCreditLimit()">
-        <nz-form-label>Credit Limit</nz-form-label>
-        <nz-form-control nzErrorTip="Credit limit must be non-negative">
-          <nz-input-number
-            formControlName="credit_limit"
-            [nzMin]="0"
-            [nzStep]="0.01"
-            [nzPrecision]="2"
-            nzPlaceHolder="0.00"
-            style="width: 100%;"
-          ></nz-input-number>
-        </nz-form-control>
-      </nz-form-item>
+      @if (showCreditLimit()) {
+        <nz-form-item>
+          <nz-form-label>Credit Limit</nz-form-label>
+          <nz-form-control nzErrorTip="Credit limit must be non-negative">
+            <nz-input-number
+              formControlName="credit_limit"
+              [nzMin]="0"
+              [nzStep]="0.01"
+              [nzPrecision]="2"
+              nzPlaceHolder="0.00"
+              style="width: 100%;"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      }
 
       <nz-form-item>
         <nz-form-control>

@@ -30,43 +30,48 @@ import { AccountFormComponent } from './components/account-form/account-form.com
   template: `
     <div class="accounts-container">
       <nz-spin [nzSpinning]="loading" nzTip="Loading accounts...">
-        <nz-alert
-          *ngIf="error"
-          nzType="error"
-          [nzMessage]="error"
-          nzShowIcon
-          nzCloseable
-          (nzOnClose)="error = null"
-          style="margin-bottom: 24px;"
-        ></nz-alert>
+        @if (error) {
+          <nz-alert
+            nzType="error"
+            [nzMessage]="error"
+            nzShowIcon
+            nzCloseable
+            (nzOnClose)="error = null"
+            style="margin-bottom: 24px;"
+          ></nz-alert>
+        }
 
-        <div *ngIf="!loading && !error">
-          <!-- Summary Cards -->
-          <app-account-summary
-            [summary]="summary"
-            [currencySymbol]="getCurrencySymbol()"
-          ></app-account-summary>
+        @if (!loading && !error) {
+          <div>
+            <!-- Summary Cards -->
+            <app-account-summary
+              [summary]="summary"
+              [currencySymbol]="getCurrencySymbol()"
+            ></app-account-summary>
 
-          <!-- Add Account Button -->
-          <div style="margin: 24px 0;">
-            <button nz-button nzType="primary" (click)="showCreateModal()">
-              <span nz-icon nzType="plus" nzTheme="outline"></span>
-              Add Account
-            </button>
+            <!-- Add Account Button -->
+            <div style="margin: 24px 0;">
+              <button nz-button nzType="primary" (click)="showCreateModal()">
+                <span nz-icon nzType="plus" nzTheme="outline"></span>
+                Add Account
+              </button>
+            </div>
+
+            <!-- Account List -->
+            <app-account-list
+              [accounts]="accounts"
+              [currencySymbol]="getCurrencySymbol()"
+              (editAccount)="showEditModal($event)"
+              (deleteAccount)="handleDelete($event)"
+            ></app-account-list>
           </div>
+        }
 
-          <!-- Account List -->
-          <app-account-list
-            [accounts]="accounts"
-            [currencySymbol]="getCurrencySymbol()"
-            (editAccount)="showEditModal($event)"
-            (deleteAccount)="handleDelete($event)"
-          ></app-account-list>
-        </div>
-
-        <div *ngIf="!loading && !error && accounts.length === 0 && !summary" class="empty-state">
-          <p>No accounts found</p>
-        </div>
+        @if (!loading && !error && accounts.length === 0 && !summary) {
+          <div class="empty-state">
+            <p>No accounts found</p>
+          </div>
+        }
       </nz-spin>
 
       <!-- Account Form Modal -->
