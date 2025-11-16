@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -13,6 +13,7 @@ import { ProfileUpdate } from '../../../../core/models/user.model';
 
 @Component({
   selector: 'app-profile-settings',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     ReactiveFormsModule,

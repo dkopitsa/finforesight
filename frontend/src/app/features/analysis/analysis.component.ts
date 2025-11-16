@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -19,6 +19,7 @@ import { AnalysisData } from '../../core/models/analysis.model';
 
 @Component({
   selector: 'app-analysis',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     FormsModule,

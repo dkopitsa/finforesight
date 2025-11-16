@@ -1,4 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
@@ -8,20 +15,22 @@ import { DashboardData } from '../../core/models/dashboard.model';
 import { SummaryCardsComponent } from './components/summary-cards/summary-cards.component';
 import { ForecastChartComponent } from './components/forecast-chart/forecast-chart.component';
 import { UpcomingTransactionsComponent } from './components/upcoming-transactions/upcoming-transactions.component';
+import { currencySymbols } from '../../core/currency';
 
 @Component({
   selector: 'app-dashboard',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     NzSpinModule,
     NzAlertModule,
     SummaryCardsComponent,
     ForecastChartComponent,
-    UpcomingTransactionsComponent
-],
+    UpcomingTransactionsComponent,
+  ],
   template: `
     <div class="dashboard-container">
-      <nz-spin [nzSpinning]="loading" nzTip="Loading dashboard...">
+      <nz-spin [nzSpinning]="loading()" nzTip="Loading dashboard...">
         @if (error) {
           <nz-alert
             nzType="error"
@@ -33,24 +42,24 @@ import { UpcomingTransactionsComponent } from './components/upcoming-transaction
           ></nz-alert>
         }
 
-        @if (!loading && !error && dashboardData) {
+        @if (!loading() && !error && dashboardData() != null) {
           <div>
             <!-- Summary Cards -->
             <app-summary-cards
-              [summary]="dashboardData.financial_summary"
+              [summary]="dashboardData()!.financial_summary"
               [currencySymbol]="getCurrencySymbol()"
             ></app-summary-cards>
             <!-- Forecast Chart -->
             <div style="margin-top: 24px;">
               <app-forecast-chart
-                [balanceTrend]="dashboardData.balance_trend"
+                [balanceTrend]="dashboardData()!.balance_trend"
                 [currencySymbol]="getCurrencySymbol()"
               ></app-forecast-chart>
             </div>
             <!-- Upcoming Transactions -->
             <div style="margin-top: 24px;">
               <app-upcoming-transactions
-                [transactions]="dashboardData.upcoming_transactions"
+                [transactions]="dashboardData()!.upcoming_transactions"
                 [currencySymbol]="getCurrencySymbol()"
               ></app-upcoming-transactions>
             </div>
@@ -64,26 +73,30 @@ import { UpcomingTransactionsComponent } from './components/upcoming-transaction
         }
       </nz-spin>
     </div>
-    `,
-  styles: [`
-    .dashboard-container {
-      padding: 0;
-    }
+  `,
+  styles: [
+    `
+      .dashboard-container {
+        padding: 0;
+      }
 
-    .empty-state {
-      padding: 48px 24px;
-      text-align: center;
-      color: #8c8c8c;
-    }
-  `]
+      .empty-state {
+        padding: 48px 24px;
+        text-align: center;
+        color: #8c8c8c;
+      }
+    `,
+  ],
 })
 export class DashboardComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
 
   currentUser = this.authService.getCurrentUser();
-  dashboardData: DashboardData | null = null;
-  loading = false;
+  // dashboardData: DashboardData | null = null;
+  dashboardData = signal<DashboardData | null>(null);
+  loading = signal<boolean>(false);
   error: string | null = null;
 
   ngOnInit(): void {
@@ -91,32 +104,22 @@ export class DashboardComponent implements OnInit {
   }
 
   loadDashboard(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.error = null;
 
     this.dashboardService.getDashboard().subscribe({
       next: (data) => {
-        this.dashboardData = data;
-        this.loading = false;
+        this.dashboardData.set(data);
+        this.loading.set(false);
       },
       error: (err) => {
         this.error = err.error?.detail || 'Failed to load dashboard data';
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }
 
   getCurrencySymbol(): string {
-    const currencySymbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      CAD: 'C$',
-      AUD: 'A$',
-      CHF: 'CHF',
-      CNY: '¥',
-    };
     return currencySymbols[this.currentUser?.currency || 'USD'] || '$';
   }
 }

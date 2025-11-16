@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
 
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
@@ -17,6 +17,7 @@ import { ForecastData, AccountForecast } from '../../core/models/dashboard.model
 
 @Component({
   selector: 'app-forecast',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     NzCardModule,

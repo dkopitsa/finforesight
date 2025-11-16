@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -11,6 +11,7 @@ import { PasswordChange } from '../../../../core/models/user.model';
 
 @Component({
   selector: 'app-password-change',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     ReactiveFormsModule,

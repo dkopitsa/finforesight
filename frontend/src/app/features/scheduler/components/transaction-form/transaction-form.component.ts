@@ -1,4 +1,14 @@
-import { Component, Input, Output, EventEmitter, OnInit, inject, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  inject,
+  OnChanges,
+  SimpleChanges,
+  ChangeDetectionStrategy
+} from '@angular/core';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -20,6 +30,7 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
 
 @Component({
   selector: 'app-transaction-form',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     ReactiveFormsModule,

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
@@ -7,6 +7,7 @@ import { UpcomingTransaction } from '../../../../core/models/dashboard.model';
 
 @Component({
   selector: 'app-upcoming-transactions',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [NzTableModule, NzTagModule, NzEmptyModule],
   template: `

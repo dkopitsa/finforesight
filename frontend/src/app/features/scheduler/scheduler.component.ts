@@ -1,4 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -31,9 +37,11 @@ import {
 import { Account } from '../../core/models/account.model';
 import { Category } from '../../core/models/category.model';
 import { AccountService } from '../accounts/services/account.service';
+import { currencySymbols } from '../../core/currency';
 
 @Component({
   selector: 'app-scheduler',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     FormsModule,
@@ -50,18 +58,15 @@ import { AccountService } from '../accounts/services/account.service';
     TransactionCalendarComponent,
     TransactionStatsComponent,
     TransactionFiltersComponent,
-    EditRecurringModalComponent
-],
+    EditRecurringModalComponent,
+  ],
   template: `
     <div class="scheduler-container">
       <!-- Header with view toggle and action buttons -->
       <div class="scheduler-header">
         <h2>Transaction Scheduler</h2>
         <div class="header-actions">
-          <nz-segmented
-            [nzOptions]="viewModeOptions"
-            [(ngModel)]="viewMode"
-          ></nz-segmented>
+          <nz-segmented [nzOptions]="viewModeOptions" [(ngModel)]="viewMode"></nz-segmented>
 
           <button nz-button nzType="primary" (click)="showCreateModal()" style="margin-left: 16px;">
             <span nz-icon nzType="plus" nzTheme="outline"></span>
@@ -137,7 +142,14 @@ import { AccountService } from '../accounts/services/account.service';
 
         @if (!loading && !error && transactions.length === 0) {
           <div class="empty-state">
-            <p><span nz-icon nzType="calendar" nzTheme="outline" style="font-size: 48px; color: #d9d9d9;"></span></p>
+            <p>
+              <span
+                nz-icon
+                nzType="calendar"
+                nzTheme="outline"
+                style="font-size: 48px; color: #d9d9d9;"
+              ></span>
+            </p>
             <p>No scheduled transactions yet</p>
             <button nz-button nzType="primary" (click)="showCreateModal()">
               <span nz-icon nzType="plus" nzTheme="outline"></span>
@@ -177,46 +189,50 @@ import { AccountService } from '../accounts/services/account.service';
       ></app-edit-recurring-modal>
     </div>
   `,
-  styles: [`
-    .scheduler-container {
-      padding: 0;
-    }
+  styles: [
+    `
+      .scheduler-container {
+        padding: 0;
+      }
 
-    .scheduler-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
+      .scheduler-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
 
-    .scheduler-header h2 {
-      margin: 0;
-      font-size: 24px;
-      color: #262626;
-    }
+      .scheduler-header h2 {
+        margin: 0;
+        font-size: 24px;
+        color: #262626;
+      }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-    }
+      .header-actions {
+        display: flex;
+        align-items: center;
+      }
 
-    .empty-state {
-      padding: 64px 24px;
-      text-align: center;
-      color: #8c8c8c;
-    }
+      .empty-state {
+        padding: 64px 24px;
+        text-align: center;
+        color: #8c8c8c;
+      }
 
-    .empty-state p:last-child {
-      margin-top: 16px;
-    }
+      .empty-state p:last-child {
+        margin-top: 16px;
+      }
 
-    .filters-section, .stats-section {
-      margin-bottom: 24px;
-    }
-  `]
+      .filters-section,
+      .stats-section {
+        margin-bottom: 24px;
+      }
+    `,
+  ],
 })
 export class SchedulerComponent implements OnInit {
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
   private schedulerService = inject(SchedulerService);
   private accountService = inject(AccountService);
   private categoryService = inject(CategoryService);
@@ -226,7 +242,7 @@ export class SchedulerComponent implements OnInit {
   viewMode: ViewMode = ViewMode.LIST;
   viewModeOptions = [
     { label: 'List', value: ViewMode.LIST, icon: 'unordered-list' },
-    { label: 'Calendar', value: ViewMode.CALENDAR, icon: 'calendar' }
+    { label: 'Calendar', value: ViewMode.CALENDAR, icon: 'calendar' },
   ];
 
   transactions: ScheduledTransaction[] = [];
@@ -296,9 +312,11 @@ export class SchedulerComponent implements OnInit {
       next: (instances) => {
         this.instances = instances;
         this.applyFilters();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to load instances:', err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -307,9 +325,11 @@ export class SchedulerComponent implements OnInit {
     this.accountService.listAccounts().subscribe({
       next: (accounts) => {
         this.accounts = accounts;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to load accounts:', err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -318,9 +338,11 @@ export class SchedulerComponent implements OnInit {
     this.categoryService.listCategories().subscribe({
       next: (categories) => {
         this.categories = categories;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to load categories:', err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -394,10 +416,12 @@ export class SchedulerComponent implements OnInit {
           if (this.viewMode === ViewMode.CALENDAR) {
             this.loadInstances();
           }
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.messageService.error(err.error?.detail || 'Failed to update transaction');
           this.formLoading = false;
+          this.cdr.detectChanges();
         },
       });
     } else {
@@ -411,10 +435,12 @@ export class SchedulerComponent implements OnInit {
           if (this.viewMode === ViewMode.CALENDAR) {
             this.loadInstances();
           }
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.messageService.error(err.error?.detail || 'Failed to create transaction');
           this.formLoading = false;
+          this.cdr.detectChanges();
         },
       });
     }
@@ -428,6 +454,7 @@ export class SchedulerComponent implements OnInit {
         if (this.viewMode === ViewMode.CALENDAR) {
           this.loadInstances();
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.messageService.error(err.error?.detail || 'Failed to delete transaction');
@@ -443,7 +470,7 @@ export class SchedulerComponent implements OnInit {
 
   handleInstanceClick(instance: TransactionInstance): void {
     // Find the original transaction and edit it
-    const transaction = this.transactions.find(t => t.id === instance.id);
+    const transaction = this.transactions.find((t) => t.id === instance.id);
     if (transaction) {
       // Set the instance date from the clicked instance
       this.selectedInstanceDate = instance.date;
@@ -465,6 +492,7 @@ export class SchedulerComponent implements OnInit {
       next: (instances) => {
         this.instances = instances;
         this.applyFilters();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to load instances for new month:', err);
@@ -479,7 +507,7 @@ export class SchedulerComponent implements OnInit {
 
   applyFilters(): void {
     // Filter transactions
-    this.filteredTransactions = this.transactions.filter(transaction => {
+    this.filteredTransactions = this.transactions.filter((transaction) => {
       // Search filter
       if (this.filter.search) {
         const searchLower = this.filter.search.toLowerCase();
@@ -499,8 +527,10 @@ export class SchedulerComponent implements OnInit {
 
       // Account filter
       if (this.filter.account_id !== undefined && this.filter.account_id !== null) {
-        if (transaction.account_id !== this.filter.account_id &&
-            transaction.to_account_id !== this.filter.account_id) {
+        if (
+          transaction.account_id !== this.filter.account_id &&
+          transaction.to_account_id !== this.filter.account_id
+        ) {
           return false;
         }
       }
@@ -529,7 +559,7 @@ export class SchedulerComponent implements OnInit {
     });
 
     // Filter instances
-    this.filteredInstances = this.instances.filter(instance => {
+    this.filteredInstances = this.instances.filter((instance) => {
       // Search filter
       if (this.filter.search) {
         const searchLower = this.filter.search.toLowerCase();
@@ -547,8 +577,10 @@ export class SchedulerComponent implements OnInit {
 
       // Account filter
       if (this.filter.account_id !== undefined && this.filter.account_id !== null) {
-        if (instance.account_id !== this.filter.account_id &&
-            instance.to_account_id !== this.filter.account_id) {
+        if (
+          instance.account_id !== this.filter.account_id &&
+          instance.to_account_id !== this.filter.account_id
+        ) {
           return false;
         }
       }
@@ -567,16 +599,6 @@ export class SchedulerComponent implements OnInit {
   }
 
   getCurrencySymbol(): string {
-    const currencySymbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      CAD: 'C$',
-      AUD: 'A$',
-      CHF: 'CHF',
-      CNY: '¥',
-    };
     return currencySymbols[this.currentUser?.currency || 'USD'] || '$';
   }
 

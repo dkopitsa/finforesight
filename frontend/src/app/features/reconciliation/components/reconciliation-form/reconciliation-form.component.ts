@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit, inject, ChangeDetectionStrategy} from '@angular/core';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -15,6 +15,7 @@ import { ReconciliationCreate } from '../../../../core/models/reconciliation.mod
 
 @Component({
   selector: 'app-reconciliation-form',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     ReactiveFormsModule,

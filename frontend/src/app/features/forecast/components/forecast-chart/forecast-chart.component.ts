@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 
 import { NgxEchartsModule } from 'ngx-echarts';
 import { EChartsOption, LineSeriesOption } from 'echarts';
@@ -6,6 +6,7 @@ import { ForecastData } from '../../../../core/models/dashboard.model';
 
 @Component({
   selector: 'app-forecast-chart',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [NgxEchartsModule],
   template: `

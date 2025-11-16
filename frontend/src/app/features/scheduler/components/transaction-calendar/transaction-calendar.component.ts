@@ -1,4 +1,13 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+  ChangeDetectionStrategy
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NzCalendarModule } from 'ng-zorro-antd/calendar';
@@ -15,6 +24,7 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
 
 @Component({
   selector: 'app-transaction-calendar',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     FormsModule,

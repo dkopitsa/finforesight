@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
@@ -8,6 +8,7 @@ import { AccountSummary } from '../../../../core/models/account.model';
 
 @Component({
   selector: 'app-account-summary',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule, NzCardModule, NzStatisticModule, NzGridModule, NzIconModule],
   template: `
