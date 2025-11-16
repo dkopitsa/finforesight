@@ -320,13 +320,28 @@ class TestDeleteAccount:
     ) -> None:
         """Test successfully soft-deleting an account."""
         headers = await get_auth_headers(client, test_login_data)
-        response = await client.delete(f"/api/v1/accounts/{test_account.id}", headers=headers)
 
+        # First, verify account exists in list
+        list_response = await client.get("/api/v1/accounts/", headers=headers)
+        assert list_response.status_code == 200
+        accounts_before = list_response.json()
+        account_ids_before = [acc["id"] for acc in accounts_before]
+        assert test_account.id in account_ids_before
+
+        # Delete the account
+        response = await client.delete(f"/api/v1/accounts/{test_account.id}", headers=headers)
         assert response.status_code == 204
 
-        # Verify account is soft-deleted
+        # Verify account is soft-deleted in database
         await test_db.refresh(test_account)
         assert test_account.is_active is False
+
+        # Verify account does NOT appear in list anymore
+        list_response_after = await client.get("/api/v1/accounts/", headers=headers)
+        assert list_response_after.status_code == 200
+        accounts_after = list_response_after.json()
+        account_ids_after = [acc["id"] for acc in accounts_after]
+        assert test_account.id not in account_ids_after
 
     async def test_delete_account_not_found(
         self, client: AsyncClient, test_user: User, test_login_data: dict[str, str]

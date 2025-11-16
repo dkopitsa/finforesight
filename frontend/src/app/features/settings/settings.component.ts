@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 
 import { Router } from '@angular/router';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -13,6 +13,7 @@ import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-settings',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     NzCardModule,
@@ -20,7 +21,8 @@ import { AuthService } from '../../core/services/auth.service';
     NzIconModule,
     ProfileSettingsComponent,
     PasswordChangeComponent
-],
+  ],
+  providers: [NzModalService, NzMessageService],
   template: `
     <div class="settings-container">
       <div class="settings-header">

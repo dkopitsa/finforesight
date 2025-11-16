@@ -27,18 +27,21 @@ async def list_accounts(
     current_user: User = Depends(get_current_active_user),
 ) -> list[Account]:
     """
-    List all accounts for the current user.
+    List all active accounts for the current user.
 
     Args:
         db: Database session
         current_user: Current authenticated user
 
     Returns:
-        List of user's accounts
+        List of user's active accounts
     """
     result = await db.execute(
         select(Account)
-        .where(Account.user_id == current_user.id)
+        .where(
+            Account.user_id == current_user.id,
+            Account.is_active == True,  # noqa: E712
+        )
         .order_by(Account.created_at.desc())
     )
     accounts = result.scalars().all()

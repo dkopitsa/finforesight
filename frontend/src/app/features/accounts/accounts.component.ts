@@ -1,4 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
 
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
@@ -8,13 +14,20 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { AuthService } from '../../core/services/auth.service';
 import { AccountService } from './services/account.service';
-import { Account, AccountCreate, AccountUpdate, AccountSummary } from '../../core/models/account.model';
+import {
+  Account,
+  AccountCreate,
+  AccountUpdate,
+  AccountSummary,
+} from '../../core/models/account.model';
 import { AccountSummaryComponent } from './components/account-summary/account-summary.component';
 import { AccountListComponent } from './components/account-list/account-list.component';
 import { AccountFormComponent } from './components/account-form/account-form.component';
+import { currencySymbols } from '../../core/currency';
 
 @Component({
   selector: 'app-accounts',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     NzButtonModule,
@@ -24,8 +37,8 @@ import { AccountFormComponent } from './components/account-form/account-form.com
     NzIconModule,
     AccountSummaryComponent,
     AccountListComponent,
-    AccountFormComponent
-],
+    AccountFormComponent,
+  ],
   template: `
     <div class="accounts-container">
       <nz-spin [nzSpinning]="loading" nzTip="Loading accounts...">
@@ -92,21 +105,24 @@ import { AccountFormComponent } from './components/account-form/account-form.com
       </nz-modal>
     </div>
   `,
-  styles: [`
-    .accounts-container {
-      padding: 0;
-    }
+  styles: [
+    `
+      .accounts-container {
+        padding: 0;
+      }
 
-    .empty-state {
-      padding: 48px 24px;
-      text-align: center;
-      color: #8c8c8c;
-    }
-  `]
+      .empty-state {
+        padding: 48px 24px;
+        text-align: center;
+        color: #8c8c8c;
+      }
+    `,
+  ],
 })
 export class AccountsComponent implements OnInit {
   private authService = inject(AuthService);
   private accountService = inject(AccountService);
+  private cdr = inject(ChangeDetectorRef);
   private modalService = inject(NzModalService);
   private messageService = inject(NzMessageService);
 
@@ -134,10 +150,12 @@ export class AccountsComponent implements OnInit {
         this.accounts = accounts;
         this.loading = false;
         this.loadSummary();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.error = err.error?.detail || 'Failed to load accounts';
         this.loading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -146,9 +164,11 @@ export class AccountsComponent implements OnInit {
     this.accountService.getAccountSummary().subscribe({
       next: (summary) => {
         this.summary = summary;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to load summary:', err);
+        this.cdr.markForCheck();
       },
     });
   }
@@ -182,10 +202,12 @@ export class AccountsComponent implements OnInit {
           this.isModalVisible = false;
           this.selectedAccount = null;
           this.loadData();
+          this.cdr.markForCheck();
         },
         error: (err) => {
           this.messageService.error(err.error?.detail || 'Failed to update account');
           this.formLoading = false;
+          this.cdr.markForCheck();
         },
       });
     } else {
@@ -196,10 +218,12 @@ export class AccountsComponent implements OnInit {
           this.formLoading = false;
           this.isModalVisible = false;
           this.loadData();
+          this.cdr.markForCheck();
         },
         error: (err) => {
           this.messageService.error(err.error?.detail || 'Failed to create account');
           this.formLoading = false;
+          this.cdr.markForCheck();
         },
       });
     }
@@ -213,21 +237,12 @@ export class AccountsComponent implements OnInit {
       },
       error: (err) => {
         this.messageService.error(err.error?.detail || 'Failed to delete account');
+        this.cdr.markForCheck();
       },
     });
   }
 
   getCurrencySymbol(): string {
-    const currencySymbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      CAD: 'C$',
-      AUD: 'A$',
-      CHF: 'CHF',
-      CNY: '¥',
-    };
     return currencySymbols[this.currentUser?.currency || 'USD'] || '$';
   }
 }

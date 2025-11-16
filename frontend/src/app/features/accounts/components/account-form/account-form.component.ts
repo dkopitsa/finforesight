@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit, inject, ChangeDetectionStrategy} from '@angular/core';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -11,6 +11,7 @@ import { Account, AccountType, AccountCreate, AccountUpdate } from '../../../../
 
 @Component({
   selector: 'app-account-form',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -72,15 +73,19 @@ import { Account, AccountType, AccountCreate, AccountUpdate } from '../../../../
 
       <nz-form-item>
         <nz-form-label nzRequired>Initial Balance</nz-form-label>
-        <nz-form-control nzErrorTip="Please enter initial balance">
+        <nz-form-control [nzErrorTip]="getBalanceErrorTip()">
           <nz-input-number
             formControlName="initial_balance"
-            [nzMin]="0"
             [nzStep]="0.01"
             [nzPrecision]="2"
             nzPlaceHolder="0.00"
             style="width: 100%;"
           ></nz-input-number>
+          @if (showCreditLimit()) {
+            <div style="margin-top: 4px; font-size: 12px; color: #8c8c8c;">
+              For credit cards and loans, enter negative value to represent debt (e.g., -1500.00)
+            </div>
+          }
         </nz-form-control>
       </nz-form-item>
 
@@ -156,7 +161,7 @@ export class AccountFormComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(255)]],
       type: [null, [Validators.required]],
       currency: ['USD', [Validators.required, Validators.pattern(/^[A-Z]{3}$/)]],
-      initial_balance: [0, [Validators.required, Validators.min(0)]],
+      initial_balance: [0, [Validators.required]],
       initial_balance_date: [new Date(), [Validators.required]],
       credit_limit: [null, [Validators.min(0)]],
     });
@@ -178,6 +183,10 @@ export class AccountFormComponent implements OnInit {
   showCreditLimit(): boolean {
     const type = this.accountForm.get('type')?.value;
     return type === AccountType.CREDIT_CARD || type === AccountType.LOAN;
+  }
+
+  getBalanceErrorTip(): string {
+    return 'Please enter initial balance';
   }
 
   onSubmit(): void {
