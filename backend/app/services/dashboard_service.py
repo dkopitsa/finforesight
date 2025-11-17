@@ -116,9 +116,13 @@ class DashboardService:
 
     @staticmethod
     async def _get_financial_summary(user_id: int, db: AsyncSession) -> FinancialSummary:
-        """Calculate financial summary from accounts."""
+        """Calculate financial summary from accounts (excluding PLANNING)."""
         result = await db.execute(
-            select(Account).where(Account.user_id == user_id, Account.is_active)
+            select(Account).where(
+                Account.user_id == user_id,
+                Account.is_active,
+                Account.type != AccountType.PLANNING,
+            )
         )
         accounts = result.scalars().all()
 

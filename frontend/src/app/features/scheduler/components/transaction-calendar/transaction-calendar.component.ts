@@ -82,6 +82,9 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
                         </div>
                         <div style="margin-bottom: 4px;">
                           Account: {{ getAccountName(instance.account_id) }}
+                          @if (instance.status === 'completed') {
+                            <span nz-icon nzType="exclamation-circle" nzTheme="fill" style="color: #fa8c16; margin-left: 4px;"></span>
+                          }
                         </div>
                         @if (instance.to_account_id) {
                           <div style="margin-bottom: 4px;">
@@ -89,8 +92,18 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
                           </div>
                         }
                         @if (instance.is_exception) {
-                          <div>
+                          <div style="margin-bottom: 4px;">
                             <nz-tag nzColor="orange">Modified</nz-tag>
+                          </div>
+                        }
+                        @if (instance.status === 'completed') {
+                          <div style="margin-bottom: 4px;">
+                            <nz-tag nzColor="warning">Needs Confirmation</nz-tag>
+                          </div>
+                        }
+                        @if (instance.status === 'confirmed') {
+                          <div style="margin-bottom: 4px;">
+                            <nz-tag nzColor="success">Confirmed</nz-tag>
                           </div>
                         }
                       </div>
@@ -331,6 +344,17 @@ export class TransactionCalendarComponent implements OnInit, OnChanges {
   }
 
   getInstanceColor(instance: TransactionInstance): string {
+    // If status is 'completed' (needs confirmation), use warning color
+    if (instance.status === 'completed') {
+      return '#fa8c16'; // Orange - needs confirmation
+    }
+
+    // If status is 'confirmed', use success color
+    if (instance.status === 'confirmed') {
+      return '#52c41a'; // Green - confirmed
+    }
+
+    // Otherwise use category-based color
     const type = this.getCategoryType(instance.category_id);
     switch (type) {
       case CategoryType.INCOME:

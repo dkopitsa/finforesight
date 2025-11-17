@@ -278,11 +278,15 @@ async def update_scheduled_transaction(
             exception_data["amount"] = transaction_data.amount
         if transaction_data.note is not None:
             exception_data["note"] = transaction_data.note
+        if transaction_data.account_id is not None:
+            exception_data["account_id"] = transaction_data.account_id
+        if transaction_data.to_account_id is not None:
+            exception_data["to_account_id"] = transaction_data.to_account_id
 
         if not exception_data:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No modifiable fields provided for THIS_ONLY mode (only amount and note can be modified)",
+                detail="No modifiable fields provided for THIS_ONLY mode",
             )
 
         # Check if exception already exists
@@ -480,3 +484,256 @@ async def delete_scheduled_transaction(
                 "user_id": current_user.id,
             },
         )
+
+
+@router.get("/instances/pending-confirmation", response_model=list[ScheduledTransactionInstance])
+async def get_pending_confirmations(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> list[ScheduledTransactionInstance]:
+    """
+    Get all transaction instances that need account confirmation.
+
+    Returns instances where:
+    - Date <= today (past or today)
+    - Account is PLANNING type
+    - Status is 'completed' (not yet confirmed)
+    """
+    from app.models.account import Account, AccountType
+
+    # Get PLANNING account ID for this user
+    planning_account_result = await db.execute(
+        select(Account.id).where(
+            Account.user_id == current_user.id,
+            Account.type == AccountType.PLANNING,
+            Account.is_active == True,  # noqa: E712
+        )
+    )
+    planning_account = planning_account_result.scalar_one_or_none()
+
+    if not planning_account:
+        # No PLANNING account, return empty list
+        return []
+
+    # Expand instances from past to today
+    today = date.today()
+    from_date = today - timedelta(days=365)  # Look back 1 year
+
+    instances = await RecurrenceService.expand_recurring_transactions(
+        user_id=current_user.id,
+        from_date=from_date,
+        to_date=today,
+        db=db,
+    )
+
+    # Filter for instances that need confirmation
+    pending = [
+        inst
+        for inst in instances
+        if inst.date <= today
+        and inst.account_id == planning_account
+        and not inst.is_deleted
+        and inst.status == "completed"
+    ]
+
+    logger.info(
+        "Retrieved pending confirmations",
+        extra={"user_id": current_user.id, "count": len(pending)},
+    )
+
+    return pending
+
+
+@router.patch("/instances/bulk-confirm")
+async def bulk_confirm_instances(
+    scheduled_transaction_id: int,
+    account_id: int,
+    apply_to: str = Query(..., regex="^(past|all|specific_dates)$"),
+    specific_dates: list[str] | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> dict:
+    """
+    Bulk confirm account for multiple instances.
+
+    Args:
+        scheduled_transaction_id: The transaction to update
+        account_id: The confirmed account ID
+        apply_to: 'past' (all past instances), 'all' (entire series), 'specific_dates'
+        specific_dates: List of dates in YYYY-MM-DD format (required if apply_to='specific_dates')
+    """
+    from datetime import datetime
+
+    from app.models.account import Account
+
+    # Verify transaction ownership
+    result = await db.execute(
+        select(ScheduledTransaction).where(
+            ScheduledTransaction.id == scheduled_transaction_id,
+            ScheduledTransaction.user_id == current_user.id,
+        )
+    )
+    transaction = result.scalar_one_or_none()
+
+    if not transaction:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Scheduled transaction not found",
+        )
+
+    # Verify account ownership
+    account_result = await db.execute(
+        select(Account).where(
+            Account.id == account_id,
+            Account.user_id == current_user.id,
+        )
+    )
+    account = account_result.scalar_one_or_none()
+
+    if not account:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Account not found",
+        )
+
+    if apply_to == "all":
+        # Update the entire series
+        transaction.account_id = account_id
+        await db.commit()
+
+        logger.info(
+            "Bulk confirmed all instances",
+            extra={
+                "transaction_id": scheduled_transaction_id,
+                "account_id": account_id,
+                "user_id": current_user.id,
+            },
+        )
+
+        return {"message": "All instances updated", "mode": "all"}
+
+    elif apply_to == "past":
+        # Create exceptions for all past instances
+        today = date.today()
+        from_date = today - timedelta(days=365)
+
+        instances = await RecurrenceService.expand_recurring_transactions(
+            user_id=current_user.id,
+            from_date=from_date,
+            to_date=today,
+            db=db,
+        )
+
+        # Filter for this transaction and past dates
+        past_instances = [
+            inst
+            for inst in instances
+            if inst.scheduled_transaction_id == scheduled_transaction_id and inst.date <= today
+        ]
+
+        # Create exceptions for each
+        confirmed_count = 0
+        for inst in past_instances:
+            # Check if exception exists
+            exc_result = await db.execute(
+                select(ScheduledTransactionException).where(
+                    ScheduledTransactionException.scheduled_transaction_id
+                    == scheduled_transaction_id,
+                    ScheduledTransactionException.exception_date == inst.date,
+                )
+            )
+            existing = exc_result.scalar_one_or_none()
+
+            if existing:
+                existing.account_id = account_id
+                existing.status = "confirmed"
+                existing.confirmed_at = datetime.utcnow()
+            else:
+                exception = ScheduledTransactionException(
+                    scheduled_transaction_id=scheduled_transaction_id,
+                    exception_date=inst.date,
+                    account_id=account_id,
+                    status="confirmed",
+                    confirmed_at=datetime.utcnow(),
+                )
+                db.add(exception)
+
+            confirmed_count += 1
+
+        await db.commit()
+
+        logger.info(
+            "Bulk confirmed past instances",
+            extra={
+                "transaction_id": scheduled_transaction_id,
+                "account_id": account_id,
+                "count": confirmed_count,
+                "user_id": current_user.id,
+            },
+        )
+
+        return {"message": f"Updated {confirmed_count} past instances", "mode": "past"}
+
+    elif apply_to == "specific_dates":
+        if not specific_dates:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="specific_dates is required when apply_to='specific_dates'",
+            )
+
+        # Parse dates
+        dates_to_update = []
+        for date_str in specific_dates:
+            try:
+                parsed_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+                dates_to_update.append(parsed_date)
+            except ValueError as e:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid date format: {date_str}. Use YYYY-MM-DD",
+                ) from e
+
+        # Create exceptions for specific dates
+        confirmed_count = 0
+        for target_date in dates_to_update:
+            exc_result = await db.execute(
+                select(ScheduledTransactionException).where(
+                    ScheduledTransactionException.scheduled_transaction_id
+                    == scheduled_transaction_id,
+                    ScheduledTransactionException.exception_date == target_date,
+                )
+            )
+            existing = exc_result.scalar_one_or_none()
+
+            if existing:
+                existing.account_id = account_id
+                existing.status = "confirmed"
+                existing.confirmed_at = datetime.utcnow()
+            else:
+                exception = ScheduledTransactionException(
+                    scheduled_transaction_id=scheduled_transaction_id,
+                    exception_date=target_date,
+                    account_id=account_id,
+                    status="confirmed",
+                    confirmed_at=datetime.utcnow(),
+                )
+                db.add(exception)
+
+            confirmed_count += 1
+
+        await db.commit()
+
+        logger.info(
+            "Bulk confirmed specific instances",
+            extra={
+                "transaction_id": scheduled_transaction_id,
+                "account_id": account_id,
+                "count": confirmed_count,
+                "user_id": current_user.id,
+            },
+        )
+
+        return {
+            "message": f"Updated {confirmed_count} instances",
+            "mode": "specific_dates",
+        }

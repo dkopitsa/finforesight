@@ -265,6 +265,25 @@ class RecurrenceService:
                 # Skip this occurrence
                 continue
 
+            # Determine account_id (exception overrides transaction)
+            account_id = (
+                exception.account_id
+                if (exception and exception.account_id is not None)
+                else transaction.account_id
+            )
+
+            # Determine to_account_id (exception overrides transaction)
+            to_account_id = (
+                exception.to_account_id
+                if (exception and exception.to_account_id is not None)
+                else transaction.to_account_id
+            )
+
+            # Calculate status
+            status = RecurrenceService._calculate_instance_status(
+                occurrence_date, account_id, exception
+            )
+
             # Create instance
             instance = ScheduledTransactionInstance(
                 date=occurrence_date,
@@ -274,8 +293,8 @@ class RecurrenceService:
                 name=transaction.name,
                 amount=exception.amount if (exception and exception.amount) else transaction.amount,
                 currency=transaction.currency,
-                account_id=transaction.account_id,
-                to_account_id=transaction.to_account_id,
+                account_id=account_id,
+                to_account_id=to_account_id,
                 category_id=transaction.category_id,
                 note=(
                     exception.note
@@ -283,6 +302,7 @@ class RecurrenceService:
                     else transaction.note
                 ),
                 is_deleted=False,  # Already filtered out deleted ones
+                status=status,
             )
             instances.append(instance)
 
@@ -343,3 +363,38 @@ class RecurrenceService:
             iterations += 1
 
         return dates
+
+    @staticmethod
+    def _calculate_instance_status(
+        occurrence_date: date,
+        account_id: int,
+        exception: ScheduledTransactionException | None,
+    ) -> str:
+        """
+        Calculate the status of a transaction instance.
+
+        Args:
+            occurrence_date: The date of the instance
+            account_id: The account_id (after applying exception override)
+            exception: The exception object if exists
+
+        Returns:
+            Status string: 'pending', 'completed', or 'confirmed'
+        """
+
+        # If exception has explicit status, use it
+        if exception and exception.status:
+            return exception.status
+
+        # Future instances are always pending
+        if occurrence_date > date.today():
+            return "pending"
+
+        # Past instances: check if account is PLANNING
+        # We need to check the AccountType, but we only have account_id here
+        # For now, we'll use a simple heuristic and let the API layer handle proper status
+        # In a real implementation, you'd query the account or pass account info
+
+        # If it's a past date, default to 'completed' (needs confirmation)
+        # The API layer can update this based on actual account type
+        return "completed"

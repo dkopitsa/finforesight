@@ -6,7 +6,7 @@ from decimal import Decimal
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.account import Account
+from app.models.account import Account, AccountType
 from app.services.recurrence_service import RecurrenceService
 
 
@@ -60,8 +60,12 @@ class ForecastService:
         Returns:
             List of AccountForecast objects with time-series data
         """
-        # Fetch accounts
-        query = select(Account).where(Account.user_id == user_id, Account.is_active)
+        # Fetch accounts (exclude PLANNING type)
+        query = select(Account).where(
+            Account.user_id == user_id,
+            Account.is_active,
+            Account.type != AccountType.PLANNING,
+        )
 
         if account_ids:
             query = query.where(Account.id.in_(account_ids))

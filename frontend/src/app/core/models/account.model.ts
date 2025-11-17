@@ -7,6 +7,7 @@ export enum AccountType {
   CREDIT_CARD = 'credit_card',
   LOAN = 'loan',
   LOAN_GIVEN = 'loan_given',
+  PLANNING = 'planning',
 }
 
 export interface Account {

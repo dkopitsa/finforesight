@@ -1,7 +1,7 @@
 """Authentication routes for user registration, login, refresh, and logout."""
 
 import logging
-from datetime import datetime
+from datetime import date, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -15,6 +15,7 @@ from app.core.security import (
     get_password_hash,
     verify_password,
 )
+from app.models.account import Account, AccountType
 from app.models.refresh_token import RefreshToken
 from app.models.user import User
 from app.schemas.auth import (
@@ -70,6 +71,35 @@ async def register(
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
+
+    # Create default accounts for new user
+    today = date.today()
+
+    # 1. Наличные (Cash) account
+    cash_account = Account(
+        user_id=new_user.id,
+        name="Наличные",
+        type=AccountType.CASH,
+        currency=new_user.currency,
+        initial_balance=0,
+        initial_balance_date=today,
+        is_active=True,
+    )
+    db.add(cash_account)
+
+    # 2. Не определено (Planning) account
+    planning_account = Account(
+        user_id=new_user.id,
+        name="Не определено",
+        type=AccountType.PLANNING,
+        currency=new_user.currency,
+        initial_balance=0,
+        initial_balance_date=today,
+        is_active=True,
+    )
+    db.add(planning_account)
+
+    await db.commit()
 
     # Generate tokens
     access_token = create_access_token(subject=new_user.id)

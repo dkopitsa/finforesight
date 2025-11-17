@@ -163,6 +163,7 @@ export class AccountListComponent {
       [AccountType.CREDIT_CARD]: 'Credit Card',
       [AccountType.LOAN]: 'Loan',
       [AccountType.LOAN_GIVEN]: 'Loan Given',
+      [AccountType.PLANNING]: 'Planning',
     };
     return labels[type] || type;
   }
@@ -181,6 +182,8 @@ export class AccountListComponent {
         return 'red';
       case AccountType.LOAN_GIVEN:
         return 'purple';
+      case AccountType.PLANNING:
+        return 'default';
       default:
         return 'default';
     }
@@ -200,6 +203,8 @@ export class AccountListComponent {
         return 'credit-card';
       case AccountType.LOAN_GIVEN:
         return 'gift';
+      case AccountType.PLANNING:
+        return 'question-circle';
       default:
         return 'account-book';
     }

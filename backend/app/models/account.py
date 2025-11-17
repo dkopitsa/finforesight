@@ -25,6 +25,9 @@ class AccountType(str, enum.Enum):
     # Receivables
     LOAN_GIVEN = "loan_given"
 
+    # Virtual/Planning
+    PLANNING = "planning"
+
 
 class Account(BaseModel):
     """Financial account model."""

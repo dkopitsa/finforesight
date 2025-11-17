@@ -25,7 +25,7 @@ export interface ScheduledTransaction {
   currency: string;
   is_recurring: boolean;
   recurrence_frequency?: RecurrenceFrequency;
-  recurrence_day?: number;
+  recurrence_day_of_month?: number;
   recurrence_month?: number;
   recurrence_start_date?: string;
   recurrence_end_date?: string;
@@ -43,7 +43,7 @@ export interface ScheduledTransactionCreate {
   currency: string;
   is_recurring: boolean;
   recurrence_frequency?: RecurrenceFrequency;
-  recurrence_day?: number;
+  recurrence_day_of_month?: number;
   recurrence_month?: number;
   recurrence_start_date?: string;
   recurrence_end_date?: string;
@@ -58,7 +58,7 @@ export interface ScheduledTransactionUpdate {
   amount?: string;
   currency?: string;
   recurrence_frequency?: RecurrenceFrequency;
-  recurrence_day?: number;
+  recurrence_day_of_month?: number;
   recurrence_month?: number;
   recurrence_end_date?: string;
   note?: string;
@@ -76,6 +76,11 @@ export interface TransactionInstance {
   category_id: number;
   to_account_id?: number;
   is_exception: boolean;
+  status?: 'pending' | 'completed' | 'confirmed';
+  scheduled_transaction_id?: number;
+  exception_id?: number;
+  is_deleted?: boolean;
+  note?: string;
 }
 
 export interface ScheduledTransactionInstance extends TransactionInstance {
@@ -90,7 +95,12 @@ export interface ScheduledTransactionException {
   exception_date: string;
   amount?: string;
   note?: string;
+  account_id?: number;
+  to_account_id?: number;
+  status?: 'pending' | 'completed' | 'confirmed';
   is_deleted: boolean;
+  completed_at?: string;
+  confirmed_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -100,6 +110,9 @@ export interface ScheduledTransactionExceptionCreate {
   exception_date: string;
   amount?: string;
   note?: string;
+  account_id?: number;
+  to_account_id?: number;
+  status?: 'pending' | 'completed' | 'confirmed';
   is_deleted?: boolean;
 }
 

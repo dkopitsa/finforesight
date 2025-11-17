@@ -7,7 +7,7 @@ import {
   inject,
   OnChanges,
   SimpleChanges,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -42,8 +42,8 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
     NzInputNumberModule,
     NzSwitchModule,
     NzDividerModule,
-    NzCheckboxModule
-],
+    NzCheckboxModule,
+  ],
   template: `
     <form nz-form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" [nzLayout]="'vertical'">
       <!-- Name -->
@@ -90,7 +90,11 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
       <nz-form-item>
         <nz-form-label nzRequired>Category</nz-form-label>
         <nz-form-control nzErrorTip="Please select category">
-          <nz-select formControlName="category_id" nzPlaceHolder="Select category" (ngModelChange)="onCategoryChange($event)">
+          <nz-select
+            formControlName="category_id"
+            nzPlaceHolder="Select category"
+            (ngModelChange)="onCategoryChange($event)"
+          >
             <nz-option-group nzLabel="Income">
               @for (category of getIncomeCategories(); track category.id) {
                 <nz-option [nzValue]="category.id" [nzLabel]="category.name"></nz-option>
@@ -140,7 +144,12 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
       <nz-form-item>
         <nz-form-label>Note</nz-form-label>
         <nz-form-control>
-          <textarea nz-input formControlName="note" placeholder="Optional note" [nzAutosize]="{ minRows: 2, maxRows: 4 }"></textarea>
+          <textarea
+            nz-input
+            formControlName="note"
+            placeholder="Optional note"
+            [nzAutosize]="{ minRows: 2, maxRows: 4 }"
+          ></textarea>
         </nz-form-control>
       </nz-form-item>
 
@@ -150,7 +159,11 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
       <nz-form-item>
         <nz-form-label>Recurring Transaction</nz-form-label>
         <nz-form-control>
-          <label nz-checkbox formControlName="is_recurring" (ngModelChange)="onRecurringChange($event)">
+          <label
+            nz-checkbox
+            formControlName="is_recurring"
+            (ngModelChange)="onRecurringChange($event)"
+          >
             This is a recurring transaction
           </label>
         </nz-form-control>
@@ -175,7 +188,7 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
             <nz-form-label nzRequired>Day of Month</nz-form-label>
             <nz-form-control nzErrorTip="Please enter day (1-31 or -1 for last day)">
               <nz-input-number
-                formControlName="recurrence_day"
+                formControlName="recurrence_day_of_month"
                 [nzMin]="-1"
                 [nzMax]="31"
                 [nzStep]="1"
@@ -249,24 +262,38 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
       <!-- Form Actions -->
       <nz-form-item>
         <nz-form-control>
-          <button nz-button nzType="default" type="button" (click)="onCancel()" style="margin-right: 8px;">
+          <button
+            nz-button
+            nzType="default"
+            type="button"
+            (click)="onCancel()"
+            style="margin-right: 8px;"
+          >
             Cancel
           </button>
-          <button nz-button nzType="primary" type="submit" [nzLoading]="loading" [disabled]="!transactionForm.valid">
+          <button
+            nz-button
+            nzType="primary"
+            type="submit"
+            [nzLoading]="loading"
+            [disabled]="!transactionForm.valid"
+          >
             {{ transaction ? 'Update' : 'Create' }} Transaction
           </button>
         </nz-form-control>
       </nz-form-item>
     </form>
   `,
-  styles: [`
-    .recurrence-section {
-      padding: 16px;
-      background: #fafafa;
-      border-radius: 4px;
-      margin-bottom: 16px;
-    }
-  `]
+  styles: [
+    `
+      .recurrence-section {
+        padding: 16px;
+        background: #fafafa;
+        border-radius: 4px;
+        margin-bottom: 16px;
+      }
+    `,
+  ],
 })
 export class TransactionFormComponent implements OnInit, OnChanges {
   private fb = inject(FormBuilder);
@@ -296,25 +323,41 @@ export class TransactionFormComponent implements OnInit, OnChanges {
   initForm(): void {
     const isRecurring = this.transaction?.is_recurring || false;
 
+    // Find the PLANNING account for default selection
+    const planningAccount = this.accounts.find(acc => acc.type === 'planning');
+    const defaultAccountId = this.transaction?.account_id || planningAccount?.id || null;
+
     this.transactionForm = this.fb.group({
       name: [this.transaction?.name || '', [Validators.required, Validators.maxLength(255)]],
-      amount: [this.transaction?.amount ? parseFloat(this.transaction.amount) : null, [Validators.required, Validators.min(0)]],
+      amount: [
+        this.transaction?.amount ? parseFloat(this.transaction.amount) : null,
+        [Validators.required, Validators.min(0)],
+      ],
       currency: [this.transaction?.currency || 'USD', Validators.required],
       category_id: [this.transaction?.category_id || null, Validators.required],
-      account_id: [this.transaction?.account_id || null, Validators.required],
+      account_id: [defaultAccountId, Validators.required],
       to_account_id: [this.transaction?.to_account_id || null],
       note: [this.transaction?.note || ''],
       is_recurring: [isRecurring],
       recurrence_frequency: [this.transaction?.recurrence_frequency || null],
-      recurrence_day: [this.transaction?.recurrence_day || null],
+      recurrence_day_of_month: [this.transaction?.recurrence_day_of_month || null],
       recurrence_month: [this.transaction?.recurrence_month || null],
-      recurrence_start_date: [this.transaction?.recurrence_start_date ? new Date(this.transaction.recurrence_start_date) : null, Validators.required],
-      recurrence_end_date: [this.transaction?.recurrence_end_date ? new Date(this.transaction.recurrence_end_date) : null],
+      recurrence_start_date: [
+        this.transaction?.recurrence_start_date
+          ? new Date(this.transaction.recurrence_start_date)
+          : null,
+        Validators.required,
+      ],
+      recurrence_end_date: [
+        this.transaction?.recurrence_end_date
+          ? new Date(this.transaction.recurrence_end_date)
+          : null,
+      ],
     });
 
     // Set selected category type if editing
     if (this.transaction?.category_id) {
-      const category = this.categories.find(c => c.id === this.transaction?.category_id);
+      const category = this.categories.find((c) => c.id === this.transaction?.category_id);
       this.selectedCategoryType = category?.type || null;
     }
 
@@ -322,7 +365,7 @@ export class TransactionFormComponent implements OnInit, OnChanges {
   }
 
   onCategoryChange(categoryId: number): void {
-    const category = this.categories.find(c => c.id === categoryId);
+    const category = this.categories.find((c) => c.id === categoryId);
     this.selectedCategoryType = category?.type || null;
 
     // Set or clear to_account_id based on category type
@@ -344,17 +387,19 @@ export class TransactionFormComponent implements OnInit, OnChanges {
 
     if (isRecurring) {
       this.transactionForm.get('recurrence_frequency')?.setValidators([Validators.required]);
-      this.transactionForm.get('recurrence_day')?.setValidators([Validators.required, Validators.min(-1), Validators.max(31)]);
+      this.transactionForm
+        .get('recurrence_day_of_month')
+        ?.setValidators([Validators.required, Validators.min(-1), Validators.max(31)]);
     } else {
       this.transactionForm.get('recurrence_frequency')?.clearValidators();
-      this.transactionForm.get('recurrence_day')?.clearValidators();
+      this.transactionForm.get('recurrence_day_of_month')?.clearValidators();
       this.transactionForm.get('recurrence_month')?.clearValidators();
       this.transactionForm.get('recurrence_end_date')?.clearValidators();
     }
 
     // Update validity
     this.transactionForm.get('recurrence_frequency')?.updateValueAndValidity();
-    this.transactionForm.get('recurrence_day')?.updateValueAndValidity();
+    this.transactionForm.get('recurrence_day_of_month')?.updateValueAndValidity();
     this.transactionForm.get('recurrence_month')?.updateValueAndValidity();
     this.transactionForm.get('recurrence_end_date')?.updateValueAndValidity();
   }
@@ -364,15 +409,15 @@ export class TransactionFormComponent implements OnInit, OnChanges {
   }
 
   getIncomeCategories(): Category[] {
-    return this.categories.filter(c => c.type === CategoryType.INCOME);
+    return this.categories.filter((c) => c.type === CategoryType.INCOME);
   }
 
   getExpenseCategories(): Category[] {
-    return this.categories.filter(c => c.type === CategoryType.EXPENSE);
+    return this.categories.filter((c) => c.type === CategoryType.EXPENSE);
   }
 
   getTransferCategories(): Category[] {
-    return this.categories.filter(c => c.type === CategoryType.TRANSFER);
+    return this.categories.filter((c) => c.type === CategoryType.TRANSFER);
   }
 
   onSubmit(): void {
@@ -394,10 +439,17 @@ export class TransactionFormComponent implements OnInit, OnChanges {
         note: formValue.note || undefined,
         is_recurring: formValue.is_recurring,
         recurrence_frequency: formValue.is_recurring ? formValue.recurrence_frequency : undefined,
-        recurrence_day: formValue.is_recurring ? formValue.recurrence_day : undefined,
-        recurrence_month: formValue.is_recurring && formValue.recurrence_frequency === RecurrenceFrequency.YEARLY ? formValue.recurrence_month : undefined,
+        recurrence_day_of_month: formValue.is_recurring
+          ? formValue.recurrence_day_of_month
+          : undefined,
+        recurrence_month:
+          formValue.is_recurring && formValue.recurrence_frequency === RecurrenceFrequency.YEARLY
+            ? formValue.recurrence_month
+            : undefined,
         recurrence_start_date: formatDate(formValue.recurrence_start_date),
-        recurrence_end_date: formValue.is_recurring ? formatDate(formValue.recurrence_end_date) : undefined,
+        recurrence_end_date: formValue.is_recurring
+          ? formatDate(formValue.recurrence_end_date)
+          : undefined,
       };
 
       this.submitForm.emit(data);

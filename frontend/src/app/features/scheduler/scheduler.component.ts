@@ -9,13 +9,14 @@ import {
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
-import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { SchedulerService } from './services/scheduler.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CategoryService } from '../../core/services/category.service';
@@ -25,6 +26,7 @@ import { TransactionCalendarComponent } from './components/transaction-calendar/
 import { TransactionStatsComponent } from './components/transaction-stats/transaction-stats.component';
 import { TransactionFiltersComponent } from './components/transaction-filters/transaction-filters.component';
 import { EditRecurringModalComponent } from './components/edit-recurring-modal/edit-recurring-modal.component';
+import { PendingConfirmationsModalComponent } from './components/pending-confirmations-modal/pending-confirmations-modal.component';
 import {
   ScheduledTransaction,
   ScheduledTransactionCreate,
@@ -53,6 +55,7 @@ import { currencySymbols } from '../../core/currency';
     NzIconModule,
     NzTabsModule,
     NzCardModule,
+    NzToolTipModule,
     TransactionListComponent,
     TransactionFormComponent,
     TransactionCalendarComponent,
@@ -68,7 +71,19 @@ import { currencySymbols } from '../../core/currency';
         <div class="header-actions">
           <nz-segmented [nzOptions]="viewModeOptions" [(ngModel)]="viewMode"></nz-segmented>
 
-          <button nz-button nzType="primary" (click)="showCreateModal()" style="margin-left: 16px;">
+          <button
+            nz-button
+            nzType="default"
+            (click)="showPendingConfirmations()"
+            style="margin-left: 16px;"
+            nz-tooltip
+            nzTooltipTitle="Review transactions with unconfirmed accounts"
+          >
+            <span nz-icon nzType="exclamation-circle" nzTheme="outline"></span>
+            Confirm Accounts
+          </button>
+
+          <button nz-button nzType="primary" (click)="showCreateModal()" style="margin-left: 8px;">
             <span nz-icon nzType="plus" nzTheme="outline"></span>
             Add Transaction
           </button>
@@ -237,6 +252,7 @@ export class SchedulerComponent implements OnInit {
   private accountService = inject(AccountService);
   private categoryService = inject(CategoryService);
   private messageService = inject(NzMessageService);
+  private modalService = inject(NzModalService);
 
   currentUser = this.authService.getCurrentUser();
   viewMode: ViewMode = ViewMode.LIST;
@@ -610,5 +626,24 @@ export class SchedulerComponent implements OnInit {
   getPeriodEnd(): Date {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  }
+
+  showPendingConfirmations(): void {
+    const modal = this.modalService.create({
+      nzTitle: 'Confirm Account for Transactions',
+      nzContent: PendingConfirmationsModalComponent,
+      nzWidth: 900,
+      nzFooter: null,
+    });
+
+    const instance = modal.getContentComponent();
+    if (instance) {
+      instance.accounts = this.accounts;
+    }
+
+    modal.afterClose.subscribe(() => {
+      // Reload instances after modal closes
+      this.loadInstances();
+    });
   }
 }

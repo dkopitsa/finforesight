@@ -47,6 +47,10 @@ import { AuthService } from '../../core/services/auth.service';
               <span nz-icon nzType="wallet" nzTheme="outline"></span>
               Accounts
             </li>
+            <li nz-menu-item routerLinkActive="ant-menu-item-selected" routerLink="/categories">
+              <span nz-icon nzType="tags" nzTheme="outline"></span>
+              Categories
+            </li>
             <li nz-menu-item routerLinkActive="ant-menu-item-selected" routerLink="/scheduler">
               <span nz-icon nzType="schedule" nzTheme="outline"></span>
               Scheduler
@@ -144,6 +148,10 @@ import { AuthService } from '../../core/services/auth.service';
             <li nz-menu-item routerLinkActive="ant-menu-item-selected" routerLink="/accounts">
               <span nz-icon nzType="wallet" nzTheme="outline"></span>
               <span>Accounts</span>
+            </li>
+            <li nz-menu-item routerLinkActive="ant-menu-item-selected" routerLink="/categories">
+              <span nz-icon nzType="tags" nzTheme="outline"></span>
+              <span>Categories</span>
             </li>
             <li nz-menu-item routerLinkActive="ant-menu-item-selected" routerLink="/scheduler">
               <span nz-icon nzType="schedule" nzTheme="outline"></span>

@@ -7,6 +7,7 @@ from sqlalchemy import (
     CheckConstraint,
     Column,
     Date,
+    DateTime,
     Enum,
     ForeignKey,
     Integer,
@@ -22,8 +23,8 @@ from app.models.base import BaseModel
 class RecurrenceFrequency(str, enum.Enum):
     """Recurrence frequency enumeration."""
 
-    MONTHLY = "monthly"
-    YEARLY = "yearly"
+    MONTHLY = "MONTHLY"
+    YEARLY = "YEARLY"
 
 
 class ScheduledTransaction(BaseModel):
@@ -120,10 +121,23 @@ class ScheduledTransactionException(BaseModel):
     # Override fields (NULL means use original value)
     amount = Column(Numeric(15, 2), nullable=True)  # Override amount
     note = Column(Text, nullable=True)  # Override note
+    account_id = Column(
+        Integer, ForeignKey("accounts.id", ondelete="CASCADE"), nullable=True
+    )  # Override account
+    to_account_id = Column(
+        Integer, ForeignKey("accounts.id", ondelete="CASCADE"), nullable=True
+    )  # Override to_account
     is_deleted = Column(Boolean, nullable=False, default=False)  # Skip this occurrence
 
-    # Relationship
+    # Status tracking
+    status = Column(String(20), nullable=True, comment="Status: pending, completed, confirmed")
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    confirmed_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Relationships
     scheduled_transaction = relationship("ScheduledTransaction", back_populates="exceptions")
+    account = relationship("Account", foreign_keys=[account_id])
+    to_account = relationship("Account", foreign_keys=[to_account_id])
 
     # Constraints
     __table_args__ = (

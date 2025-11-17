@@ -51,6 +51,9 @@ import { Account, AccountType, AccountCreate, AccountUpdate } from '../../../../
             <nz-option-group nzLabel="Receivables">
               <nz-option [nzValue]="AccountType.LOAN_GIVEN" nzLabel="Loan Given"></nz-option>
             </nz-option-group>
+            <nz-option-group nzLabel="Virtual/Planning">
+              <nz-option [nzValue]="AccountType.PLANNING" nzLabel="Planning"></nz-option>
+            </nz-option-group>
           </nz-select>
         </nz-form-control>
       </nz-form-item>

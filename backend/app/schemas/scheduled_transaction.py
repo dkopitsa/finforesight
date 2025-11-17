@@ -163,6 +163,9 @@ class ScheduledTransactionInstance(BaseModel):
     note: str | None
     is_deleted: bool = Field(False, description="Whether this occurrence is skipped")
 
+    # Status tracking (computed field)
+    status: str | None = Field(None, description="Status: pending, completed, confirmed")
+
     model_config = {"from_attributes": True}
 
 
@@ -172,14 +175,25 @@ class ScheduledTransactionExceptionCreate(BaseModel):
     exception_date: date_type = Field(..., description="The date of the occurrence to modify")
     amount: Decimal | None = Field(None, gt=0, description="Override amount (NULL = use original)")
     note: str | None = Field(None, description="Override note (NULL = use original)")
+    account_id: int | None = Field(None, description="Override account (NULL = use original)")
+    to_account_id: int | None = Field(None, description="Override to_account (NULL = use original)")
+    status: str | None = Field(None, description="Status: pending, completed, confirmed")
     is_deleted: bool = Field(False, description="Skip this occurrence")
 
     @model_validator(mode="after")
     def validate_exception(self):
         """Ensure exception has at least one override or is_deleted."""
-        if not self.is_deleted and self.amount is None and self.note is None:
+        if (
+            not self.is_deleted
+            and self.amount is None
+            and self.note is None
+            and self.account_id is None
+            and self.to_account_id is None
+            and self.status is None
+        ):
             raise ValueError(
-                "Exception must either set is_deleted=True or provide at least one override (amount or note)"
+                "Exception must either set is_deleted=True or provide at least one override "
+                "(amount, note, account_id, to_account_id, or status)"
             )
         return self
 
@@ -192,7 +206,12 @@ class ScheduledTransactionExceptionResponse(BaseModel):
     exception_date: date_type
     amount: Decimal | None
     note: str | None
+    account_id: int | None
+    to_account_id: int | None
+    status: str | None
     is_deleted: bool
+    completed_at: datetime | None
+    confirmed_at: datetime | None
     created_at: datetime
     updated_at: datetime
 
