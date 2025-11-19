@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -159,6 +159,7 @@ export class ReconciliationComponent implements OnInit {
   private accountService = inject(AccountService);
   private authService = inject(AuthService);
   private messageService = inject(NzMessageService);
+  private cdr = inject(ChangeDetectorRef);
 
   currentUser = this.authService.getCurrentUser();
   accounts: Account[] = [];
@@ -179,10 +180,12 @@ export class ReconciliationComponent implements OnInit {
     this.accountService.listAccounts().subscribe({
       next: (accounts) => {
         this.accounts = accounts;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to load accounts:', err);
         this.messageService.error('Failed to load accounts');
+        this.cdr.markForCheck();
       },
     });
   }
@@ -190,40 +193,48 @@ export class ReconciliationComponent implements OnInit {
   loadReconciliations(): void {
     this.loading = true;
     this.error = null;
+    this.cdr.markForCheck();
 
     this.reconciliationService.listReconciliations(this.selectedAccountId || undefined).subscribe({
       next: (reconciliations) => {
         this.reconciliations = reconciliations;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.error = err.error?.detail || 'Failed to load reconciliations';
         this.loading = false;
+        this.cdr.markForCheck();
       },
     });
   }
 
   showCreateModal(): void {
     this.isModalVisible = true;
+    this.cdr.markForCheck();
   }
 
   handleModalCancel(): void {
     this.isModalVisible = false;
+    this.cdr.markForCheck();
   }
 
   handleSubmit(data: ReconciliationCreate): void {
     this.formLoading = true;
+    this.cdr.markForCheck();
 
     this.reconciliationService.createReconciliation(data).subscribe({
       next: () => {
         this.messageService.success('Account reconciled successfully');
         this.formLoading = false;
         this.isModalVisible = false;
+        this.cdr.markForCheck();
         this.loadReconciliations();
       },
       error: (err) => {
         this.messageService.error(err.error?.detail || 'Failed to reconcile account');
         this.formLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -236,6 +247,7 @@ export class ReconciliationComponent implements OnInit {
       },
       error: (err) => {
         this.messageService.error(err.error?.detail || 'Failed to delete reconciliation');
+        this.cdr.markForCheck();
       },
     });
   }

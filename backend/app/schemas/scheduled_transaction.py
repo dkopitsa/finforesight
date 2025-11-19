@@ -162,6 +162,7 @@ class ScheduledTransactionInstance(BaseModel):
     category_id: int
     note: str | None
     is_deleted: bool = Field(False, description="Whether this occurrence is skipped")
+    is_recurring: bool = Field(False, description="Whether the parent transaction is recurring")
 
     # Status tracking (computed field)
     status: str | None = Field(None, description="Status: pending, completed, confirmed")

@@ -302,6 +302,7 @@ class RecurrenceService:
                     else transaction.note
                 ),
                 is_deleted=False,  # Already filtered out deleted ones
+                is_recurring=transaction.is_recurring,
                 status=status,
             )
             instances.append(instance)

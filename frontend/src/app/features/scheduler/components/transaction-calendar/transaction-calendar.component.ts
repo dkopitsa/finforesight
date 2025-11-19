@@ -18,6 +18,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { TransactionInstance } from '../../../../core/models/transaction.model';
 import { Account } from '../../../../core/models/account.model';
 import { Category, CategoryType } from '../../../../core/models/category.model';
@@ -35,15 +36,32 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
     NzButtonModule,
     NzIconModule,
     NzPopoverModule,
-    NzEmptyModule
+    NzEmptyModule,
+    NzToolTipModule
 ],
   template: `
     <nz-card>
+      <!-- Custom Calendar Header -->
+      <div class="calendar-header">
+        <div class="navigation-buttons">
+          <button nz-button nzType="default" (click)="navigateToPreviousMonth()" nz-tooltip nzTooltipTitle="Previous month">
+            <span nz-icon nzType="left" nzTheme="outline"></span>
+          </button>
+          <span class="current-month">{{ getCurrentMonthYear() }}</span>
+          <button nz-button nzType="default" (click)="navigateToNextMonth()" nz-tooltip nzTooltipTitle="Next month">
+            <span nz-icon nzType="right" nzTheme="outline"></span>
+          </button>
+        </div>
+        <button nz-button nzType="default" (click)="goToToday()" nzSize="small">
+          <span nz-icon nzType="calendar" nzTheme="outline"></span>
+          Today
+        </button>
+      </div>
+
       <nz-calendar
         [nzFullscreen]="true"
         [(ngModel)]="selectedDate"
         (ngModelChange)="onDateChange($event)"
-        (nzPanelChange)="onPanelChange($event)"
       >
         <ng-container *nzDateCell="let date">
           <div class="calendar-cell" (click)="onDateClick(date)">
@@ -59,7 +77,12 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
                       [nzPopoverContent]="instanceDetails"
                       nzPopoverPlacement="right"
                     >
-                      <div class="instance-name">{{ instance.name }}</div>
+                      <div class="instance-name">
+                        @if (instance.is_recurring) {
+                          <span nz-icon nzType="reload" nzTheme="outline" class="recurring-icon"></span>
+                        }
+                        {{ instance.name }}
+                      </div>
                       <div class="instance-amount" [style.color]="getInstanceColor(instance)">
                         {{ formatAmount(instance.amount, instance.currency) }}
                       </div>
@@ -74,6 +97,12 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
                           <nz-tag [nzColor]="getCategoryTypeColor(instance.category_id)">
                             {{ getCategoryName(instance.category_id) }}
                           </nz-tag>
+                          @if (instance.is_recurring) {
+                            <nz-tag nzColor="default">
+                              <span nz-icon nzType="reload" nzTheme="outline"></span>
+                              Recurring
+                            </nz-tag>
+                          }
                         </div>
                         <div style="margin-bottom: 4px;">
                           Amount: <strong [style.color]="getInstanceColor(instance)">
@@ -142,6 +171,35 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
     </nz-card>
   `,
   styles: [`
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      background: #fafafa;
+      border-radius: 4px;
+    }
+
+    .navigation-buttons {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .navigation-buttons button {
+      min-width: 32px;
+      padding: 0 8px;
+    }
+
+    .current-month {
+      font-size: 16px;
+      font-weight: 600;
+      color: #262626;
+      min-width: 200px;
+      text-align: center;
+    }
+
     .calendar-cell {
       min-height: 80px;
       padding: 4px;
@@ -187,6 +245,12 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
       margin-bottom: 2px;
     }
 
+    .recurring-icon {
+      font-size: 10px;
+      margin-right: 4px;
+      color: #8c8c8c;
+    }
+
     .instance-amount {
       font-weight: 600;
       font-size: 11px;
@@ -196,8 +260,6 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100%;
-      min-height: 80px;
       opacity: 0;
       transition: opacity 0.2s;
     }
@@ -248,8 +310,13 @@ export class TransactionCalendarComponent implements OnInit, OnChanges {
   selectedDate: Date = new Date();
   instancesByDate = new Map<string, TransactionInstance[]>();
 
+  private previousMonth: number | null = null;
+  private previousYear: number | null = null;
+
   ngOnInit(): void {
     this.buildInstancesMap();
+    this.previousMonth = this.selectedDate.getMonth();
+    this.previousYear = this.selectedDate.getFullYear();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -289,13 +356,21 @@ export class TransactionCalendarComponent implements OnInit, OnChanges {
   }
 
   onDateChange(date: Date): void {
-    this.selectedDate = date;
-  }
+    const currentMonth = date.getMonth();
+    const currentYear = date.getFullYear();
 
-  onPanelChange(change: { date: Date; mode: string }): void {
-    const year = change.date.getFullYear();
-    const month = change.date.getMonth() + 1;
-    this.monthChange.emit({ year, month });
+    // Check if month or year has changed
+    if (this.previousMonth !== null && this.previousYear !== null) {
+      if (currentMonth !== this.previousMonth || currentYear !== this.previousYear) {
+        // Month or year navigation detected - emit event to load new data
+        this.monthChange.emit({ year: currentYear, month: currentMonth + 1 });
+      }
+    }
+
+    // Update tracking
+    this.previousMonth = currentMonth;
+    this.previousYear = currentYear;
+    this.selectedDate = date;
   }
 
   formatAmount(amount: string, currency: string): string {
@@ -380,5 +455,29 @@ export class TransactionCalendarComponent implements OnInit, OnChanges {
       const instDate = new Date(instance.date);
       return instDate.getFullYear() === year && instDate.getMonth() === month;
     }).length;
+  }
+
+  getCurrentMonthYear(): string {
+    return this.selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  navigateToPreviousMonth(): void {
+    const newDate = new Date(this.selectedDate);
+    newDate.setMonth(newDate.getMonth() - 1);
+    this.selectedDate = newDate;
+    this.onDateChange(newDate);
+  }
+
+  navigateToNextMonth(): void {
+    const newDate = new Date(this.selectedDate);
+    newDate.setMonth(newDate.getMonth() + 1);
+    this.selectedDate = newDate;
+    this.onDateChange(newDate);
+  }
+
+  goToToday(): void {
+    const today = new Date();
+    this.selectedDate = today;
+    this.onDateChange(today);
   }
 }

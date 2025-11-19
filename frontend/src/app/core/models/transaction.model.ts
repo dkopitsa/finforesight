@@ -76,6 +76,7 @@ export interface TransactionInstance {
   category_id: number;
   to_account_id?: number;
   is_exception: boolean;
+  is_recurring?: boolean;
   status?: 'pending' | 'completed' | 'confirmed';
   scheduled_transaction_id?: number;
   exception_id?: number;

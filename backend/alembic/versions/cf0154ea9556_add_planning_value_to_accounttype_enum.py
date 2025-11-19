@@ -20,7 +20,7 @@ depends_on: str | Sequence[str] | None = None
 def upgrade() -> None:
     """Upgrade schema."""
     # Add PLANNING value to accounttype enum
-    op.execute("ALTER TYPE accounttype ADD VALUE IF NOT EXISTS 'planning'")
+    op.execute("ALTER TYPE accounttype ADD VALUE IF NOT EXISTS 'PLANNING'")
 
 
 def downgrade() -> None:

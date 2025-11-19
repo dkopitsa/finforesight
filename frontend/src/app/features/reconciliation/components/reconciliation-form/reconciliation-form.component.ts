@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, OnInit, inject, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges, SimpleChanges} from '@angular/core';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -204,8 +204,9 @@ import { ReconciliationCreate } from '../../../../core/models/reconciliation.mod
     }
   `]
 })
-export class ReconciliationFormComponent implements OnInit {
+export class ReconciliationFormComponent implements OnInit, OnChanges {
   private fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() visible = false;
   @Input() accounts: Account[] = [];
@@ -222,6 +223,12 @@ export class ReconciliationFormComponent implements OnInit {
     this.initForm();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['visible'] || changes['accounts'] || changes['loading']) {
+      this.cdr.markForCheck();
+    }
+  }
+
   initForm(): void {
     this.reconciliationForm = this.fb.group({
       account_id: [null, [Validators.required]],
@@ -234,6 +241,7 @@ export class ReconciliationFormComponent implements OnInit {
 
   onAccountChange(accountId: number): void {
     this.selectedAccount = this.accounts.find(a => a.id === accountId) || null;
+    this.cdr.markForCheck();
   }
 
   showDifference(): boolean {
@@ -314,6 +322,7 @@ export class ReconciliationFormComponent implements OnInit {
       create_adjustment: true,
     });
     this.selectedAccount = null;
+    this.cdr.markForCheck();
   }
 
   formatDate(date: Date): string {

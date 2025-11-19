@@ -20,6 +20,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { SchedulerService } from './services/scheduler.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CategoryService } from '../../core/services/category.service';
+import { StorageService } from '../../core/services/storage.service';
 import { TransactionListComponent } from './components/transaction-list/transaction-list.component';
 import { TransactionFormComponent } from './components/transaction-form/transaction-form.component';
 import { TransactionCalendarComponent } from './components/transaction-calendar/transaction-calendar.component';
@@ -69,7 +70,7 @@ import { currencySymbols } from '../../core/currency';
       <div class="scheduler-header">
         <h2>Transaction Scheduler</h2>
         <div class="header-actions">
-          <nz-segmented [nzOptions]="viewModeOptions" [(ngModel)]="viewMode"></nz-segmented>
+          <nz-segmented [nzOptions]="viewModeOptions" [(ngModel)]="viewMode" (ngModelChange)="onViewModeChange($event)"></nz-segmented>
 
           <button
             nz-button
@@ -104,28 +105,28 @@ import { currencySymbols } from '../../core/currency';
 
         @if (!loading && !error) {
           <div>
-            <!-- Filters -->
-            <div class="filters-section" style="margin-bottom: 24px;">
-              <app-transaction-filters
-                [accounts]="accounts"
-                [categories]="categories"
-                [initialFilters]="filter"
-                (filtersChange)="handleFiltersChange($event)"
-              ></app-transaction-filters>
-            </div>
-
-            <!-- Statistics -->
-            @if (filteredInstances.length > 0) {
-              <div class="stats-section" style="margin-bottom: 24px;">
-                <app-transaction-stats
-                  [instances]="filteredInstances"
+            <!-- Filters (List view only) -->
+            @if (viewMode === 'list') {
+              <div class="filters-section" style="margin-bottom: 24px;">
+                <app-transaction-filters
+                  [accounts]="accounts"
                   [categories]="categories"
-                  [currencySymbol]="getCurrencySymbol()"
-                  [periodStart]="getPeriodStart()"
-                  [periodEnd]="getPeriodEnd()"
-                ></app-transaction-stats>
+                  [initialFilters]="filter"
+                  (filtersChange)="handleFiltersChange($event)"
+                ></app-transaction-filters>
               </div>
             }
+
+            <!-- Statistics -->
+            <div class="stats-section" style="margin-bottom: 24px;">
+              <app-transaction-stats
+                [instances]="filteredInstances"
+                [categories]="categories"
+                [currencySymbol]="getCurrencySymbol()"
+                [periodStart]="getPeriodStart()"
+                [periodEnd]="getPeriodEnd()"
+              ></app-transaction-stats>
+            </div>
 
             <!-- Content area based on view mode -->
             @if (viewMode === 'list') {
@@ -253,6 +254,7 @@ export class SchedulerComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private messageService = inject(NzMessageService);
   private modalService = inject(NzModalService);
+  private storageService = inject(StorageService);
 
   currentUser = this.authService.getCurrentUser();
   viewMode: ViewMode = ViewMode.LIST;
@@ -274,6 +276,9 @@ export class SchedulerComponent implements OnInit {
 
   filter: TransactionFilter = {};
 
+  // Track current calendar month for statistics period
+  currentCalendarDate: Date = new Date();
+
   isModalVisible = false;
   modalTitle = 'Create Transaction';
   selectedTransaction: ScheduledTransaction | null = null;
@@ -284,6 +289,12 @@ export class SchedulerComponent implements OnInit {
   selectedUpdateMode?: UpdateMode;
 
   ngOnInit(): void {
+    // Restore view mode from localStorage
+    const savedViewMode = this.storageService.getSchedulerViewMode();
+    if (savedViewMode === ViewMode.LIST || savedViewMode === ViewMode.CALENDAR) {
+      this.viewMode = savedViewMode as ViewMode;
+    }
+
     this.loadData();
     this.loadAccounts();
     this.loadCategories();
@@ -307,19 +318,20 @@ export class SchedulerComponent implements OnInit {
         this.transactions = transactions;
         this.applyFilters();
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.error = err.error?.detail || 'Failed to load transactions';
         this.loading = false;
+        this.cdr.markForCheck();
       },
     });
   }
 
   loadInstances(): void {
-    // Load instances for current month
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    // Load instances for current calendar month
+    const firstDay = new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth(), 1);
+    const lastDay = new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth() + 1, 0);
 
     const fromDate = firstDay.toISOString().split('T')[0];
     const toDate = lastDay.toISOString().split('T')[0];
@@ -328,11 +340,11 @@ export class SchedulerComponent implements OnInit {
       next: (instances) => {
         this.instances = instances;
         this.applyFilters();
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to load instances:', err);
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
     });
   }
@@ -341,11 +353,11 @@ export class SchedulerComponent implements OnInit {
     this.accountService.listAccounts().subscribe({
       next: (accounts) => {
         this.accounts = accounts;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to load accounts:', err);
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
     });
   }
@@ -354,11 +366,11 @@ export class SchedulerComponent implements OnInit {
     this.categoryService.listCategories().subscribe({
       next: (categories) => {
         this.categories = categories;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to load categories:', err);
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
     });
   }
@@ -405,6 +417,26 @@ export class SchedulerComponent implements OnInit {
     this.selectedUpdateMode = undefined;
   }
 
+  onViewModeChange(mode: ViewMode): void {
+    // Save to localStorage
+    this.storageService.setSchedulerViewMode(mode);
+
+    // If switching to calendar view, clear filters and reload instances
+    if (mode === ViewMode.CALENDAR) {
+      this.filter = {
+        search: '',
+        category_id: undefined,
+        account_id: undefined,
+        is_recurring: undefined,
+        date_from: undefined,
+        date_to: undefined,
+      };
+      this.loadInstances();
+    }
+
+    this.cdr.markForCheck();
+  }
+
   handleSubmit(data: ScheduledTransactionCreate | ScheduledTransactionUpdate): void {
     this.formLoading = true;
 
@@ -432,12 +464,12 @@ export class SchedulerComponent implements OnInit {
           if (this.viewMode === ViewMode.CALENDAR) {
             this.loadInstances();
           }
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
         },
         error: (err) => {
           this.messageService.error(err.error?.detail || 'Failed to update transaction');
           this.formLoading = false;
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
         },
       });
     } else {
@@ -451,12 +483,12 @@ export class SchedulerComponent implements OnInit {
           if (this.viewMode === ViewMode.CALENDAR) {
             this.loadInstances();
           }
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
         },
         error: (err) => {
           this.messageService.error(err.error?.detail || 'Failed to create transaction');
           this.formLoading = false;
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
         },
       });
     }
@@ -470,10 +502,11 @@ export class SchedulerComponent implements OnInit {
         if (this.viewMode === ViewMode.CALENDAR) {
           this.loadInstances();
         }
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.messageService.error(err.error?.detail || 'Failed to delete transaction');
+        this.cdr.markForCheck();
       },
     });
   }
@@ -486,7 +519,7 @@ export class SchedulerComponent implements OnInit {
 
   handleInstanceClick(instance: TransactionInstance): void {
     // Find the original transaction and edit it
-    const transaction = this.transactions.find((t) => t.id === instance.id);
+    const transaction = this.transactions.find((t) => t.id === instance.scheduled_transaction_id);
     if (transaction) {
       // Set the instance date from the clicked instance
       this.selectedInstanceDate = instance.date;
@@ -497,6 +530,9 @@ export class SchedulerComponent implements OnInit {
   }
 
   handleMonthChange(change: { year: number; month: number }): void {
+    // Update current calendar date for statistics period
+    this.currentCalendarDate = new Date(change.year, change.month - 1, 1);
+
     // Load instances for the new month
     const firstDay = new Date(change.year, change.month - 1, 1);
     const lastDay = new Date(change.year, change.month, 0);
@@ -508,10 +544,11 @@ export class SchedulerComponent implements OnInit {
       next: (instances) => {
         this.instances = instances;
         this.applyFilters();
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to load instances for new month:', err);
+        this.cdr.markForCheck();
       },
     });
   }
@@ -519,6 +556,7 @@ export class SchedulerComponent implements OnInit {
   handleFiltersChange(filters: TransactionFilter): void {
     this.filter = filters;
     this.applyFilters();
+    this.cdr.markForCheck();
   }
 
   applyFilters(): void {
@@ -612,6 +650,8 @@ export class SchedulerComponent implements OnInit {
 
       return true;
     });
+
+    this.cdr.markForCheck();
   }
 
   getCurrencySymbol(): string {
@@ -619,13 +659,11 @@ export class SchedulerComponent implements OnInit {
   }
 
   getPeriodStart(): Date {
-    const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth(), 1);
+    return new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth(), 1);
   }
 
   getPeriodEnd(): Date {
-    const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth() + 1, 0);
   }
 
   showPendingConfirmations(): void {
