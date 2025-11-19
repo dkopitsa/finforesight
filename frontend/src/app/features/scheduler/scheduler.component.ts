@@ -19,6 +19,7 @@ import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { SchedulerService } from './services/scheduler.service';
 import { AuthService } from '../../core/services/auth.service';
+import { CurrencyService } from '../../core/services/currency.service';
 import { CategoryService } from '../../core/services/category.service';
 import { StorageService } from '../../core/services/storage.service';
 import { TransactionListComponent } from './components/transaction-list/transaction-list.component';
@@ -40,7 +41,6 @@ import {
 import { Account } from '../../core/models/account.model';
 import { Category } from '../../core/models/category.model';
 import { AccountService } from '../accounts/services/account.service';
-import { currencySymbols } from '../../core/currency';
 
 @Component({
   selector: 'app-scheduler',
@@ -255,6 +255,7 @@ export class SchedulerComponent implements OnInit {
   private messageService = inject(NzMessageService);
   private modalService = inject(NzModalService);
   private storageService = inject(StorageService);
+  private currencyService = inject(CurrencyService);
 
   currentUser = this.authService.getCurrentUser();
   viewMode: ViewMode = ViewMode.LIST;
@@ -655,7 +656,9 @@ export class SchedulerComponent implements OnInit {
   }
 
   getCurrencySymbol(): string {
-    return currencySymbols[this.currentUser?.currency || 'USD'] || '$';
+    return this.currencyService.getCurrencySymbol(
+      this.currentUser?.currency || 'USD'
+    );
   }
 
   getPeriodStart(): Date {

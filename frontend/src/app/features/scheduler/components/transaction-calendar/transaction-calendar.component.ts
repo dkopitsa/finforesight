@@ -22,6 +22,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { TransactionInstance } from '../../../../core/models/transaction.model';
 import { Account } from '../../../../core/models/account.model';
 import { Category, CategoryType } from '../../../../core/models/category.model';
+import { CurrencyFormatPipe } from '../../../../shared/pipes/currency-format.pipe';
 
 @Component({
   selector: 'app-transaction-calendar',
@@ -37,7 +38,8 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
     NzIconModule,
     NzPopoverModule,
     NzEmptyModule,
-    NzToolTipModule
+    NzToolTipModule,
+    CurrencyFormatPipe
 ],
   template: `
     <nz-card>
@@ -84,7 +86,7 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
                         {{ instance.name }}
                       </div>
                       <div class="instance-amount" [style.color]="getInstanceColor(instance)">
-                        {{ formatAmount(instance.amount, instance.currency) }}
+                        {{ instance.amount | currencyFormat: instance.currency }}
                       </div>
                     </div>
 
@@ -106,7 +108,7 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
                         </div>
                         <div style="margin-bottom: 4px;">
                           Amount: <strong [style.color]="getInstanceColor(instance)">
-                            {{ formatAmount(instance.amount, instance.currency) }}
+                            {{ instance.amount | currencyFormat: instance.currency }}
                           </strong>
                         </div>
                         <div style="margin-bottom: 4px;">
@@ -373,21 +375,6 @@ export class TransactionCalendarComponent implements OnInit, OnChanges {
     this.selectedDate = date;
   }
 
-  formatAmount(amount: string, currency: string): string {
-    const num = parseFloat(amount);
-    const currencySymbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      CAD: 'C$',
-      AUD: 'A$',
-      CHF: 'CHF',
-      CNY: '¥',
-    };
-    const symbol = currencySymbols[currency] || currency;
-    return `${symbol}${num.toFixed(2)}`;
-  }
 
   getAccountName(accountId: number): string {
     const account = this.accounts.find(a => a.id === accountId);

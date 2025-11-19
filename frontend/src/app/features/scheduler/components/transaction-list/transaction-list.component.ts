@@ -11,6 +11,7 @@ import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { ScheduledTransaction, RecurrenceFrequency } from '../../../../core/models/transaction.model';
 import { Account } from '../../../../core/models/account.model';
 import { Category, CategoryType } from '../../../../core/models/category.model';
+import { CurrencyFormatPipe } from '../../../../shared/pipes/currency-format.pipe';
 
 @Component({
   selector: 'app-transaction-list',
@@ -24,7 +25,8 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
     NzPopconfirmModule,
     NzEmptyModule,
     NzToolTipModule,
-    NzBadgeModule
+    NzBadgeModule,
+    CurrencyFormatPipe
 ],
   template: `
     <nz-table
@@ -63,7 +65,7 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
             </td>
             <td nzAlign="right">
               <span [style.color]="getAmountColor(transaction.category_id)">
-                {{ formatAmount(transaction.amount, transaction.currency) }}
+                {{ transaction.amount | currencyFormat: transaction.currency }}
               </span>
             </td>
             <td>
@@ -194,21 +196,6 @@ export class TransactionListComponent {
     this.deleteTransaction.emit(transactionId);
   }
 
-  formatAmount(amount: string, currency: string): string {
-    const num = parseFloat(amount);
-    const currencySymbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      CAD: 'C$',
-      AUD: 'A$',
-      CHF: 'CHF',
-      CNY: '¥',
-    };
-    const symbol = currencySymbols[currency] || currency;
-    return `${symbol}${num.toFixed(2)}`;
-  }
 
   formatDate(date: string | undefined): string {
     if (!date) return '—';

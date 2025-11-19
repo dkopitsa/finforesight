@@ -8,6 +8,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { Account, AccountType, AccountCreate, AccountUpdate } from '../../../../core/models/account.model';
+import { CurrencySelectComponent } from '../../../../shared/components/currency-select/currency-select.component';
 
 @Component({
   selector: 'app-account-form',
@@ -20,7 +21,8 @@ import { Account, AccountType, AccountCreate, AccountUpdate } from '../../../../
     NzSelectModule,
     NzButtonModule,
     NzDatePickerModule,
-    NzInputNumberModule
+    NzInputNumberModule,
+    CurrencySelectComponent
 ],
   template: `
     <form nz-form [formGroup]="accountForm" (ngSubmit)="onSubmit()" [nzLayout]="'vertical'">
@@ -61,16 +63,7 @@ import { Account, AccountType, AccountCreate, AccountUpdate } from '../../../../
       <nz-form-item>
         <nz-form-label nzRequired>Currency</nz-form-label>
         <nz-form-control nzErrorTip="Please select currency">
-          <nz-select formControlName="currency" nzPlaceHolder="Select currency" nzShowSearch>
-            <nz-option nzValue="USD" nzLabel="USD - US Dollar"></nz-option>
-            <nz-option nzValue="EUR" nzLabel="EUR - Euro"></nz-option>
-            <nz-option nzValue="GBP" nzLabel="GBP - British Pound"></nz-option>
-            <nz-option nzValue="JPY" nzLabel="JPY - Japanese Yen"></nz-option>
-            <nz-option nzValue="CAD" nzLabel="CAD - Canadian Dollar"></nz-option>
-            <nz-option nzValue="AUD" nzLabel="AUD - Australian Dollar"></nz-option>
-            <nz-option nzValue="CHF" nzLabel="CHF - Swiss Franc"></nz-option>
-            <nz-option nzValue="CNY" nzLabel="CNY - Chinese Yuan"></nz-option>
-          </nz-select>
+          <app-currency-select formControlName="currency" placeholder="Select currency" />
         </nz-form-control>
       </nz-form-item>
 

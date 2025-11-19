@@ -9,6 +9,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { AuthService } from '../../../core/services/auth.service';
+import { CurrencySelectComponent } from '../../../shared/components/currency-select/currency-select.component';
 
 @Component({
   selector: 'app-register',
@@ -22,7 +23,8 @@ import { AuthService } from '../../../core/services/auth.service';
     NzButtonModule,
     NzSelectModule,
     NzAlertModule,
-    NzIconModule
+    NzIconModule,
+    CurrencySelectComponent
 ],
   template: `
     <div class="register-container">
@@ -95,20 +97,7 @@ import { AuthService } from '../../../core/services/auth.service';
         <nz-form-item>
           <nz-form-label [nzRequired]="true">Currency</nz-form-label>
           <nz-form-control nzErrorTip="Please select your currency">
-            <nz-select
-              formControlName="currency"
-              nzPlaceHolder="Select your currency"
-              [nzSize]="'large'"
-            >
-              <nz-option nzValue="USD" nzLabel="USD - US Dollar"></nz-option>
-              <nz-option nzValue="EUR" nzLabel="EUR - Euro"></nz-option>
-              <nz-option nzValue="GBP" nzLabel="GBP - British Pound"></nz-option>
-              <nz-option nzValue="JPY" nzLabel="JPY - Japanese Yen"></nz-option>
-              <nz-option nzValue="CAD" nzLabel="CAD - Canadian Dollar"></nz-option>
-              <nz-option nzValue="AUD" nzLabel="AUD - Australian Dollar"></nz-option>
-              <nz-option nzValue="CHF" nzLabel="CHF - Swiss Franc"></nz-option>
-              <nz-option nzValue="CNY" nzLabel="CNY - Chinese Yuan"></nz-option>
-            </nz-select>
+            <app-currency-select formControlName="currency" placeholder="Select your currency" />
           </nz-form-control>
         </nz-form-item>
 

@@ -15,7 +15,7 @@ import { DashboardData } from '../../core/models/dashboard.model';
 import { SummaryCardsComponent } from './components/summary-cards/summary-cards.component';
 import { ForecastChartComponent } from './components/forecast-chart/forecast-chart.component';
 import { UpcomingTransactionsComponent } from './components/upcoming-transactions/upcoming-transactions.component';
-import { currencySymbols } from '../../core/currency';
+import { CurrencyService } from '../../core/services/currency.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -92,6 +92,7 @@ export class DashboardComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
+  private currencyService = inject(CurrencyService);
 
   currentUser = this.authService.getCurrentUser();
   // dashboardData: DashboardData | null = null;
@@ -120,6 +121,8 @@ export class DashboardComponent implements OnInit {
   }
 
   getCurrencySymbol(): string {
-    return currencySymbols[this.currentUser?.currency || 'USD'] || '$';
+    return this.currencyService.getCurrencySymbol(
+      this.currentUser?.currency || 'USD'
+    );
   }
 }

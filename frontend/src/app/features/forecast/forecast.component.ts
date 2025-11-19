@@ -12,6 +12,7 @@ import { ForecastFiltersComponent } from './components/forecast-filters/forecast
 import { ForecastChartComponent } from './components/forecast-chart/forecast-chart.component';
 import { AccountService } from '../accounts/services/account.service';
 import { AuthService } from '../../core/services/auth.service';
+import { CurrencyService } from '../../core/services/currency.service';
 import { Account } from '../../core/models/account.model';
 import { ForecastData, AccountForecast } from '../../core/models/dashboard.model';
 
@@ -171,6 +172,7 @@ export class ForecastComponent implements OnInit {
   private accountService = inject(AccountService);
   private authService = inject(AuthService);
   private messageService = inject(NzMessageService);
+  private currencyService = inject(CurrencyService);
 
   currentUser = this.authService.getCurrentUser();
   accounts: Account[] = [];
@@ -212,17 +214,9 @@ export class ForecastComponent implements OnInit {
   }
 
   getCurrencySymbol(): string {
-    const currencySymbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      CAD: 'C$',
-      AUD: 'A$',
-      CHF: 'CHF',
-      CNY: '¥',
-    };
-    return currencySymbols[this.currentUser?.currency || 'USD'] || '$';
+    return this.currencyService.getCurrencySymbol(
+      this.currentUser?.currency || 'USD'
+    );
   }
 
   getEndingBalance(account: AccountForecast): number {

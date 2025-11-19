@@ -10,6 +10,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { SettingsService } from '../../services/settings.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProfileUpdate } from '../../../../core/models/user.model';
+import { CurrencySelectComponent } from '../../../../shared/components/currency-select/currency-select.component';
 
 @Component({
   selector: 'app-profile-settings',
@@ -21,7 +22,8 @@ import { ProfileUpdate } from '../../../../core/models/user.model';
     NzFormModule,
     NzInputModule,
     NzButtonModule,
-    NzSelectModule
+    NzSelectModule,
+    CurrencySelectComponent
 ],
   template: `
     <nz-card nzTitle="Profile Settings">
@@ -40,16 +42,7 @@ import { ProfileUpdate } from '../../../../core/models/user.model';
         <nz-form-item>
           <nz-form-label [nzSpan]="6" nzRequired>Currency</nz-form-label>
           <nz-form-control [nzSpan]="14" nzErrorTip="Please select your currency">
-            <nz-select formControlName="currency" nzShowSearch>
-              <nz-option nzValue="USD" nzLabel="USD - US Dollar"></nz-option>
-              <nz-option nzValue="EUR" nzLabel="EUR - Euro"></nz-option>
-              <nz-option nzValue="GBP" nzLabel="GBP - British Pound"></nz-option>
-              <nz-option nzValue="JPY" nzLabel="JPY - Japanese Yen"></nz-option>
-              <nz-option nzValue="CAD" nzLabel="CAD - Canadian Dollar"></nz-option>
-              <nz-option nzValue="AUD" nzLabel="AUD - Australian Dollar"></nz-option>
-              <nz-option nzValue="CHF" nzLabel="CHF - Swiss Franc"></nz-option>
-              <nz-option nzValue="CNY" nzLabel="CNY - Chinese Yuan"></nz-option>
-            </nz-select>
+            <app-currency-select formControlName="currency" />
           </nz-form-control>
         </nz-form-item>
 

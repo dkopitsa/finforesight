@@ -13,6 +13,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { AuthService } from '../../core/services/auth.service';
+import { CurrencyService } from '../../core/services/currency.service';
 import { AccountService } from './services/account.service';
 import {
   Account,
@@ -23,7 +24,6 @@ import {
 import { AccountSummaryComponent } from './components/account-summary/account-summary.component';
 import { AccountListComponent } from './components/account-list/account-list.component';
 import { AccountFormComponent } from './components/account-form/account-form.component';
-import { currencySymbols } from '../../core/currency';
 
 @Component({
   selector: 'app-accounts',
@@ -125,6 +125,7 @@ export class AccountsComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private modalService = inject(NzModalService);
   private messageService = inject(NzMessageService);
+  private currencyService = inject(CurrencyService);
 
   currentUser = this.authService.getCurrentUser();
   accounts: Account[] = [];
@@ -243,6 +244,8 @@ export class AccountsComponent implements OnInit {
   }
 
   getCurrencySymbol(): string {
-    return currencySymbols[this.currentUser?.currency || 'USD'] || '$';
+    return this.currencyService.getCurrencySymbol(
+      this.currentUser?.currency || 'USD'
+    );
   }
 }

@@ -12,6 +12,7 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { Account } from '../../../../core/models/account.model';
 import { ReconciliationCreate } from '../../../../core/models/reconciliation.model';
+import { CurrencyService } from '../../../../core/services/currency.service';
 
 @Component({
   selector: 'app-reconciliation-form',
@@ -207,6 +208,7 @@ import { ReconciliationCreate } from '../../../../core/models/reconciliation.mod
 export class ReconciliationFormComponent implements OnInit, OnChanges {
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
+  private currencyService = inject(CurrencyService);
 
   @Input() visible = false;
   @Input() accounts: Account[] = [];
@@ -277,17 +279,7 @@ export class ReconciliationFormComponent implements OnInit, OnChanges {
 
   getCurrencySymbol(): string {
     if (!this.selectedAccount) return '$';
-    const currencySymbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      CAD: 'C$',
-      AUD: 'A$',
-      CHF: 'CHF',
-      CNY: '¥',
-    };
-    return currencySymbols[this.selectedAccount.currency] || '$';
+    return this.currencyService.getCurrencySymbol(this.selectedAccount.currency);
   }
 
   currencyFormatter = (value: number): string => {

@@ -27,6 +27,7 @@ import {
 } from '../../../../core/models/transaction.model';
 import { Account } from '../../../../core/models/account.model';
 import { Category, CategoryType } from '../../../../core/models/category.model';
+import { CurrencySelectComponent } from '../../../../shared/components/currency-select/currency-select.component';
 
 @Component({
   selector: 'app-transaction-form',
@@ -43,6 +44,7 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
     NzSwitchModule,
     NzDividerModule,
     NzCheckboxModule,
+    CurrencySelectComponent,
   ],
   template: `
     <form nz-form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" [nzLayout]="'vertical'">
@@ -73,16 +75,7 @@ import { Category, CategoryType } from '../../../../core/models/category.model';
       <nz-form-item>
         <nz-form-label nzRequired>Currency</nz-form-label>
         <nz-form-control nzErrorTip="Please select currency">
-          <nz-select formControlName="currency" nzPlaceHolder="Select currency" nzShowSearch>
-            <nz-option nzValue="USD" nzLabel="USD - US Dollar"></nz-option>
-            <nz-option nzValue="EUR" nzLabel="EUR - Euro"></nz-option>
-            <nz-option nzValue="GBP" nzLabel="GBP - British Pound"></nz-option>
-            <nz-option nzValue="JPY" nzLabel="JPY - Japanese Yen"></nz-option>
-            <nz-option nzValue="CAD" nzLabel="CAD - Canadian Dollar"></nz-option>
-            <nz-option nzValue="AUD" nzLabel="AUD - Australian Dollar"></nz-option>
-            <nz-option nzValue="CHF" nzLabel="CHF - Swiss Franc"></nz-option>
-            <nz-option nzValue="CNY" nzLabel="CNY - Chinese Yuan"></nz-option>
-          </nz-select>
+          <app-currency-select formControlName="currency" placeholder="Select currency" />
         </nz-form-control>
       </nz-form-item>
 

@@ -12,6 +12,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { AnalysisService } from './services/analysis.service';
 import { AccountService } from '../accounts/services/account.service';
 import { AuthService } from '../../core/services/auth.service';
+import { CurrencyService } from '../../core/services/currency.service';
 import { MetricsCardsComponent } from './components/metrics-cards/metrics-cards.component';
 import { CategoryBreakdownComponent } from './components/category-breakdown/category-breakdown.component';
 import { Account } from '../../core/models/account.model';
@@ -259,6 +260,7 @@ export class AnalysisComponent implements OnInit {
   private accountService = inject(AccountService);
   private authService = inject(AuthService);
   private messageService = inject(NzMessageService);
+  private currencyService = inject(CurrencyService);
 
   currentUser = this.authService.getCurrentUser();
   accounts: Account[] = [];
@@ -330,16 +332,8 @@ export class AnalysisComponent implements OnInit {
   }
 
   getCurrencySymbol(): string {
-    const currencySymbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      CAD: 'C$',
-      AUD: 'A$',
-      CHF: 'CHF',
-      CNY: '¥',
-    };
-    return currencySymbols[this.currentUser?.currency || 'USD'] || '$';
+    return this.currencyService.getCurrencySymbol(
+      this.currentUser?.currency || 'USD'
+    );
   }
 }
