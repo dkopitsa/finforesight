@@ -7,6 +7,11 @@ from app.schemas.auth import (
     TokenResponse,
 )
 from app.schemas.error import ErrorDetail, ErrorResponse
+from app.schemas.financial_institution import (
+    FinancialInstitutionCreate,
+    FinancialInstitutionResponse,
+    FinancialInstitutionUpdate,
+)
 from app.schemas.user import UserCreate, UserInDB, UserResponse, UserUpdate
 
 __all__ = [
@@ -22,4 +27,7 @@ __all__ = [
     "TokenRefreshRequest",
     "TokenRefreshResponse",
     "AuthResponse",
+    "FinancialInstitutionCreate",
+    "FinancialInstitutionUpdate",
+    "FinancialInstitutionResponse",
 ]

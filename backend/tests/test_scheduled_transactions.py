@@ -146,7 +146,8 @@ class TestCreateScheduledTransaction:
         assert response.status_code == 201
         data = response.json()
         assert data["name"] == "One-time Payment"
-        assert data["amount"] == "150.50"
+        # Amount should be negative for expense category
+        assert data["amount"] == "-150.50"
         assert data["is_recurring"] is False
 
     async def test_create_monthly_recurring(
@@ -166,7 +167,7 @@ class TestCreateScheduledTransaction:
             "account_id": test_account.id,
             "category_id": test_category.id,
             "is_recurring": True,
-            "recurrence_frequency": "monthly",
+            "recurrence_frequency": "MONTHLY",
             "recurrence_day_of_month": 1,
             "recurrence_start_date": "2025-01-01",
         }
@@ -180,8 +181,10 @@ class TestCreateScheduledTransaction:
         assert response.status_code == 201
         data = response.json()
         assert data["name"] == "Monthly Rent"
+        # Amount should be negative for expense category
+        assert data["amount"] == "-1200.00"
         assert data["is_recurring"] is True
-        assert data["recurrence_frequency"] == "monthly"
+        assert data["recurrence_frequency"] == "MONTHLY"
         assert data["recurrence_day_of_month"] == 1
 
     async def test_create_yearly_recurring(
@@ -201,7 +204,7 @@ class TestCreateScheduledTransaction:
             "account_id": test_account.id,
             "category_id": test_category.id,
             "is_recurring": True,
-            "recurrence_frequency": "yearly",
+            "recurrence_frequency": "YEARLY",
             "recurrence_day_of_month": 15,
             "recurrence_month_of_year": 3,
             "recurrence_start_date": "2025-03-15",
@@ -215,8 +218,10 @@ class TestCreateScheduledTransaction:
 
         assert response.status_code == 201
         data = response.json()
+        # Amount should be negative for expense category
+        assert data["amount"] == "-500.00"
         assert data["name"] == "Annual Insurance"
-        assert data["recurrence_frequency"] == "yearly"
+        assert data["recurrence_frequency"] == "YEARLY"
         assert data["recurrence_month_of_year"] == 3
 
     async def test_create_invalid_recurrence(
@@ -270,7 +275,7 @@ class TestGetInstances:
             amount=9.99,
             currency="USD",
             is_recurring=True,
-            recurrence_frequency="monthly",
+            recurrence_frequency="MONTHLY",
             recurrence_day_of_month=15,
             recurrence_start_date=date(2025, 1, 15),
         )
@@ -318,7 +323,7 @@ class TestGetInstances:
             amount=10.00,
             currency="USD",
             is_recurring=True,
-            recurrence_frequency="monthly",
+            recurrence_frequency="MONTHLY",
             recurrence_day_of_month=1,
             recurrence_start_date=date(2025, 1, 1),
             recurrence_end_date=date(2025, 2, 28),  # Ends after 2 months
@@ -367,7 +372,7 @@ class TestUpdateScheduledTransaction:
             amount=100.00,
             currency="USD",
             is_recurring=True,
-            recurrence_frequency="monthly",
+            recurrence_frequency="MONTHLY",
             recurrence_day_of_month=10,
             recurrence_start_date=date(2025, 1, 10),
         )
@@ -409,7 +414,7 @@ class TestUpdateScheduledTransaction:
             amount=100.00,
             currency="USD",
             is_recurring=True,
-            recurrence_frequency="monthly",
+            recurrence_frequency="MONTHLY",
             recurrence_day_of_month=15,
             recurrence_start_date=date(2025, 1, 15),
         )
@@ -464,7 +469,7 @@ class TestDeleteScheduledTransaction:
             amount=50.00,
             currency="USD",
             is_recurring=True,
-            recurrence_frequency="monthly",
+            recurrence_frequency="MONTHLY",
             recurrence_day_of_month=1,
             recurrence_start_date=date(2025, 1, 1),
         )
@@ -510,7 +515,7 @@ class TestDeleteScheduledTransaction:
             amount=100.00,
             currency="USD",
             is_recurring=True,
-            recurrence_frequency="monthly",
+            recurrence_frequency="MONTHLY",
             recurrence_day_of_month=20,
             recurrence_start_date=date(2025, 1, 20),
         )
@@ -560,7 +565,7 @@ class TestDeleteScheduledTransaction:
             amount=100.00,
             currency="USD",
             is_recurring=True,
-            recurrence_frequency="monthly",
+            recurrence_frequency="MONTHLY",
             recurrence_day_of_month=5,
             recurrence_start_date=date(2025, 1, 5),
         )

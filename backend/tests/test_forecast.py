@@ -84,7 +84,7 @@ class TestGetForecast:
             amount=Decimal("50.00"),
             currency="USD",
             is_recurring=True,
-            recurrence_frequency="monthly",
+            recurrence_frequency="MONTHLY",
             recurrence_day_of_month=15,
             recurrence_start_date=date(2025, 1, 15),
         )

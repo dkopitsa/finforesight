@@ -148,7 +148,7 @@ export class AccountsComponent implements OnInit {
 
     this.accountService.listAccounts().subscribe({
       next: (accounts) => {
-        this.accounts = accounts;
+        this.accounts = accounts.sort((a, b) => a.name.localeCompare(b.name));
         this.loading = false;
         this.loadSummary();
         this.cdr.markForCheck();
@@ -244,8 +244,6 @@ export class AccountsComponent implements OnInit {
   }
 
   getCurrencySymbol(): string {
-    return this.currencyService.getCurrencySymbol(
-      this.currentUser?.currency || 'USD'
-    );
+    return this.currencyService.getCurrencySymbol(this.currentUser?.currency || 'USD');
   }
 }

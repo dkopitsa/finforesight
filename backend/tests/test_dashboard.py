@@ -197,7 +197,7 @@ class TestGetDashboard:
             amount=Decimal("10.00"),
             currency="USD",
             is_recurring=True,
-            recurrence_frequency="monthly",
+            recurrence_frequency="MONTHLY",
             recurrence_day_of_month=next_week.day,
             recurrence_start_date=next_week,
         )
@@ -250,7 +250,7 @@ class TestGetDashboard:
             amount=Decimal("100.00"),
             currency="USD",
             is_recurring=True,
-            recurrence_frequency="monthly",
+            recurrence_frequency="MONTHLY",
             recurrence_day_of_month=15,
             recurrence_start_date=date.today(),
         )

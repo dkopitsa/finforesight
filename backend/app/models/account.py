@@ -35,6 +35,11 @@ class Account(BaseModel):
     __tablename__ = "accounts"
 
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    financial_institution_id = Column(
+        Integer,
+        ForeignKey("financial_institutions.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     name = Column(String(255), nullable=False)
     type = Column(Enum(AccountType), nullable=False)
     currency = Column(String(3), nullable=False)
@@ -44,7 +49,8 @@ class Account(BaseModel):
     is_active = Column(Boolean, nullable=False, default=True)
 
     # Relationships
-    user = relationship("User", backref="accounts")
+    user = relationship("User", back_populates="accounts")
+    financial_institution = relationship("FinancialInstitution", backref="accounts")
 
     def __repr__(self):
         return f"<Account(id={self.id}, name={self.name}, type={self.type})>"

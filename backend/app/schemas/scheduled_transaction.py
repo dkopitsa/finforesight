@@ -13,12 +13,17 @@ class ScheduledTransactionBase(BaseModel):
     """Base scheduled transaction schema with common attributes."""
 
     name: str = Field(..., min_length=1, max_length=255, description="Transaction name")
-    amount: Decimal = Field(..., gt=0, description="Transaction amount (must be positive)")
+    amount: Decimal = Field(
+        ..., gt=0, description="Transaction amount (always positive, sign applied automatically)"
+    )
     currency: str = Field(..., min_length=3, max_length=3, description="Currency code (ISO 4217)")
     account_id: int = Field(..., description="Source account ID")
     to_account_id: int | None = Field(None, description="Destination account ID (for transfers)")
     category_id: int = Field(..., description="Category ID")
     note: str | None = Field(None, description="Optional note")
+    linked_transaction_id: int | None = Field(
+        None, description="Linked transaction ID (for transfer pairs)"
+    )
 
     # Recurrence fields
     is_recurring: bool = Field(False, description="Whether this is a recurring transaction")
@@ -107,12 +112,15 @@ class ScheduledTransactionUpdate(BaseModel):
     """Schema for updating a scheduled transaction."""
 
     name: str | None = Field(None, min_length=1, max_length=255)
-    amount: Decimal | None = Field(None, gt=0)
+    amount: Decimal | None = Field(
+        None, description="Transaction amount (positive for income, negative for expenses)"
+    )
     currency: str | None = Field(None, min_length=3, max_length=3)
     account_id: int | None = None
     to_account_id: int | None = None
     category_id: int | None = None
     note: str | None = None
+    linked_transaction_id: int | None = None
 
     # Recurrence fields (for full series updates)
     is_recurring: bool | None = None
@@ -129,11 +137,25 @@ class ScheduledTransactionUpdate(BaseModel):
         return v.upper() if v else v
 
 
-class ScheduledTransactionResponse(ScheduledTransactionBase):
+class ScheduledTransactionResponse(BaseModel):
     """Schema for scheduled transaction response."""
 
     id: int
     user_id: int
+    name: str
+    amount: Decimal  # Can be positive or negative (signed based on category type)
+    currency: str
+    account_id: int
+    to_account_id: int | None
+    category_id: int
+    note: str | None
+    linked_transaction_id: int | None
+    is_recurring: bool
+    recurrence_frequency: RecurrenceFrequency | None
+    recurrence_day_of_month: int | None
+    recurrence_month_of_year: int | None
+    recurrence_start_date: date_type
+    recurrence_end_date: date_type | None
     created_at: datetime
     updated_at: datetime
 
@@ -174,7 +196,9 @@ class ScheduledTransactionExceptionCreate(BaseModel):
     """Schema for creating a transaction exception (modifying a single instance)."""
 
     exception_date: date_type = Field(..., description="The date of the occurrence to modify")
-    amount: Decimal | None = Field(None, gt=0, description="Override amount (NULL = use original)")
+    amount: Decimal | None = Field(
+        None, description="Override amount (positive/negative, NULL = use original)"
+    )
     note: str | None = Field(None, description="Override note (NULL = use original)")
     account_id: int | None = Field(None, description="Override account (NULL = use original)")
     to_account_id: int | None = Field(None, description="Override to_account (NULL = use original)")

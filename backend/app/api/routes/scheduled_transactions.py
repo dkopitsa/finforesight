@@ -120,10 +120,22 @@ async def create_scheduled_transaction(
             detail="Category not accessible",
         )
 
+    # Apply sign based on category type
+    # Frontend sends positive amounts, we convert to negative for expenses
+    from app.models.category import CategoryType
+
+    transaction_dict = transaction_data.model_dump()
+    amount = transaction_dict["amount"]
+
+    if category.type == CategoryType.EXPENSE:
+        transaction_dict["amount"] = -abs(amount)  # Negative for expenses
+    else:
+        transaction_dict["amount"] = abs(amount)  # Positive for income
+
     # Create transaction
     transaction = ScheduledTransaction(
         user_id=current_user.id,
-        **transaction_data.model_dump(),
+        **transaction_dict,
     )
 
     db.add(transaction)

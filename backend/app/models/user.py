@@ -1,4 +1,5 @@
 from sqlalchemy import Boolean, Column, String
+from sqlalchemy.orm import relationship
 
 from app.models.base import BaseModel
 
@@ -13,6 +14,18 @@ class User(BaseModel):
     full_name = Column(String(255), nullable=True)
     currency = Column(String(3), nullable=False, default="USD")
     is_active = Column(Boolean, default=True, nullable=False)
+
+    # Relationships
+    accounts = relationship(
+        "Account",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    financial_institutions = relationship(
+        "FinancialInstitution",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email})>"

@@ -50,9 +50,15 @@ class ScheduledTransaction(BaseModel):
     category_id = Column(Integer, ForeignKey("categories.id", ondelete="RESTRICT"), nullable=False)
 
     name = Column(String(255), nullable=False)
-    amount = Column(Numeric(15, 2), nullable=False)
+    amount = Column(Numeric(15, 2), nullable=False)  # Positive for income, negative for expenses
     currency = Column(String(3), nullable=False)
     note = Column(Text, nullable=True)
+    linked_transaction_id = Column(
+        Integer,
+        ForeignKey("scheduled_transactions.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )  # For transfers: links source and destination transactions
 
     # Recurrence settings
     is_recurring = Column(Boolean, nullable=False, default=False)
@@ -78,10 +84,18 @@ class ScheduledTransaction(BaseModel):
         back_populates="scheduled_transaction",
         cascade="all, delete-orphan",
     )
+    linked_transaction = relationship(
+        "ScheduledTransaction",
+        remote_side="ScheduledTransaction.id",
+        foreign_keys=[linked_transaction_id],
+        backref="linked_from",
+        cascade="all, delete-orphan",
+        single_parent=True,
+    )
 
     # Constraints
     __table_args__ = (
-        CheckConstraint("amount > 0", name="check_amount_positive"),
+        # Removed check_amount_positive to allow negative amounts for expenses
         CheckConstraint(
             "recurrence_day_of_month IS NULL OR (recurrence_day_of_month BETWEEN -1 AND 31)",
             name="check_day_of_month_range",
@@ -141,7 +155,7 @@ class ScheduledTransactionException(BaseModel):
 
     # Constraints
     __table_args__ = (
-        CheckConstraint("amount IS NULL OR amount > 0", name="check_exception_amount_positive"),
+        # Removed check_exception_amount_positive to allow negative amounts for expenses
         # Unique constraint: one exception per (transaction, date) pair
         # This prevents multiple modifications for the same occurrence
     )

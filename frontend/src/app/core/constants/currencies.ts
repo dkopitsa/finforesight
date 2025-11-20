@@ -8,6 +8,7 @@
  */
 export enum Currency {
   USD = 'USD',
+  RUB = 'RUB',
   EUR = 'EUR',
   GBP = 'GBP',
   JPY = 'JPY',
@@ -15,7 +16,6 @@ export enum Currency {
   AUD = 'AUD',
   CHF = 'CHF',
   CNY = 'CNY',
-  RUB = 'RUB',
 }
 
 /**
@@ -107,15 +107,13 @@ export const CURRENCY_SYMBOLS: Record<string, string> = CURRENCIES.reduce(
     acc[curr.code] = curr.symbol;
     return acc;
   },
-  {} as Record<string, string>
+  {} as Record<string, string>,
 );
 
 /**
  * Map of currency codes to CurrencyInfo for quick lookup
  */
-export const CURRENCY_MAP: Map<string, CurrencyInfo> = new Map(
-  CURRENCIES.map(c => [c.code, c])
-);
+export const CURRENCY_MAP: Map<string, CurrencyInfo> = new Map(CURRENCIES.map((c) => [c.code, c]));
 
 /**
  * Default currency code

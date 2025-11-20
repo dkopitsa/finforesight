@@ -86,10 +86,12 @@ class ForecastService:
 
         # Group transactions by date and account
         # Structure: {account_id: {date: [transactions]}}
+        # Note: Amount already has the correct sign (positive for income, negative for expenses)
+        # Transfers are now stored as two separate linked transactions
         transactions_by_account: dict[int, dict[date, list]] = {}
 
         for instance in instances:
-            # Add to source account (debit)
+            # Add transaction to account with its original signed amount
             if instance.account_id not in transactions_by_account:
                 transactions_by_account[instance.account_id] = {}
 
@@ -98,27 +100,11 @@ class ForecastService:
 
             transactions_by_account[instance.account_id][instance.date].append(
                 {
-                    "amount": -instance.amount,  # Negative for outflow
+                    "amount": instance.amount,  # Use amount as-is (already signed correctly)
                     "name": instance.name,
-                    "is_transfer": instance.to_account_id is not None,
+                    "is_transfer": instance.to_account_id is not None,  # Legacy support
                 }
             )
-
-            # Add to destination account if transfer (credit)
-            if instance.to_account_id:
-                if instance.to_account_id not in transactions_by_account:
-                    transactions_by_account[instance.to_account_id] = {}
-
-                if instance.date not in transactions_by_account[instance.to_account_id]:
-                    transactions_by_account[instance.to_account_id][instance.date] = []
-
-                transactions_by_account[instance.to_account_id][instance.date].append(
-                    {
-                        "amount": instance.amount,  # Positive for inflow
-                        "name": f"Transfer from {instance.name}",
-                        "is_transfer": True,
-                    }
-                )
 
         # Calculate forecast for each account
         forecasts = []
