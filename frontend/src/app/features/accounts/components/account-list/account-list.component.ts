@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnChanges} from '@angular/core';
 
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -8,6 +8,7 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { Account, AccountType } from '../../../../core/models/account.model';
+import { FinancialInstitution } from '../../../../core/models/financial-institution.model';
 
 @Component({
   selector: 'app-account-list',
@@ -33,6 +34,7 @@ import { Account, AccountType } from '../../../../core/models/account.model';
       <thead>
         <tr>
           <th>Name</th>
+          <th>Institution</th>
           <th>Type</th>
           <th>Currency</th>
           <th nzAlign="right">Initial Balance</th>
@@ -45,6 +47,14 @@ import { Account, AccountType } from '../../../../core/models/account.model';
           <tr>
             <td>
               <strong>{{ account.name }}</strong>
+            </td>
+            <td>
+              @if (getInstitutionName(account.financial_institution_id)) {
+                <span nz-icon nzType="bank" nzTheme="outline" style="margin-right: 4px; color: #1890ff;"></span>
+                {{ getInstitutionName(account.financial_institution_id) }}
+              } @else {
+                <span style="color: #8c8c8c;">—</span>
+              }
             </td>
             <td>
               <nz-tag [nzColor]="getAccountTypeColor(account.type)">
@@ -134,12 +144,26 @@ import { Account, AccountType } from '../../../../core/models/account.model';
     }
   `]
 })
-export class AccountListComponent {
+export class AccountListComponent implements OnChanges {
   @Input() accounts: Account[] = [];
+  @Input() institutions: FinancialInstitution[] = [];
   @Input() currencySymbol = '$';
 
   @Output() editAccount = new EventEmitter<Account>();
   @Output() deleteAccount = new EventEmitter<number>();
+
+  private institutionsMap: Map<number, string> = new Map();
+
+  ngOnChanges(): void {
+    this.institutionsMap = new Map(
+      this.institutions.map(inst => [inst.id, inst.name])
+    );
+  }
+
+  getInstitutionName(id: number | null | undefined): string | null {
+    if (!id) return null;
+    return this.institutionsMap.get(id) || null;
+  }
 
   onEdit(account: Account): void {
     this.editAccount.emit(account);

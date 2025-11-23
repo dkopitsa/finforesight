@@ -74,6 +74,7 @@ import { AccountFormComponent } from './components/account-form/account-form.com
             <!-- Account List -->
             <app-account-list
               [accounts]="accounts"
+              [institutions]="institutions"
               [currencySymbol]="getCurrencySymbol()"
               (editAccount)="showEditModal($event)"
               (deleteAccount)="handleDelete($event)"
