@@ -15,7 +15,6 @@ import { DashboardData } from '../../core/models/dashboard.model';
 import { SummaryCardsComponent } from './components/summary-cards/summary-cards.component';
 import { ForecastChartComponent } from './components/forecast-chart/forecast-chart.component';
 import { UpcomingTransactionsComponent } from './components/upcoming-transactions/upcoming-transactions.component';
-import { CurrencyService } from '../../core/services/currency.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -47,7 +46,7 @@ import { CurrencyService } from '../../core/services/currency.service';
             <!-- Summary Cards -->
             <app-summary-cards
               [summary]="dashboardData()!.financial_summary"
-              [currencySymbol]="getCurrencySymbol()"
+              [currencyCode]="getCurrencyCode()"
             ></app-summary-cards>
             <!-- Forecast Chart -->
             <div style="margin-top: 24px;">
@@ -57,14 +56,14 @@ import { CurrencyService } from '../../core/services/currency.service';
                 [investmentsTrend]="dashboardData()!.investments_trend"
                 [creditTrend]="dashboardData()!.credit_trend"
                 [todayDate]="dashboardData()!.today_date"
-                [currencySymbol]="getCurrencySymbol()"
+                [currencyCode]="getCurrencyCode()"
               ></app-forecast-chart>
             </div>
             <!-- Upcoming Transactions -->
             <div style="margin-top: 24px;">
               <app-upcoming-transactions
                 [transactions]="dashboardData()!.upcoming_transactions"
-                [currencySymbol]="getCurrencySymbol()"
+                [currencyCode]="getCurrencyCode()"
               ></app-upcoming-transactions>
             </div>
           </div>
@@ -96,7 +95,6 @@ export class DashboardComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
-  private currencyService = inject(CurrencyService);
 
   currentUser = this.authService.getCurrentUser();
   // dashboardData: DashboardData | null = null;
@@ -124,9 +122,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  getCurrencySymbol(): string {
-    return this.currencyService.getCurrencySymbol(
-      this.currentUser?.currency || 'USD'
-    );
+  getCurrencyCode(): string {
+    return this.currentUser?.currency || 'USD';
   }
 }

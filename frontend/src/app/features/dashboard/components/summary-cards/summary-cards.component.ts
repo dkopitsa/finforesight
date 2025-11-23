@@ -1,10 +1,11 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { FinancialSummary } from '../../../../core/models/dashboard.model';
+import { CurrencyService } from '../../../../core/services/currency.service';
 
 @Component({
   selector: 'app-summary-cards',
@@ -15,64 +16,52 @@ import { FinancialSummary } from '../../../../core/models/dashboard.model';
     <div nz-row [nzGutter]="16">
       <div nz-col [nzXs]="24" [nzSm]="12" [nzLg]="6">
         <nz-card class="summary-card">
-          <nz-statistic
-            [nzValue]="summary?.liquid_assets || '0'"
-            [nzTitle]="'Liquid Assets'"
-            [nzPrefix]="currencySymbol"
-            [nzValueStyle]="{ color: '#1890ff' }"
-          >
-            <ng-template #nzPrefix>
-              <span nz-icon nzType="wallet" nzTheme="outline"></span>
-            </ng-template>
-          </nz-statistic>
+          <div class="statistic-custom">
+            <div class="statistic-title">Liquid Assets</div>
+            <div class="statistic-content" [style.color]="'#1890ff'">
+              <span nz-icon nzType="wallet" nzTheme="outline" class="statistic-icon"></span>
+              {{ formatValue(summary?.liquid_assets) }}
+            </div>
+          </div>
           <div class="card-footer">{{ summary?.account_count || 0 }} accounts</div>
         </nz-card>
       </div>
 
       <div nz-col [nzXs]="24" [nzSm]="12" [nzLg]="6">
         <nz-card class="summary-card">
-          <nz-statistic
-            [nzValue]="summary?.investments || '0'"
-            [nzTitle]="'Investments'"
-            [nzPrefix]="currencySymbol"
-            [nzValueStyle]="{ color: '#52c41a' }"
-          >
-            <ng-template #nzPrefix>
-              <span nz-icon nzType="rise" nzTheme="outline"></span>
-            </ng-template>
-          </nz-statistic>
+          <div class="statistic-custom">
+            <div class="statistic-title">Investments</div>
+            <div class="statistic-content" [style.color]="'#52c41a'">
+              <span nz-icon nzType="rise" nzTheme="outline" class="statistic-icon"></span>
+              {{ formatValue(summary?.investments) }}
+            </div>
+          </div>
           <div class="card-footer">Long-term assets</div>
         </nz-card>
       </div>
 
       <div nz-col [nzXs]="24" [nzSm]="12" [nzLg]="6">
         <nz-card class="summary-card">
-          <nz-statistic
-            [nzValue]="summary?.credit_used || '0'"
-            [nzTitle]="'Credit Used'"
-            [nzPrefix]="currencySymbol"
-            [nzValueStyle]="{ color: '#ff4d4f' }"
-          >
-            <ng-template #nzPrefix>
-              <span nz-icon nzType="credit-card" nzTheme="outline"></span>
-            </ng-template>
-          </nz-statistic>
+          <div class="statistic-custom">
+            <div class="statistic-title">Credit Used</div>
+            <div class="statistic-content" [style.color]="'#ff4d4f'">
+              <span nz-icon nzType="credit-card" nzTheme="outline" class="statistic-icon"></span>
+              {{ formatValue(summary?.credit_used) }}
+            </div>
+          </div>
           <div class="card-footer">Credit cards & loans</div>
         </nz-card>
       </div>
 
       <div nz-col [nzXs]="24" [nzSm]="12" [nzLg]="6">
         <nz-card class="summary-card">
-          <nz-statistic
-            [nzValue]="summary?.net_worth || '0'"
-            [nzTitle]="'Net Worth'"
-            [nzPrefix]="currencySymbol"
-            [nzValueStyle]="{ color: getNetWorthColor() }"
-          >
-            <ng-template #nzPrefix>
-              <span nz-icon [nzType]="getNetWorthIcon()" nzTheme="outline"></span>
-            </ng-template>
-          </nz-statistic>
+          <div class="statistic-custom">
+            <div class="statistic-title">Net Worth</div>
+            <div class="statistic-content" [style.color]="getNetWorthColor()">
+              <span nz-icon [nzType]="getNetWorthIcon()" nzTheme="outline" class="statistic-icon"></span>
+              {{ formatValue(summary?.net_worth) }}
+            </div>
+          </div>
           <div class="card-footer">Total assets - liabilities</div>
         </nz-card>
       </div>
@@ -84,14 +73,26 @@ import { FinancialSummary } from '../../../../core/models/dashboard.model';
       margin-bottom: 16px;
     }
 
-    .summary-card :host ::ng-deep .ant-statistic-title {
+    .statistic-custom {
+      text-align: left;
+    }
+
+    .statistic-title {
       font-size: 14px;
+      color: rgba(0, 0, 0, 0.45);
       margin-bottom: 8px;
     }
 
-    .summary-card :host ::ng-deep .ant-statistic-content {
-      font-size: 20px;
+    .statistic-content {
+      font-size: 24px;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .statistic-icon {
+      font-size: 20px;
     }
 
     .card-footer {
@@ -104,12 +105,23 @@ import { FinancialSummary } from '../../../../core/models/dashboard.model';
       .summary-card {
         margin-bottom: 12px;
       }
+
+      .statistic-content {
+        font-size: 18px;
+      }
     }
   `]
 })
 export class SummaryCardsComponent {
+  private currencyService = inject(CurrencyService);
+
   @Input() summary: FinancialSummary | null = null;
-  @Input() currencySymbol = '$';
+  @Input() currencyCode = 'USD';
+
+  formatValue(value: string | undefined): string {
+    const amount = parseFloat(value || '0');
+    return this.currencyService.formatAmount(amount, this.currencyCode);
+  }
 
   getNetWorthColor(): string {
     if (!this.summary) return '#262626';

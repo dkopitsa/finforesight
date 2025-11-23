@@ -37,16 +37,33 @@ export class CurrencyService {
    * Format amount with currency symbol
    * @param amount Numeric amount
    * @param code Currency code
-   * @returns Formatted string with currency symbol (e.g., '$1,000.00', '1,000€')
+   * @returns Formatted string with currency symbol (e.g., '$1,000.00', '1 000₽')
    */
   formatAmount(amount: number, code: string): string {
     const info = this.getCurrencyInfo(code);
-    const formatted = amount.toFixed(info.decimals);
-    const withCommas = this.addThousandsSeparator(formatted);
+    const formatted = this.formatNumber(amount, info);
 
     return info.symbolPosition === 'prefix'
-      ? `${info.symbol}${withCommas}`
-      : `${withCommas}${info.symbol}`;
+      ? `${info.symbol}${formatted}`
+      : `${formatted}${info.symbol}`;
+  }
+
+  /**
+   * Format number without currency symbol (for charts, etc.)
+   * @param amount Numeric amount
+   * @param code Currency code
+   * @returns Formatted number string with proper separators
+   */
+  formatNumber(amount: number, codeOrInfo: string | CurrencyInfo): string {
+    const info = typeof codeOrInfo === 'string' ? this.getCurrencyInfo(codeOrInfo) : codeOrInfo;
+    const fixed = amount.toFixed(info.decimals);
+    const parts = fixed.split('.');
+
+    // Add thousands separator
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, info.thousandsSeparator);
+
+    // Use proper decimal separator
+    return parts.join(info.decimalSeparator);
   }
 
   /**
@@ -85,14 +102,4 @@ export class CurrencyService {
     return DEFAULT_CURRENCY;
   }
 
-  /**
-   * Add thousands separator to numeric string
-   * @param value Numeric string (e.g., '1000.00')
-   * @returns String with comma separators (e.g., '1,000.00')
-   */
-  private addThousandsSeparator(value: string): string {
-    const parts = value.split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return parts.join('.');
-  }
 }

@@ -27,6 +27,8 @@ export interface CurrencyInfo {
   name: string;
   decimals: number;
   symbolPosition: 'prefix' | 'suffix';
+  thousandsSeparator: string;
+  decimalSeparator: string;
 }
 
 /**
@@ -39,6 +41,8 @@ export const CURRENCIES: CurrencyInfo[] = [
     name: 'US Dollar',
     decimals: 2,
     symbolPosition: 'prefix',
+    thousandsSeparator: ',',
+    decimalSeparator: '.',
   },
   {
     code: Currency.EUR,
@@ -46,6 +50,8 @@ export const CURRENCIES: CurrencyInfo[] = [
     name: 'Euro',
     decimals: 2,
     symbolPosition: 'suffix',
+    thousandsSeparator: ' ',
+    decimalSeparator: ',',
   },
   {
     code: Currency.GBP,
@@ -53,6 +59,8 @@ export const CURRENCIES: CurrencyInfo[] = [
     name: 'British Pound',
     decimals: 2,
     symbolPosition: 'prefix',
+    thousandsSeparator: ',',
+    decimalSeparator: '.',
   },
   {
     code: Currency.JPY,
@@ -60,6 +68,8 @@ export const CURRENCIES: CurrencyInfo[] = [
     name: 'Japanese Yen',
     decimals: 0,
     symbolPosition: 'prefix',
+    thousandsSeparator: ',',
+    decimalSeparator: '.',
   },
   {
     code: Currency.CAD,
@@ -67,6 +77,8 @@ export const CURRENCIES: CurrencyInfo[] = [
     name: 'Canadian Dollar',
     decimals: 2,
     symbolPosition: 'prefix',
+    thousandsSeparator: ',',
+    decimalSeparator: '.',
   },
   {
     code: Currency.AUD,
@@ -74,6 +86,8 @@ export const CURRENCIES: CurrencyInfo[] = [
     name: 'Australian Dollar',
     decimals: 2,
     symbolPosition: 'prefix',
+    thousandsSeparator: ',',
+    decimalSeparator: '.',
   },
   {
     code: Currency.CHF,
@@ -81,6 +95,8 @@ export const CURRENCIES: CurrencyInfo[] = [
     name: 'Swiss Franc',
     decimals: 2,
     symbolPosition: 'prefix',
+    thousandsSeparator: "'",
+    decimalSeparator: '.',
   },
   {
     code: Currency.CNY,
@@ -88,6 +104,8 @@ export const CURRENCIES: CurrencyInfo[] = [
     name: 'Chinese Yuan',
     decimals: 2,
     symbolPosition: 'prefix',
+    thousandsSeparator: ',',
+    decimalSeparator: '.',
   },
   {
     code: Currency.RUB,
@@ -95,6 +113,8 @@ export const CURRENCIES: CurrencyInfo[] = [
     name: 'Russian Ruble',
     decimals: 2,
     symbolPosition: 'suffix',
+    thousandsSeparator: ' ',
+    decimalSeparator: ',',
   },
 ];
 

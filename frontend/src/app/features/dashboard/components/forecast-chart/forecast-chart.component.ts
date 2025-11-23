@@ -1,8 +1,9 @@
-import {ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, Input, OnChanges, SimpleChanges} from '@angular/core';
 
 import { NgxEchartsModule } from 'ngx-echarts';
 import { EChartsOption } from 'echarts';
 import { BalanceTrendPoint } from '../../../../core/models/dashboard.model';
+import { CurrencyService } from '../../../../core/services/currency.service';
 
 @Component({
   selector: 'app-forecast-chart',
@@ -79,12 +80,14 @@ import { BalanceTrendPoint } from '../../../../core/models/dashboard.model';
   `]
 })
 export class ForecastChartComponent implements OnChanges {
+  private currencyService = inject(CurrencyService);
+
   @Input() balanceTrend: BalanceTrendPoint[] = [];
   @Input() liquidTrend: BalanceTrendPoint[] = [];
   @Input() investmentsTrend: BalanceTrendPoint[] = [];
   @Input() creditTrend: BalanceTrendPoint[] = [];
   @Input() todayDate = '';
-  @Input() currencySymbol = '$';
+  @Input() currencyCode = 'USD';
 
   chartOption: EChartsOption | null = null;
 
@@ -128,10 +131,11 @@ export class ForecastChartComponent implements OnChanges {
 
           params.forEach((param: any) => {
             if (param.seriesName === 'Today') return;
-            const value = parseFloat(param.value || 0).toFixed(2);
+            const value = parseFloat(param.value || 0);
+            const formatted = this.currencyService.formatAmount(value, this.currencyCode);
             html += `<div style="display: flex; align-items: center; margin: 4px 0;">
               <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${param.color}; margin-right: 8px;"></span>
-              <span>${param.seriesName}: ${this.currencySymbol}${value}</span>
+              <span>${param.seriesName}: ${formatted}</span>
             </div>`;
           });
 
@@ -166,7 +170,7 @@ export class ForecastChartComponent implements OnChanges {
       yAxis: {
         type: 'value',
         axisLabel: {
-          formatter: (value: number) => `${this.currencySymbol}${value.toFixed(0)}`,
+          formatter: (value: number) => this.currencyService.formatAmount(value, this.currencyCode),
         },
       },
       // Add vertical line for "today"

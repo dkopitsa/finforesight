@@ -1,9 +1,10 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, Input} from '@angular/core';
 
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { UpcomingTransaction } from '../../../../core/models/dashboard.model';
+import { CurrencyService } from '../../../../core/services/currency.service';
 
 @Component({
   selector: 'app-upcoming-transactions',
@@ -49,7 +50,7 @@ import { UpcomingTransaction } from '../../../../core/models/dashboard.model';
               <td>{{ tx.category_name }}</td>
               <td nzAlign="right">
                 <span [class]="getAmountClass(tx.amount)">
-                  {{ currencySymbol }}{{ formatAmount(tx.amount) }}
+                  {{ formatAmount(tx.amount) }}
                 </span>
               </td>
             </tr>
@@ -121,8 +122,10 @@ import { UpcomingTransaction } from '../../../../core/models/dashboard.model';
   `]
 })
 export class UpcomingTransactionsComponent {
+  private currencyService = inject(CurrencyService);
+
   @Input() transactions: UpcomingTransaction[] = [];
-  @Input() currencySymbol = '$';
+  @Input() currencyCode = 'USD';
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
@@ -140,7 +143,8 @@ export class UpcomingTransactionsComponent {
   }
 
   formatAmount(amount: string): string {
-    return Math.abs(parseFloat(amount)).toFixed(2);
+    const value = Math.abs(parseFloat(amount));
+    return this.currencyService.formatAmount(value, this.currencyCode);
   }
 
   getAmountClass(amount: string): string {
