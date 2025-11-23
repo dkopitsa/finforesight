@@ -80,47 +80,64 @@ import { BalanceTrendPoint } from '../../../../core/models/dashboard.model';
 })
 export class ForecastChartComponent implements OnChanges {
   @Input() balanceTrend: BalanceTrendPoint[] = [];
+  @Input() liquidTrend: BalanceTrendPoint[] = [];
+  @Input() investmentsTrend: BalanceTrendPoint[] = [];
+  @Input() creditTrend: BalanceTrendPoint[] = [];
   @Input() currencySymbol = '$';
 
   chartOption: EChartsOption | null = null;
 
+  private readonly colors = {
+    netWorth: '#722ed1',
+    liquid: '#52c41a',
+    investments: '#1890ff',
+    credit: '#ff4d4f',
+  };
+
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['balanceTrend'] && this.balanceTrend.length > 0) {
+    if ((changes['balanceTrend'] || changes['liquidTrend'] || changes['investmentsTrend'] || changes['creditTrend']) &&
+        this.balanceTrend.length > 0) {
       this.updateChart();
     }
   }
 
   private updateChart(): void {
     const dates = this.balanceTrend.map(point => point.date);
-    const balances = this.balanceTrend.map(point => parseFloat(point.balance));
-
-    // Determine if balance is positive or negative for coloring
-    const positiveColor = '#52c41a';
-    const negativeColor = '#ff4d4f';
-    const firstBalance = balances[0] || 0;
-    const lineColor = firstBalance >= 0 ? positiveColor : negativeColor;
+    const netWorthData = this.balanceTrend.map(point => parseFloat(point.balance));
+    const liquidData = this.liquidTrend.map(point => parseFloat(point.balance));
+    const investmentsData = this.investmentsTrend.map(point => parseFloat(point.balance));
+    const creditData = this.creditTrend.map(point => parseFloat(point.balance));
 
     this.chartOption = {
       tooltip: {
         trigger: 'axis',
         formatter: (params: any) => {
-          const data = params[0];
-          const value = parseFloat(data.value).toFixed(2);
-          const color = parseFloat(data.value) >= 0 ? positiveColor : negativeColor;
-          return `
-            <div style="padding: 4px 8px;">
-              <div style="font-weight: 600; margin-bottom: 4px;">${data.axisValue}</div>
-              <div style="color: ${color};">
-                Balance: ${this.currencySymbol}${value}
-              </div>
-            </div>
-          `;
+          if (!Array.isArray(params)) return '';
+          const date = params[0]?.axisValue || '';
+          let html = `<div style="padding: 4px 8px;">
+            <div style="font-weight: 600; margin-bottom: 8px;">${date}</div>`;
+
+          params.forEach((param: any) => {
+            const value = parseFloat(param.value || 0).toFixed(2);
+            html += `<div style="display: flex; align-items: center; margin: 4px 0;">
+              <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${param.color}; margin-right: 8px;"></span>
+              <span>${param.seriesName}: ${this.currencySymbol}${value}</span>
+            </div>`;
+          });
+
+          html += '</div>';
+          return html;
         },
+      },
+      legend: {
+        data: ['Net Worth', 'Liquid Assets', 'Investments', 'Credit/Loans'],
+        bottom: 0,
+        selectedMode: 'multiple',
       },
       grid: {
         left: '3%',
         right: '4%',
-        bottom: '10%',
+        bottom: '15%',
         top: '10%',
         containLabel: true,
       },
@@ -144,29 +161,64 @@ export class ForecastChartComponent implements OnChanges {
       },
       series: [
         {
-          name: 'Balance',
+          name: 'Net Worth',
           type: 'line',
           smooth: true,
-          data: balances,
+          data: netWorthData,
           lineStyle: {
-            color: lineColor,
+            color: this.colors.netWorth,
             width: 3,
           },
           itemStyle: {
-            color: lineColor,
+            color: this.colors.netWorth,
           },
-          areaStyle: {
-            color: {
-              type: 'linear',
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                { offset: 0, color: lineColor + '40' },
-                { offset: 1, color: lineColor + '10' },
-              ],
-            },
+          emphasis: {
+            focus: 'series',
+          },
+        },
+        {
+          name: 'Liquid Assets',
+          type: 'line',
+          smooth: true,
+          data: liquidData,
+          lineStyle: {
+            color: this.colors.liquid,
+            width: 2,
+          },
+          itemStyle: {
+            color: this.colors.liquid,
+          },
+          emphasis: {
+            focus: 'series',
+          },
+        },
+        {
+          name: 'Investments',
+          type: 'line',
+          smooth: true,
+          data: investmentsData,
+          lineStyle: {
+            color: this.colors.investments,
+            width: 2,
+          },
+          itemStyle: {
+            color: this.colors.investments,
+          },
+          emphasis: {
+            focus: 'series',
+          },
+        },
+        {
+          name: 'Credit/Loans',
+          type: 'line',
+          smooth: true,
+          data: creditData,
+          lineStyle: {
+            color: this.colors.credit,
+            width: 2,
+          },
+          itemStyle: {
+            color: this.colors.credit,
           },
           emphasis: {
             focus: 'series',

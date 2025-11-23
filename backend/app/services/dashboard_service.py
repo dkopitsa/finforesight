@@ -62,6 +62,22 @@ class BalanceTrendPoint:
         self.balance = balance
 
 
+class BalanceTrends:
+    """All balance trends by category."""
+
+    def __init__(
+        self,
+        balance_trend: list[BalanceTrendPoint],
+        liquid_trend: list[BalanceTrendPoint],
+        investments_trend: list[BalanceTrendPoint],
+        credit_trend: list[BalanceTrendPoint],
+    ):
+        self.balance_trend = balance_trend
+        self.liquid_trend = liquid_trend
+        self.investments_trend = investments_trend
+        self.credit_trend = credit_trend
+
+
 class DashboardData:
     """Complete dashboard data."""
 
@@ -70,11 +86,17 @@ class DashboardData:
         financial_summary: FinancialSummary,
         upcoming_transactions: list[UpcomingTransaction],
         balance_trend: list[BalanceTrendPoint],
+        liquid_trend: list[BalanceTrendPoint],
+        investments_trend: list[BalanceTrendPoint],
+        credit_trend: list[BalanceTrendPoint],
         scheduled_transaction_count: int,
     ):
         self.financial_summary = financial_summary
         self.upcoming_transactions = upcoming_transactions
         self.balance_trend = balance_trend
+        self.liquid_trend = liquid_trend
+        self.investments_trend = investments_trend
+        self.credit_trend = credit_trend
         self.scheduled_transaction_count = scheduled_transaction_count
 
 
@@ -101,8 +123,8 @@ class DashboardService:
             user_id, db, days=30
         )
 
-        # Get balance trend (next 30 days)
-        balance_trend = await DashboardService._get_balance_trend(user_id, db, days=30)
+        # Get balance trends (next 30 days) - includes all categories
+        balance_trends = await DashboardService._get_balance_trends(user_id, db, days=30)
 
         # Get scheduled transaction count
         scheduled_tx_count = await DashboardService._get_scheduled_transaction_count(user_id, db)
@@ -110,7 +132,10 @@ class DashboardService:
         return DashboardData(
             financial_summary=financial_summary,
             upcoming_transactions=upcoming_transactions,
-            balance_trend=balance_trend,
+            balance_trend=balance_trends.balance_trend,
+            liquid_trend=balance_trends.liquid_trend,
+            investments_trend=balance_trends.investments_trend,
+            credit_trend=balance_trends.credit_trend,
             scheduled_transaction_count=scheduled_tx_count,
         )
 
@@ -206,12 +231,20 @@ class DashboardService:
         return upcoming
 
     @staticmethod
-    async def _get_balance_trend(
-        user_id: int, db: AsyncSession, days: int = 30
-    ) -> list[BalanceTrendPoint]:
-        """Get balance trend for next N days (sum of all liquid accounts)."""
+    async def _get_balance_trends(user_id: int, db: AsyncSession, days: int = 30) -> BalanceTrends:
+        """Get balance trends for next N days, separated by account category."""
         from_date = date.today()
         to_date = from_date + timedelta(days=days)
+
+        # Get all accounts to know their types
+        result = await db.execute(
+            select(Account).where(
+                Account.user_id == user_id,
+                Account.is_active,
+                Account.type != AccountType.PLANNING,
+            )
+        )
+        accounts = {acc.id: acc for acc in result.scalars().all()}
 
         # Get forecast for all accounts
         forecasts = await ForecastService.calculate_forecast(
@@ -221,22 +254,61 @@ class DashboardService:
             db=db,
         )
 
-        # Aggregate by date (sum all liquid accounts)
-        balance_by_date: dict[date, Decimal] = {}
+        # Initialize dictionaries for each category
+        total_by_date: dict[date, Decimal] = {}
+        liquid_by_date: dict[date, Decimal] = {}
+        investments_by_date: dict[date, Decimal] = {}
+        credit_by_date: dict[date, Decimal] = {}
+
+        # Define account type categories
+        liquid_types = (AccountType.CHECKING, AccountType.SAVINGS, AccountType.CASH)
+        investment_types = (AccountType.INVESTMENT, AccountType.RETIREMENT)
+        credit_types = (AccountType.CREDIT_CARD, AccountType.LOAN)
 
         for forecast in forecasts:
+            account = accounts.get(forecast.account_id)
+            if not account:
+                continue
+
             for data_point in forecast.data_points:
-                if data_point.date not in balance_by_date:
-                    balance_by_date[data_point.date] = Decimal("0")
-                balance_by_date[data_point.date] += data_point.balance
+                d = data_point.date
+                balance = data_point.balance
 
-        # Convert to sorted list
-        trend = [
-            BalanceTrendPoint(date=d, balance=balance_by_date[d])
-            for d in sorted(balance_by_date.keys())
+                # Initialize dates if not present
+                if d not in total_by_date:
+                    total_by_date[d] = Decimal("0")
+                    liquid_by_date[d] = Decimal("0")
+                    investments_by_date[d] = Decimal("0")
+                    credit_by_date[d] = Decimal("0")
+
+                # Add to total
+                total_by_date[d] += balance
+
+                # Categorize by account type
+                if account.type in liquid_types:
+                    liquid_by_date[d] += balance
+                elif account.type in investment_types:
+                    investments_by_date[d] += balance
+                elif account.type in credit_types:
+                    # Credit/loans shown as negative values
+                    credit_by_date[d] += balance  # Already negative for debts
+
+        # Convert to sorted lists
+        sorted_dates = sorted(total_by_date.keys())
+
+        balance_trend = [BalanceTrendPoint(date=d, balance=total_by_date[d]) for d in sorted_dates]
+        liquid_trend = [BalanceTrendPoint(date=d, balance=liquid_by_date[d]) for d in sorted_dates]
+        investments_trend = [
+            BalanceTrendPoint(date=d, balance=investments_by_date[d]) for d in sorted_dates
         ]
+        credit_trend = [BalanceTrendPoint(date=d, balance=credit_by_date[d]) for d in sorted_dates]
 
-        return trend
+        return BalanceTrends(
+            balance_trend=balance_trend,
+            liquid_trend=liquid_trend,
+            investments_trend=investments_trend,
+            credit_trend=credit_trend,
+        )
 
     @staticmethod
     async def _get_scheduled_transaction_count(user_id: int, db: AsyncSession) -> int:

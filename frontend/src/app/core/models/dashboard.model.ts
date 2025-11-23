@@ -26,6 +26,9 @@ export interface DashboardData {
   financial_summary: FinancialSummary;
   upcoming_transactions: UpcomingTransaction[];
   balance_trend: BalanceTrendPoint[];
+  liquid_trend: BalanceTrendPoint[];
+  investments_trend: BalanceTrendPoint[];
+  credit_trend: BalanceTrendPoint[];
   scheduled_transaction_count: number;
 }
 

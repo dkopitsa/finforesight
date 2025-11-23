@@ -67,6 +67,21 @@ async def get_dashboard(
         for point in dashboard.balance_trend
     ]
 
+    liquid_trend = [
+        BalanceTrendPointResponse(date=point.date, balance=point.balance)
+        for point in dashboard.liquid_trend
+    ]
+
+    investments_trend = [
+        BalanceTrendPointResponse(date=point.date, balance=point.balance)
+        for point in dashboard.investments_trend
+    ]
+
+    credit_trend = [
+        BalanceTrendPointResponse(date=point.date, balance=point.balance)
+        for point in dashboard.credit_trend
+    ]
+
     logger.info(
         "Dashboard data retrieved",
         extra={
@@ -81,5 +96,8 @@ async def get_dashboard(
         financial_summary=financial_summary,
         upcoming_transactions=upcoming_transactions,
         balance_trend=balance_trend,
+        liquid_trend=liquid_trend,
+        investments_trend=investments_trend,
+        credit_trend=credit_trend,
         scheduled_transaction_count=dashboard.scheduled_transaction_count,
     )
