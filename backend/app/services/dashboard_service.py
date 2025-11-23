@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.account import Account, AccountType
+from app.models.reconciliation import AccountReconciliation
 from app.models.scheduled_transaction import ScheduledTransaction
 from app.services.forecast_service import ForecastService
 from app.services.recurrence_service import RecurrenceService
@@ -123,8 +124,10 @@ class DashboardService:
             user_id, db, days=30
         )
 
-        # Get balance trends (next 30 days) - includes all categories
-        balance_trends = await DashboardService._get_balance_trends(user_id, db, days=30)
+        # Get balance trends (history + forecast)
+        balance_trends = await DashboardService._get_balance_trends(
+            user_id, db, history_days=60, forecast_days=30
+        )
 
         # Get scheduled transaction count
         scheduled_tx_count = await DashboardService._get_scheduled_transaction_count(user_id, db)
@@ -231,10 +234,18 @@ class DashboardService:
         return upcoming
 
     @staticmethod
-    async def _get_balance_trends(user_id: int, db: AsyncSession, days: int = 30) -> BalanceTrends:
-        """Get balance trends for next N days, separated by account category."""
-        from_date = date.today()
-        to_date = from_date + timedelta(days=days)
+    async def _get_balance_trends(
+        user_id: int, db: AsyncSession, history_days: int = 60, forecast_days: int = 30
+    ) -> BalanceTrends:
+        """
+        Get balance trends combining historical data and forecast.
+
+        Historical data comes from reconciliation records.
+        Forecast is calculated from scheduled transactions.
+        """
+        today = date.today()
+        history_start = today - timedelta(days=history_days)
+        forecast_end = today + timedelta(days=forecast_days)
 
         # Get all accounts to know their types
         result = await db.execute(
@@ -246,13 +257,10 @@ class DashboardService:
         )
         accounts = {acc.id: acc for acc in result.scalars().all()}
 
-        # Get forecast for all accounts
-        forecasts = await ForecastService.calculate_forecast(
-            user_id=user_id,
-            from_date=from_date,
-            to_date=to_date,
-            db=db,
-        )
+        # Define account type categories
+        liquid_types = (AccountType.CHECKING, AccountType.SAVINGS, AccountType.CASH)
+        investment_types = (AccountType.INVESTMENT, AccountType.RETIREMENT)
+        credit_types = (AccountType.CREDIT_CARD, AccountType.LOAN)
 
         # Initialize dictionaries for each category
         total_by_date: dict[date, Decimal] = {}
@@ -260,10 +268,55 @@ class DashboardService:
         investments_by_date: dict[date, Decimal] = {}
         credit_by_date: dict[date, Decimal] = {}
 
-        # Define account type categories
-        liquid_types = (AccountType.CHECKING, AccountType.SAVINGS, AccountType.CASH)
-        investment_types = (AccountType.INVESTMENT, AccountType.RETIREMENT)
-        credit_types = (AccountType.CREDIT_CARD, AccountType.LOAN)
+        # Helper to add balance to date dictionaries
+        def add_balance_to_date(d: date, balance: Decimal, account_type: AccountType) -> None:
+            if d not in total_by_date:
+                total_by_date[d] = Decimal("0")
+                liquid_by_date[d] = Decimal("0")
+                investments_by_date[d] = Decimal("0")
+                credit_by_date[d] = Decimal("0")
+
+            total_by_date[d] += balance
+
+            if account_type in liquid_types:
+                liquid_by_date[d] += balance
+            elif account_type in investment_types:
+                investments_by_date[d] += balance
+            elif account_type in credit_types:
+                credit_by_date[d] += balance
+
+        # --- INITIAL BALANCES as historical anchor points ---
+        for account in accounts.values():
+            d = account.initial_balance_date
+            if d and history_start <= d < today:
+                add_balance_to_date(d, account.initial_balance, account.type)
+
+        # --- HISTORICAL DATA from reconciliations ---
+        reconciliations_result = await db.execute(
+            select(AccountReconciliation)
+            .where(
+                AccountReconciliation.user_id == user_id,
+                AccountReconciliation.reconciliation_date >= history_start,
+                AccountReconciliation.reconciliation_date < today,
+            )
+            .order_by(AccountReconciliation.reconciliation_date)
+        )
+        reconciliations = reconciliations_result.scalars().all()
+
+        # Group reconciliations by date and aggregate by category
+        for recon in reconciliations:
+            account = accounts.get(recon.account_id)
+            if not account:
+                continue
+            add_balance_to_date(recon.reconciliation_date, recon.actual_balance, account.type)
+
+        # --- FORECAST DATA ---
+        forecasts = await ForecastService.calculate_forecast(
+            user_id=user_id,
+            from_date=today,
+            to_date=forecast_end,
+            db=db,
+        )
 
         for forecast in forecasts:
             account = accounts.get(forecast.account_id)
@@ -271,27 +324,7 @@ class DashboardService:
                 continue
 
             for data_point in forecast.data_points:
-                d = data_point.date
-                balance = data_point.balance
-
-                # Initialize dates if not present
-                if d not in total_by_date:
-                    total_by_date[d] = Decimal("0")
-                    liquid_by_date[d] = Decimal("0")
-                    investments_by_date[d] = Decimal("0")
-                    credit_by_date[d] = Decimal("0")
-
-                # Add to total
-                total_by_date[d] += balance
-
-                # Categorize by account type
-                if account.type in liquid_types:
-                    liquid_by_date[d] += balance
-                elif account.type in investment_types:
-                    investments_by_date[d] += balance
-                elif account.type in credit_types:
-                    # Credit/loans shown as negative values
-                    credit_by_date[d] += balance  # Already negative for debts
+                add_balance_to_date(data_point.date, data_point.balance, account.type)
 
         # Convert to sorted lists
         sorted_dates = sorted(total_by_date.keys())

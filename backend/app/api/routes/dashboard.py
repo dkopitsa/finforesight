@@ -1,6 +1,7 @@
 """Dashboard routes for financial overview."""
 
 import logging
+from datetime import date
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -99,5 +100,6 @@ async def get_dashboard(
         liquid_trend=liquid_trend,
         investments_trend=investments_trend,
         credit_trend=credit_trend,
+        today_date=date.today(),
         scheduled_transaction_count=dashboard.scheduled_transaction_count,
     )

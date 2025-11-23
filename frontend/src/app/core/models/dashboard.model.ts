@@ -29,6 +29,7 @@ export interface DashboardData {
   liquid_trend: BalanceTrendPoint[];
   investments_trend: BalanceTrendPoint[];
   credit_trend: BalanceTrendPoint[];
+  today_date: string;
   scheduled_transaction_count: number;
 }
 

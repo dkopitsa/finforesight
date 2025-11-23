@@ -56,6 +56,7 @@ import { CurrencyService } from '../../core/services/currency.service';
                 [liquidTrend]="dashboardData()!.liquid_trend"
                 [investmentsTrend]="dashboardData()!.investments_trend"
                 [creditTrend]="dashboardData()!.credit_trend"
+                [todayDate]="dashboardData()!.today_date"
                 [currencySymbol]="getCurrencySymbol()"
               ></app-forecast-chart>
             </div>

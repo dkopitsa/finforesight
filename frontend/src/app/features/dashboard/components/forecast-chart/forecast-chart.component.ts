@@ -12,15 +12,15 @@ import { BalanceTrendPoint } from '../../../../core/models/dashboard.model';
   template: `
     <div class="chart-container">
       <div class="chart-header">
-        <h3>Balance Forecast (30 Days)</h3>
-        <p>Projected balance based on scheduled transactions</p>
+        <h3>Balance History & Forecast</h3>
+        <p>Historical reconciliations and projected balance</p>
       </div>
       @if (chartOption) {
         <div echarts [options]="chartOption" class="chart"></div>
       }
       @if (!chartOption) {
         <div class="empty-state">
-          <p>No forecast data available</p>
+          <p>No data available</p>
         </div>
       }
     </div>
@@ -83,6 +83,7 @@ export class ForecastChartComponent implements OnChanges {
   @Input() liquidTrend: BalanceTrendPoint[] = [];
   @Input() investmentsTrend: BalanceTrendPoint[] = [];
   @Input() creditTrend: BalanceTrendPoint[] = [];
+  @Input() todayDate = '';
   @Input() currencySymbol = '$';
 
   chartOption: EChartsOption | null = null;
@@ -92,10 +93,11 @@ export class ForecastChartComponent implements OnChanges {
     liquid: '#52c41a',
     investments: '#1890ff',
     credit: '#ff4d4f',
+    todayLine: '#faad14',
   };
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ((changes['balanceTrend'] || changes['liquidTrend'] || changes['investmentsTrend'] || changes['creditTrend']) &&
+    if ((changes['balanceTrend'] || changes['liquidTrend'] || changes['investmentsTrend'] || changes['creditTrend'] || changes['todayDate']) &&
         this.balanceTrend.length > 0) {
       this.updateChart();
     }
@@ -108,16 +110,24 @@ export class ForecastChartComponent implements OnChanges {
     const investmentsData = this.investmentsTrend.map(point => parseFloat(point.balance));
     const creditData = this.creditTrend.map(point => parseFloat(point.balance));
 
+    // Find today's index for the marker line
+    const todayIndex = dates.findIndex(d => d === this.todayDate);
+
     this.chartOption = {
       tooltip: {
         trigger: 'axis',
         formatter: (params: any) => {
           if (!Array.isArray(params)) return '';
-          const date = params[0]?.axisValue || '';
+          const dateStr = params[0]?.axisValue || '';
+          const isHistory = this.todayDate && dateStr < this.todayDate;
+          const label = isHistory ? 'History' : (dateStr === this.todayDate ? 'Today' : 'Forecast');
+
           let html = `<div style="padding: 4px 8px;">
-            <div style="font-weight: 600; margin-bottom: 8px;">${date}</div>`;
+            <div style="font-weight: 600; margin-bottom: 4px;">${dateStr}</div>
+            <div style="font-size: 11px; color: #8c8c8c; margin-bottom: 8px;">${label}</div>`;
 
           params.forEach((param: any) => {
+            if (param.seriesName === 'Today') return;
             const value = parseFloat(param.value || 0).toFixed(2);
             html += `<div style="display: flex; align-items: center; margin: 4px 0;">
               <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${param.color}; margin-right: 8px;"></span>
@@ -159,6 +169,23 @@ export class ForecastChartComponent implements OnChanges {
           formatter: (value: number) => `${this.currencySymbol}${value.toFixed(0)}`,
         },
       },
+      // Add vertical line for "today"
+      ...(todayIndex >= 0 ? {
+        markLine: {
+          silent: true,
+          symbol: 'none',
+          lineStyle: {
+            color: this.colors.todayLine,
+            type: 'dashed',
+            width: 2,
+          },
+          data: [{ xAxis: todayIndex }],
+          label: {
+            formatter: 'Today',
+            position: 'insideEndTop',
+          },
+        },
+      } : {}),
       series: [
         {
           name: 'Net Worth',
@@ -175,6 +202,21 @@ export class ForecastChartComponent implements OnChanges {
           emphasis: {
             focus: 'series',
           },
+          markLine: todayIndex >= 0 ? {
+            silent: true,
+            symbol: 'none',
+            lineStyle: {
+              color: this.colors.todayLine,
+              type: 'dashed',
+              width: 2,
+            },
+            data: [{ xAxis: todayIndex }],
+            label: {
+              formatter: 'Today',
+              position: 'insideEndTop',
+              color: this.colors.todayLine,
+            },
+          } : undefined,
         },
         {
           name: 'Liquid Assets',

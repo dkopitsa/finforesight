@@ -52,7 +52,7 @@ class DashboardResponse(BaseModel):
         ..., description="Upcoming transactions (next 30 days)"
     )
     balance_trend: list[BalanceTrendPointResponse] = Field(
-        ..., description="Balance trend (next 30 days)"
+        ..., description="Balance trend (history + forecast)"
     )
     liquid_trend: list[BalanceTrendPointResponse] = Field(
         ..., description="Liquid assets trend (checking + savings + cash)"
@@ -63,6 +63,7 @@ class DashboardResponse(BaseModel):
     credit_trend: list[BalanceTrendPointResponse] = Field(
         ..., description="Credit/loans trend (credit_card + loan) - negative values"
     )
+    today_date: date_type = Field(..., description="Today's date for chart marker")
     scheduled_transaction_count: int = Field(..., description="Total scheduled transaction count")
 
     model_config = {"from_attributes": True}
