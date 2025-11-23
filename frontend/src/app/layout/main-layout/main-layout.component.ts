@@ -90,6 +90,12 @@ import { AuthService } from '../../core/services/auth.service';
                     Settings
                   </a>
                 </li>
+                <li nz-menu-item>
+                  <a routerLink="/financial-institutions">
+                    <span nz-icon nzType="bank" nzTheme="outline"></span>
+                    Financial Institutions
+                  </a>
+                </li>
                 <li nz-menu-divider></li>
                 <li nz-menu-item (click)="logout()">
                   <span nz-icon nzType="logout" nzTheme="outline"></span>
@@ -175,6 +181,10 @@ import { AuthService } from '../../core/services/auth.service';
             <li nz-menu-item routerLink="/settings">
               <span nz-icon nzType="setting" nzTheme="outline"></span>
               <span>Settings</span>
+            </li>
+            <li nz-menu-item routerLink="/financial-institutions">
+              <span nz-icon nzType="bank" nzTheme="outline"></span>
+              <span>Financial Institutions</span>
             </li>
 
             <li nz-menu-item (click)="logout()">

@@ -19,6 +19,7 @@ export interface Account {
   initial_balance: string;
   initial_balance_date: string;
   credit_limit?: string;
+  financial_institution_id?: number | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -31,6 +32,7 @@ export interface AccountCreate {
   initial_balance: string;
   initial_balance_date: string;
   credit_limit?: string;
+  financial_institution_id?: number | null;
 }
 
 export interface AccountUpdate {
@@ -40,6 +42,7 @@ export interface AccountUpdate {
   initial_balance?: string;
   initial_balance_date?: string;
   credit_limit?: string;
+  financial_institution_id?: number | null;
 }
 
 export interface AccountSummary {

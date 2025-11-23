@@ -48,6 +48,10 @@ export const routes: Routes = [
       {
         path: 'settings',
         loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
+      },
+      {
+        path: 'financial-institutions',
+        loadComponent: () => import('./features/financial-institutions/financial-institutions.component').then(m => m.FinancialInstitutionsComponent)
       }
     ]
   },

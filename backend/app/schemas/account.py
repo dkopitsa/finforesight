@@ -17,6 +17,9 @@ class AccountBase(BaseModel):
     initial_balance: Decimal = Field(..., description="Initial balance")
     initial_balance_date: date = Field(..., description="Date of initial balance")
     credit_limit: Decimal | None = Field(None, description="Credit limit (for credit cards/loans)")
+    financial_institution_id: int | None = Field(
+        None, description="Optional financial institution ID"
+    )
 
     @field_validator("currency")
     @classmethod
@@ -48,6 +51,7 @@ class AccountUpdate(BaseModel):
     initial_balance: Decimal | None = None
     initial_balance_date: date | None = None
     credit_limit: Decimal | None = None
+    financial_institution_id: int | None = None
     is_active: bool | None = None
 
     @field_validator("currency")

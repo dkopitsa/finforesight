@@ -14,6 +14,7 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { AuthService } from '../../core/services/auth.service';
 import { CurrencyService } from '../../core/services/currency.service';
+import { FinancialInstitutionService } from '../../core/services/financial-institution.service';
 import { AccountService } from './services/account.service';
 import {
   Account,
@@ -21,6 +22,7 @@ import {
   AccountUpdate,
   AccountSummary,
 } from '../../core/models/account.model';
+import { FinancialInstitution } from '../../core/models/financial-institution.model';
 import { AccountSummaryComponent } from './components/account-summary/account-summary.component';
 import { AccountListComponent } from './components/account-list/account-list.component';
 import { AccountFormComponent } from './components/account-form/account-form.component';
@@ -98,6 +100,7 @@ import { AccountFormComponent } from './components/account-form/account-form.com
           <app-account-form
             [account]="selectedAccount"
             [loading]="formLoading"
+            [institutions]="institutions"
             (submitForm)="handleSubmit($event)"
             (cancel)="handleModalCancel()"
           ></app-account-form>
@@ -122,6 +125,7 @@ import { AccountFormComponent } from './components/account-form/account-form.com
 export class AccountsComponent implements OnInit {
   private authService = inject(AuthService);
   private accountService = inject(AccountService);
+  private institutionService = inject(FinancialInstitutionService);
   private cdr = inject(ChangeDetectorRef);
   private modalService = inject(NzModalService);
   private messageService = inject(NzMessageService);
@@ -129,6 +133,7 @@ export class AccountsComponent implements OnInit {
 
   currentUser = this.authService.getCurrentUser();
   accounts: Account[] = [];
+  institutions: FinancialInstitution[] = [];
   summary: AccountSummary | null = null;
   loading = false;
   error: string | null = null;
@@ -140,6 +145,7 @@ export class AccountsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+    this.loadInstitutions();
   }
 
   loadData(): void {
@@ -157,6 +163,18 @@ export class AccountsComponent implements OnInit {
         this.error = err.error?.detail || 'Failed to load accounts';
         this.loading = false;
         this.cdr.markForCheck();
+      },
+    });
+  }
+
+  loadInstitutions(): void {
+    this.institutionService.list().subscribe({
+      next: (institutions) => {
+        this.institutions = institutions;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Failed to load institutions:', err);
       },
     });
   }

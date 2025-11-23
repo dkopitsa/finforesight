@@ -8,6 +8,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { Account, AccountType, AccountCreate, AccountUpdate } from '../../../../core/models/account.model';
+import { FinancialInstitution } from '../../../../core/models/financial-institution.model';
 import { CurrencySelectComponent } from '../../../../shared/components/currency-select/currency-select.component';
 
 @Component({
@@ -113,6 +114,22 @@ import { CurrencySelectComponent } from '../../../../shared/components/currency-
       }
 
       <nz-form-item>
+        <nz-form-label>Financial Institution</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            formControlName="financial_institution_id"
+            nzPlaceHolder="Select institution (optional)"
+            nzAllowClear
+            nzShowSearch
+          >
+            @for (inst of institutions; track inst.id) {
+              <nz-option [nzValue]="inst.id" [nzLabel]="inst.name"></nz-option>
+            }
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
         <nz-form-control>
           <button nz-button nzType="primary" type="submit" [nzLoading]="loading" [disabled]="!accountForm.valid">
             {{ editMode ? 'Update' : 'Create' }} Account
@@ -135,6 +152,7 @@ export class AccountFormComponent implements OnInit {
 
   @Input() account: Account | null = null;
   @Input() loading = false;
+  @Input() institutions: FinancialInstitution[] = [];
 
   @Output() submitForm = new EventEmitter<AccountCreate | AccountUpdate>();
   @Output() cancel = new EventEmitter<void>();
@@ -160,6 +178,7 @@ export class AccountFormComponent implements OnInit {
       initial_balance: [0, [Validators.required]],
       initial_balance_date: [new Date(), [Validators.required]],
       credit_limit: [null, [Validators.min(0)]],
+      financial_institution_id: [null],
     });
   }
 
@@ -173,6 +192,7 @@ export class AccountFormComponent implements OnInit {
       initial_balance: parseFloat(this.account.initial_balance),
       initial_balance_date: new Date(this.account.initial_balance_date),
       credit_limit: this.account.credit_limit ? parseFloat(this.account.credit_limit) : null,
+      financial_institution_id: this.account.financial_institution_id || null,
     });
   }
 
@@ -196,6 +216,7 @@ export class AccountFormComponent implements OnInit {
       initial_balance: formValue.initial_balance.toString(),
       initial_balance_date: this.formatDate(formValue.initial_balance_date),
       credit_limit: formValue.credit_limit ? formValue.credit_limit.toString() : undefined,
+      financial_institution_id: formValue.financial_institution_id || null,
     };
 
     this.submitForm.emit(data);

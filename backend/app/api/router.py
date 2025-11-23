@@ -5,6 +5,7 @@ from app.api.routes import (
     auth,
     categories,
     dashboard,
+    financial_institutions,
     forecast,
     reconciliation,
     scheduled_transactions,
@@ -47,6 +48,13 @@ api_router.include_router(
     reconciliation.router,
     prefix="/reconciliations",
     tags=["Reconciliations"],
+)
+
+# Include financial institution routes
+api_router.include_router(
+    financial_institutions.router,
+    prefix="/financial-institutions",
+    tags=["Financial Institutions"],
 )
 
 # Include test routes in debug mode

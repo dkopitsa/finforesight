@@ -73,6 +73,7 @@ async def create_account(
         initial_balance=account_data.initial_balance,
         initial_balance_date=account_data.initial_balance_date,
         credit_limit=account_data.credit_limit,
+        financial_institution_id=account_data.financial_institution_id,
     )
 
     db.add(account)
