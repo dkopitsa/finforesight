@@ -1,0 +1,215 @@
+<div class="bulk-reconciliation-container">
+  <!-- Header with Date Picker -->
+  <nz-card nzSize="small" class="header-card">
+    <div class="header-content">
+      <div class="date-selector">
+        <label>Reconciliation Date:</label>
+        <nz-date-picker
+          [(ngModel)]="reconciliationDate"
+          (ngModelChange)="onDateChange($event)"
+          [nzFormat]="'yyyy-MM-dd'"
+          style="width: 200px;"
+        ></nz-date-picker>
+      </div>
+
+      <div class="summary-stats">
+        <nz-statistic
+          [nzValue]="getModifiedCount()"
+          [nzTitle]="'Accounts Modified'"
+          [nzValueStyle]="{ color: '#1890ff' }"
+        ></nz-statistic>
+      </div>
+    </div>
+  </nz-card>
+
+  <!-- Loading State -->
+  <nz-spin [nzSpinning]="loading" nzTip="Loading accounts and expected balances...">
+
+    @if (error) {
+      <nz-alert
+        nzType="error"
+        [nzMessage]="error"
+        nzShowIcon
+        nzCloseable
+        (nzOnClose)="error = null"
+        style="margin-bottom: 16px;"
+      ></nz-alert>
+    }
+
+    <!-- Institution Groups with Collapse Panels -->
+    <nz-collapse [nzGhost]="false" [nzBordered]="true">
+      @for (group of institutionGroups; track trackByInstitutionId($index, group)) {
+        <nz-collapse-panel
+          [nzHeader]="group.institution_name"
+          [nzActive]="true"
+          [nzExtra]="groupExtra"
+        >
+          <ng-template #groupExtra>
+            <span class="group-count">{{ group.accounts.length }} accounts</span>
+          </ng-template>
+
+          <!-- Accounts Table -->
+          <nz-table
+            [nzData]="group.accounts"
+            [nzShowPagination]="false"
+            nzSize="small"
+            [nzScroll]="{ x: '1200px' }"
+          >
+            <thead>
+              <tr>
+                <th nzWidth="200px">Account</th>
+                <th nzWidth="120px">Type</th>
+                <th nzWidth="80px" nzAlign="center">Currency</th>
+                <th nzWidth="140px" nzAlign="right">Expected</th>
+                <th nzWidth="180px" nzAlign="right">Actual Balance</th>
+                <th nzWidth="140px" nzAlign="right">Difference</th>
+                <th nzWidth="80px" nzAlign="center">Adjust</th>
+                <th nzWidth="200px">Note</th>
+                <th nzWidth="60px" nzAlign="center">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of group.accounts; track trackByAccountId($index, item)) {
+                <tr [class.row-modified]="isModified(item)">
+
+                  <!-- Account Name -->
+                  <td><strong>{{ item.account_name }}</strong></td>
+
+                  <!-- Account Type -->
+                  <td>
+                    <nz-tag [nzColor]="getAccountTypeColor(item.account_type)">
+                      {{ item.account_type }}
+                    </nz-tag>
+                  </td>
+
+                  <!-- Currency -->
+                  <td nzAlign="center">{{ item.currency }}</td>
+
+                  <!-- Expected Balance (Read-only) -->
+                  <td nzAlign="right" class="expected-balance">
+                    {{ formatBalance(item.expected_balance, item.currency) }}
+                  </td>
+
+                  <!-- Actual Balance (Input) -->
+                  <td nzAlign="right">
+                    <nz-input-number
+                      [(ngModel)]="item.actual_balance"
+                      (ngModelChange)="onActualBalanceChange(item)"
+                      [nzStep]="0.01"
+                      [nzPrecision]="2"
+                      [nzDisabled]="item.loading"
+                      style="width: 100%;"
+                      placeholder="Enter actual"
+                    ></nz-input-number>
+                  </td>
+
+                  <!-- Difference (Calculated) -->
+                  <td nzAlign="right">
+                    @if (item.difference !== null) {
+                      <span
+                        class="difference-value"
+                        [style.color]="getDifferenceColor(item.difference)"
+                        [style.font-weight]="'600'"
+                      >
+                        {{ formatDifference(item.difference, item.currency) }}
+                      </span>
+                    }
+                  </td>
+
+                  <!-- Create Adjustment Checkbox -->
+                  <td nzAlign="center">
+                    <label
+                      nz-checkbox
+                      [(ngModel)]="item.create_adjustment"
+                      [nzDisabled]="!hasDifference(item) || item.loading"
+                    ></label>
+                  </td>
+
+                  <!-- Note -->
+                  <td>
+                    <input
+                      nz-input
+                      [(ngModel)]="item.note"
+                      placeholder="Optional note"
+                      [disabled]="item.loading"
+                      nzSize="small"
+                    />
+                  </td>
+
+                  <!-- Status Indicator -->
+                  <td nzAlign="center">
+                    @if (item.loading) {
+                      <nz-spin nzSimple [nzSize]="'small'"></nz-spin>
+                    }
+                    @if (item.success) {
+                      <span
+                        nz-icon
+                        nzType="check-circle"
+                        nzTheme="fill"
+                        style="color: #52c41a; font-size: 18px;"
+                      ></span>
+                    }
+                    @if (item.error) {
+                      <span
+                        nz-icon
+                        nzType="close-circle"
+                        nzTheme="fill"
+                        style="color: #f5222d; font-size: 18px;"
+                        nz-tooltip
+                        [nzTooltipTitle]="item.error"
+                      ></span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </nz-table>
+        </nz-collapse-panel>
+      }
+    </nz-collapse>
+
+    <!-- Empty State -->
+    @if (!loading && institutionGroups.length === 0) {
+      <nz-empty
+        nzNotFoundContent="No active accounts"
+        [nzNotFoundFooter]="emptyFooter"
+      >
+        <ng-template #emptyFooter>
+          <p>Please create accounts before reconciliation</p>
+        </ng-template>
+      </nz-empty>
+    }
+  </nz-spin>
+
+  <!-- Footer with Submit Button -->
+  <nz-card nzSize="small" class="footer-card">
+    <div class="footer-actions">
+      <div class="info-text">
+        <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+        Only accounts with actual balance entered will be reconciled
+      </div>
+
+      <div class="action-buttons">
+        <button
+          nz-button
+          nzType="default"
+          (click)="resetForm()"
+          [disabled]="submitting"
+        >
+          Reset All
+        </button>
+        <button
+          nz-button
+          nzType="primary"
+          nzSize="large"
+          (click)="submitBulkReconciliation()"
+          [nzLoading]="submitting"
+          [disabled]="getModifiedCount() === 0"
+        >
+          <span nz-icon nzType="check-circle"></span>
+          Reconcile {{ getModifiedCount() }} Account(s)
+        </button>
+      </div>
+    </div>
+  </nz-card>
+</div>

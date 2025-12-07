@@ -9,9 +9,11 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { ReconciliationService } from './services/reconciliation.service';
 import { ReconciliationFormComponent } from './components/reconciliation-form/reconciliation-form.component';
 import { ReconciliationListComponent } from './components/reconciliation-list/reconciliation-list.component';
+import { ReconciliationBulkForm } from './components/reconciliation-bulk-form/reconciliation-bulk-form';
 import { AccountService } from '../accounts/services/account.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CurrencyService } from '../../core/services/currency.service';
@@ -31,8 +33,10 @@ import { ReconciliationSummary, ReconciliationCreate } from '../../core/models/r
     NzAlertModule,
     NzSelectModule,
     NzEmptyModule,
+    NzTabsModule,
     ReconciliationFormComponent,
-    ReconciliationListComponent
+    ReconciliationListComponent,
+    ReconciliationBulkForm
 ],
   template: `
     <div class="reconciliation-container">
@@ -41,85 +45,93 @@ import { ReconciliationSummary, ReconciliationCreate } from '../../core/models/r
           <h2>Account Reconciliation</h2>
           <p class="subtitle">Compare actual account balances with expected balances</p>
         </div>
-        <button
-          nz-button
-          nzType="primary"
-          (click)="showCreateModal()"
-          [disabled]="accounts.length === 0"
-        >
-          <span nz-icon nzType="check-circle" nzTheme="outline"></span>
-          Reconcile Account
-        </button>
       </div>
 
-      <nz-spin [nzSpinning]="loading" nzTip="Loading reconciliations...">
-        @if (error) {
-          <nz-alert
-            nzType="error"
-            [nzMessage]="error"
-            nzShowIcon
-            nzCloseable
-            (nzOnClose)="error = null"
-            style="margin-bottom: 24px;"
-          ></nz-alert>
-        }
+      <nz-tabset [nzType]="'card'" [(nzSelectedIndex)]="activeTabIndex">
 
-        <!-- Account Filter -->
-        <div class="filter-section" style="margin-bottom: 24px;">
-          <nz-card nzSize="small" nzTitle="Filter">
-            <div style="max-width: 400px;">
-              <label style="display: block; margin-bottom: 8px; font-weight: 500;">
-                Filter by Account
-              </label>
-              <nz-select
-                [(ngModel)]="selectedAccountId"
-                (ngModelChange)="loadReconciliations()"
-                nzPlaceHolder="All accounts"
-                nzAllowClear
-                nzShowSearch
-                style="width: 100%;"
+        <!-- Tab 1: Bulk Reconciliation (DEFAULT) -->
+        <nz-tab nzTitle="Bulk Reconciliation">
+          <ng-template nz-tab>
+            <app-reconciliation-bulk-form></app-reconciliation-bulk-form>
+          </ng-template>
+        </nz-tab>
+
+        <!-- Tab 2: History & Quick Reconcile -->
+        <nz-tab nzTitle="History">
+          <ng-template nz-tab>
+
+            <!-- Quick Reconcile Button -->
+            <div style="margin-bottom: 16px;">
+              <button
+                nz-button
+                nzType="default"
+                (click)="showCreateModal()"
+                [disabled]="accounts.length === 0"
               >
-                @for (account of accounts; track account.id) {
-                  <nz-option [nzValue]="account.id" [nzLabel]="account.name"></nz-option>
-                }
-              </nz-select>
+                <span nz-icon nzType="plus-circle" nzTheme="outline"></span>
+                Quick Reconcile Single Account
+              </button>
             </div>
-          </nz-card>
-        </div>
 
-        <!-- Reconciliation List -->
-        <div class="list-section">
-          <nz-card>
-            <app-reconciliation-list
-              [reconciliations]="reconciliations"
-              [currencySymbol]="getCurrencySymbol()"
-              (deleteReconciliation)="handleDelete($event)"
-            ></app-reconciliation-list>
-          </nz-card>
-        </div>
+            <!-- Account Filter -->
+            <div class="filter-section" style="margin-bottom: 24px;">
+              <nz-card nzSize="small" nzTitle="Filter">
+                <div style="max-width: 400px;">
+                  <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+                    Filter by Account
+                  </label>
+                  <nz-select
+                    [(ngModel)]="selectedAccountId"
+                    (ngModelChange)="loadReconciliations()"
+                    nzPlaceHolder="All accounts"
+                    nzAllowClear
+                    nzShowSearch
+                    style="width: 100%;"
+                  >
+                    @for (account of accounts; track account.id) {
+                      <nz-option [nzValue]="account.id" [nzLabel]="account.name"></nz-option>
+                    }
+                  </nz-select>
+                </div>
+              </nz-card>
+            </div>
 
-        @if (!loading && accounts.length === 0) {
-          <nz-empty
-            nzNotFoundContent="No accounts available"
-            [nzNotFoundFooter]="emptyFooter"
-          >
-            <ng-template #emptyFooter>
-              <p style="color: #8c8c8c;">
-                Please create an account first before reconciling
-              </p>
-            </ng-template>
-          </nz-empty>
-        }
-      </nz-spin>
+            <!-- Reconciliation List -->
+            <nz-spin [nzSpinning]="loading" nzTip="Loading reconciliations...">
+              @if (error) {
+                <nz-alert
+                  nzType="error"
+                  [nzMessage]="error"
+                  nzShowIcon
+                  nzCloseable
+                  (nzOnClose)="error = null"
+                  style="margin-bottom: 24px;"
+                ></nz-alert>
+              }
 
-      <!-- Reconciliation Form Modal -->
-      <app-reconciliation-form
-        [(visible)]="isModalVisible"
-        [accounts]="accounts"
-        [loading]="formLoading"
-        (submitForm)="handleSubmit($event)"
-        (cancel)="handleModalCancel()"
-      ></app-reconciliation-form>
+              <div class="list-section">
+                <nz-card>
+                  <app-reconciliation-list
+                    [reconciliations]="reconciliations"
+                    [currencySymbol]="getCurrencySymbol()"
+                    (deleteReconciliation)="handleDelete($event)"
+                  ></app-reconciliation-list>
+                </nz-card>
+              </div>
+            </nz-spin>
+
+            <!-- Modal Form -->
+            <app-reconciliation-form
+              [(visible)]="isModalVisible"
+              [accounts]="accounts"
+              [loading]="formLoading"
+              (submitForm)="handleSubmit($event)"
+              (cancel)="handleModalCancel()"
+            ></app-reconciliation-form>
+
+          </ng-template>
+        </nz-tab>
+      </nz-tabset>
     </div>
   `,
   styles: [`
@@ -172,6 +184,7 @@ export class ReconciliationComponent implements OnInit {
   error: string | null = null;
   isModalVisible = false;
   formLoading = false;
+  activeTabIndex = 0; // Default to Bulk Reconciliation tab
 
   ngOnInit(): void {
     this.loadAccounts();
